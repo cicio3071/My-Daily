@@ -1057,20 +1057,22 @@
   /* ── chat message actions ── */
   .chat-bubble-wrap {
     position: relative;
-    align-items: flex-start;
+    margin-bottom: 1rem;
   }
   .chat-msg-actions {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    flex-shrink: 0;
-    opacity: 0.4;
+    flex-direction: row;
+    gap: 0.25rem;
+    position: absolute;
+    bottom: -1.4rem;
+    right: 0;
+    opacity: 0;
     transition: opacity 0.2s;
+    z-index: 10;
   }
+  .chat-bubble-wrap.user .chat-msg-actions { right: 0; }
+  .chat-bubble-wrap.ai .chat-msg-actions { left: 0; right: auto; }
   .chat-bubble-wrap:hover .chat-msg-actions { opacity: 1; }
-  .chat-bubble-wrap.user { flex-direction: row; }
-  .chat-bubble-wrap.ai { flex-direction: row-reverse; }
-  .chat-bubble-wrap.user .chat-msg-actions { order: -1; }
 
   .chat-msg-btn {
     background: var(--surface);
@@ -1086,7 +1088,7 @@
     color: var(--muted);
     transition: all 0.15s;
     padding: 0;
-    flex-shrink: 0;
+    box-shadow: 0 1px 4px var(--shadow);
   }
   .chat-msg-btn:hover { border-color: var(--accent); color: var(--accent); }
   .chat-msg-btn.del:hover { border-color: #b94a2c; color: #b94a2c; }
