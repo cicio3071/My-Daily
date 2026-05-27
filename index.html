@@ -1472,14 +1472,20 @@
     now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   // init
-  window.addEventListener('DOMContentLoaded', () => {
+  function initApp() {
     const key = localStorage.getItem(STORAGE_KEY);
     if (!key) {
       showModal();
     } else {
       loadCard(key);
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 
   function showModal() {
     document.getElementById('modalOverlay').classList.add('visible');
