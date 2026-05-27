@@ -1427,6 +1427,10 @@
       <div class="chat-header">
         <div>
           <div class="chat-model" id="chatModelLabel">gemini-2.5-flash · 每次開啟為新對話</div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.3rem">
+            <button class="chat-new-btn" onclick="exportChatSession()" style="font-size:0.58rem">匯出對話</button>
+            <label style="margin:0"><input type="file" id="chatImportFile" accept=".json" style="display:none" onchange="importChatSession(this)"><button class="chat-new-btn" onclick="document.getElementById('chatImportFile').click()" style="font-size:0.58rem">匯入對話</button></label>
+          </div>
         </div>
         <div class="chat-stats">
           <span>本次 <span class="chat-stat-val" id="chatMsgCount">0</span> 則</span>
@@ -2915,6 +2919,67 @@ ${eventList}`
     renderChatUsage();
   }
 
+  function exportChatSession() {
+    if (!chatHistory.length) { alert('目前沒有對話可以匯出'); return; }
+    const data = { mode: chatMode, history: chatHistory };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-session-' + todayStr + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importChatSession(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.history || !Array.isArray(data.history)) throw new Error('格式錯誤');
+
+        // restore mode
+        if (data.mode === 'xinkui' && chatMode !== 'xinkui') {
+          toggleChatMode();
+        } else if (data.mode === 'default' && chatMode !== 'default') {
+          toggleChatMode();
+        }
+
+        // restore history
+        chatHistory = data.history;
+        chatSessionMsgs = Math.floor(chatHistory.length / 2);
+        updateSessionStats();
+
+        // render messages
+        const messagesEl = document.getElementById('chatMessages');
+        messagesEl.innerHTML = '';
+        chatHistory.forEach(msg => {
+          const isUser = msg.role === 'user';
+          const text = msg.parts?.[0]?.text || '';
+          const wrap = document.createElement('div');
+          wrap.className = 'chat-bubble-wrap ' + (isUser ? 'user' : 'ai');
+          wrap.dataset.text = text;
+          wrap.innerHTML = `
+            <div class="chat-msg-actions">
+              <button class="chat-msg-btn" onclick="copyMsg(this)" title="複製">⎘</button>
+              <button class="chat-msg-btn del" onclick="deleteMsg(this)" title="刪除">×</button>
+            </div>
+            <div class="chat-bubble">${escHtml(text)}</div>
+          `;
+          messagesEl.appendChild(wrap);
+        });
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      } catch(err) {
+        alert('匯入失敗：' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    input.value = '';
+  }
+
   function renderChatUsage() {
     const d = loadChatUsage();
     document.getElementById('chatDailyCount').textContent = d.count + ' 次';
@@ -3031,6 +3096,8 @@ ${eventList}`
 
       const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '…';
       chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+      // save session for cross-device transfer
+      localStorage.setItem(CHAT_SESSION_KEY, JSON.stringify({ mode: chatMode, history: chatHistory }));
 
       // replace thinking with reply
       thinkingWrap.dataset.text = reply;
@@ -3398,6 +3465,7 @@ ${eventList}`
 
   // ── Export / Import ──
   const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY];
+  const CHAT_SESSION_KEY = 'daily_chat_session';
 
   function exportJSON() {
     const data = {};
