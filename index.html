@@ -579,10 +579,26 @@
   .mur-post { padding: 0.9rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; align-items: flex-start; }
   .mur-post:first-child { border-top: 1px solid var(--border); }
   .mur-post-time { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; padding-top: 0.15rem; min-width: 68px; }
-  .mur-post-text { flex: 1; font-size: 1rem; line-height: 1.75; color: var(--ink-soft); white-space: pre-wrap; word-break: break-word; }
+  .mur-post-text { flex: 1; font-size: 0.88rem; line-height: 1.75; color: var(--ink-soft); white-space: pre-wrap; word-break: break-word; }
   .mur-post-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; padding: 0 0.2rem; transition: color 0.2s; flex-shrink: 0; }
   .mur-post-del:hover { color: #b94a2c; }
   .mur-empty { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--border); padding: 1.5rem 0; text-align: center; }
+  .mur-show-more {
+    width: 100%;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 0 0;
+    margin-top: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
+  }
+  .mur-show-more:hover { color: var(--accent); }
 
   /* mood */
   .mood-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
@@ -1037,6 +1053,76 @@
   }
   .pet-food.visible { opacity: 1; }
 
+
+  /* ── collapsible lists ── */
+  .list-show-more {
+    width: 100%;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 0.65rem 0 0;
+    margin-top: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
+  }
+  .list-show-more:hover { color: var(--accent); }
+
+  /* ── export module ── */
+  .export-section { margin-top: 3rem; }
+
+  .export-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 600px) { .export-grid { grid-template-columns: 1fr; } }
+
+  .export-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+  }
+
+  .export-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .export-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .export-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  .export-month-select {
+    margin-bottom: 1rem;
+    font-size: 0.82rem !important;
+  }
+
+  .export-status {
+    margin-top: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    min-height: 1.2em;
+  }
+
 </style>
 </head>
 <body>
@@ -1238,6 +1324,38 @@
           <button class="btn-primary" onclick="addReading()">新增紀錄</button>
         </div>
         <div class="reading-list" id="readingList"></div>
+      </div>
+    </div>
+
+
+    <!-- Export Section -->
+    <div class="export-section">
+      <div class="module-label">export · 匯出備份</div>
+      <div class="export-grid">
+
+        <!-- JSON backup -->
+        <div class="export-panel">
+          <span class="export-icon">💾</span>
+          <div class="export-title">資料備份</div>
+          <div class="export-desc">匯出所有紀錄為 JSON 檔案，換載具時匯入還原。</div>
+          <button class="btn-primary" onclick="exportJSON()" style="margin-bottom:0.75rem">匯出 JSON</button>
+          <label style="display:block">
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+            <button class="btn-ghost" style="width:100%" onclick="document.getElementById('importFile').click()">匯入 JSON</button>
+          </label>
+          <div class="export-status" id="jsonStatus"></div>
+        </div>
+
+        <!-- Monthly report -->
+        <div class="export-panel">
+          <span class="export-icon">📋</span>
+          <div class="export-title">月份報表</div>
+          <div class="export-desc">用 AI 整理當月紀錄，生成可儲存的精美 HTML 報表。</div>
+          <select class="export-month-select" id="reportMonth"></select>
+          <button class="btn-primary" id="reportBtn" onclick="generateReport()" style="margin-top:0.75rem;margin-bottom:0">生成月份報表</button>
+          <div class="export-status" id="reportStatus"></div>
+        </div>
+
       </div>
     </div>
 
@@ -1511,7 +1629,10 @@
       pl.appendChild(li);
     });
 
-    done.forEach(t => {
+    const DONE_LIMIT = 5;
+    const doneShowAll = dl.dataset.showAll === 'true';
+    const doneToShow = doneShowAll ? done : done.slice(0, DONE_LIMIT);
+    doneToShow.forEach(t => {
       const li = document.createElement('li');
       li.className = 'todo-item done-item';
       li.innerHTML = `
@@ -1521,6 +1642,13 @@
       `;
       dl.appendChild(li);
     });
+    if (done.length > DONE_LIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'list-show-more';
+      btn.textContent = doneShowAll ? '收起 ↑' : `顯示全部 ${done.length} 筆 ↓`;
+      btn.onclick = () => { dl.dataset.showAll = doneShowAll ? 'false' : 'true'; renderTodos(); };
+      dl.appendChild(btn);
+    }
 
     document.getElementById('clearBtn').style.display = done.length ? 'block' : 'none';
   }
@@ -2084,7 +2212,11 @@ ${eventList}`
     }
 
     postsEl.innerHTML = '';
-    filtered.forEach(m => {
+    const SHOW_LIMIT = 5;
+    const showAll = postsEl.dataset.showAll === 'true';
+    const toShow = showAll ? filtered : filtered.slice(0, SHOW_LIMIT);
+
+    toShow.forEach(m => {
       const d = new Date(m.ts);
       const timeStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
         String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
@@ -2097,6 +2229,19 @@ ${eventList}`
       `;
       postsEl.appendChild(div);
     });
+
+    if (filtered.length > SHOW_LIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'mur-show-more';
+      if (showAll) {
+        btn.textContent = '收起 ↑';
+        btn.onclick = () => { postsEl.dataset.showAll = 'false'; renderMurmurs(); };
+      } else {
+        btn.textContent = `顯示全部 ${filtered.length} 則 ↓`;
+        btn.onclick = () => { postsEl.dataset.showAll = 'true'; renderMurmurs(); };
+      }
+      postsEl.appendChild(btn);
+    }
   }
 
   function murPrev() {
@@ -2292,9 +2437,12 @@ ${eventList}`
       return;
     }
     el.innerHTML = '';
+    const showAll = el.dataset.showAll === 'true';
+    const LIMIT = 4;
     const today = new Date();
     today.setHours(0,0,0,0);
-    items.forEach(item => {
+    const toShow = showAll ? items : items.slice(0, LIMIT);
+    toShow.forEach(item => {
       const target = new Date(item.date);
       target.setHours(0,0,0,0);
       const diff = Math.round((target - today) / 86400000);
@@ -2319,6 +2467,13 @@ ${eventList}`
       `;
       el.appendChild(div);
     });
+    if (items.length > LIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'list-show-more';
+      btn.textContent = showAll ? '收起 ↑' : `顯示全部 ${items.length} 筆 ↓`;
+      btn.onclick = () => { el.dataset.showAll = showAll ? 'false' : 'true'; renderCountdowns(); };
+      el.appendChild(btn);
+    }
   }
 
   renderCountdowns();
@@ -2565,7 +2720,10 @@ ${eventList}`
       return;
     }
     el.innerHTML = '';
-    readings.forEach(r => {
+    const showAll = el.dataset.showAll === 'true';
+    const LIMIT = 5;
+    const toShow = showAll ? readings : readings.slice(0, LIMIT);
+    toShow.forEach(r => {
       const div = document.createElement('div');
       div.className = 'reading-item';
       div.innerHTML = `
@@ -2581,6 +2739,13 @@ ${eventList}`
       `;
       el.appendChild(div);
     });
+    if (readings.length > LIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'list-show-more';
+      btn.textContent = showAll ? '收起 ↑' : `顯示全部 ${readings.length} 筆 ↓`;
+      btn.onclick = () => { el.dataset.showAll = showAll ? 'false' : 'true'; renderReadings(); };
+      el.appendChild(btn);
+    }
   }
 
   renderReadings();
@@ -3089,6 +3254,250 @@ ${eventList}`
       petShowBubble(PET_PHRASES[Math.floor(Math.random() * PET_PHRASES.length)], 1800);
     }
   }, 8000);
+
+
+  // ── Export / Import ──
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY];
+
+  function exportJSON() {
+    const data = {};
+    EXPORT_KEYS.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) data[k] = v;
+    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'daily-backup-' + todayStr + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('jsonStatus').textContent = '✓ 匯出成功';
+    setTimeout(() => document.getElementById('jsonStatus').textContent = '', 3000);
+  }
+
+  function importJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+        document.getElementById('jsonStatus').textContent = '✓ 匯入成功，重新整理頁面套用';
+        setTimeout(() => location.reload(), 1500);
+      } catch {
+        document.getElementById('jsonStatus').textContent = '✗ 檔案格式錯誤';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // populate month selector
+  (function initReportMonth() {
+    const sel = document.getElementById('reportMonth');
+    const now = new Date();
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      const label = d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月';
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    }
+  })();
+
+  async function generateReport() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+
+    const monthVal = document.getElementById('reportMonth').value;
+    const [year, month] = monthVal.split('-').map(Number);
+    const monthLabel = year + ' 年 ' + month + ' 月';
+
+    const btn = document.getElementById('reportBtn');
+    const status = document.getElementById('reportStatus');
+    btn.disabled = true;
+    status.textContent = '生成中…';
+
+    // collect data for the month
+    const prefix = year + '-' + String(month).padStart(2, '0');
+
+    // murmurs
+    const murmurs = (JSON.parse(localStorage.getItem(MUR_KEY) || '[]'))
+      .filter(m => m.ts.startsWith(prefix))
+      .map(m => new Date(m.ts).getDate() + '日：' + m.text);
+
+    // moods
+    const moodsObj = JSON.parse(localStorage.getItem(MOOD_KEY) || '{}');
+    const moods = Object.entries(moodsObj)
+      .filter(([d]) => d.startsWith(prefix))
+      .map(([d, v]) => d.split('-')[2] + '日 ' + v);
+
+    // readings
+    const readings = (JSON.parse(localStorage.getItem(READING_KEY) || '[]'))
+      .filter(r => r.date.startsWith(prefix))
+      .map(r => r.type + '・' + r.title + (r.review ? '：' + r.review : ''));
+
+    // todos completed
+    const todos = JSON.parse(localStorage.getItem(TODO_KEY) || '[]');
+    const doneTodos = todos.filter(t => t.done).map(t => t.text);
+
+    // pomo count
+    const pomoData = JSON.parse(localStorage.getItem(POMO_KEY) || '{}');
+
+    const summary = {
+      month: monthLabel,
+      murmurs: murmurs.length ? murmurs : ['（無紀錄）'],
+      moods: moods.length ? moods : ['（無紀錄）'],
+      readings: readings.length ? readings : ['（無紀錄）'],
+      doneTodos: doneTodos.length ? doneTodos : ['（無紀錄）'],
+    };
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `以下是我 ${monthLabel} 的生活紀錄，請幫我整理成一份溫柔、有質感的月份回顧，用繁體中文寫，語氣像朋友寫給自己的信，不要太正式，可以有一點文學感。
+
+碎碎念：
+${summary.murmurs.join('
+')}
+
+心情紀錄：
+${summary.moods.join('
+')}
+
+閱讀紀錄：
+${summary.readings.join('
+')}
+
+完成的待辦：
+${summary.doneTodos.join('
+')}
+
+請整理成：
+1. 開場（這個月的整體感受，2-3句）
+2. 心情回顧（根據心情紀錄）
+3. 閱讀與收穫
+4. 值得記住的事（從碎碎念裡挑有意思的）
+5. 給下個月的自己一句話
+
+只回傳純文字，不要 markdown 符號。`
+              }]
+            }],
+            generationConfig: { temperature: 0.9 }
+          })
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message);
+      const reportText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      // generate HTML report
+      const html = generateReportHTML(monthLabel, reportText, summary);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'daily-report-' + monthVal + '.html';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      status.textContent = '✓ 報表已下載';
+      setTimeout(() => status.textContent = '', 3000);
+
+    } catch(err) {
+      status.textContent = '✗ ' + err.message;
+    }
+
+    btn.disabled = false;
+  }
+
+  function generateReportHTML(monthLabel, reportText, summary) {
+    return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${monthLabel} 月份報表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@300;400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f7f4ef; color: #1c1a17; font-family: 'Noto Serif TC', serif; padding: 3rem 2rem; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  .header { margin-bottom: 3rem; border-bottom: 1px solid #e0dbd3; padding-bottom: 2rem; }
+  .header-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a09890; margin-bottom: 0.75rem; }
+  .header-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: #1c1a17; margin-bottom: 0.5rem; }
+  .header-date { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #a09890; }
+  .report-body { font-size: 1rem; line-height: 2; color: #4a4640; white-space: pre-wrap; margin-bottom: 3rem; }
+  .divider { border: none; border-top: 1px solid #e0dbd3; margin: 2.5rem 0; }
+  .stats-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a09890; margin-bottom: 1.5rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+  .stat-box { background: #fdfbf8; border: 1px solid #e0dbd3; border-radius: 4px; padding: 1.25rem; }
+  .stat-box-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: #a09890; margin-bottom: 0.75rem; }
+  .stat-item { font-size: 0.85rem; color: #4a4640; line-height: 1.7; padding: 0.25rem 0; border-bottom: 1px solid #f0ebe0; }
+  .stat-item:last-child { border-bottom: none; }
+  .footer { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: #c4a882; letter-spacing: 0.08em; text-align: center; padding-top: 2rem; border-top: 1px solid #e0dbd3; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="header-label">Daily · Monthly Report</div>
+    <div class="header-title">${monthLabel}</div>
+    <div class="header-date">生成於 ${new Date().toLocaleDateString('zh-TW')}</div>
+  </div>
+  <div class="report-body">${reportText}</div>
+  <hr class="divider">
+  <div class="stats-label">本月原始紀錄</div>
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-box-label">心情紀錄</div>
+      ${summary.moods.map(m => `<div class="stat-item">${m}</div>`).join('')}
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">閱讀紀錄</div>
+      ${summary.readings.map(r => `<div class="stat-item">${r}</div>`).join('')}
+    </div>
+    <div class="stat-box" style="grid-column:1/-1">
+      <div class="stat-box-label">碎碎念</div>
+      ${summary.murmurs.map(m => `<div class="stat-item">${m}</div>`).join('')}
+    </div>
+  </div>
+  <div class="footer">Daily · 你的專屬小天地</div>
+</div>
+</body>
+</html>`;
+  }
+
+  // ── Collapsible lists ──
+  function renderCollapsible(items, container, renderFn, limit = 5) {
+    container.innerHTML = '';
+    const showAll = container.dataset.showAll === 'true';
+    const toShow = showAll ? items : items.slice(0, limit);
+    toShow.forEach(item => renderFn(item, container));
+    if (items.length > limit) {
+      const btn = document.createElement('button');
+      btn.className = 'list-show-more';
+      btn.textContent = showAll ? '收起 ↑' : `顯示全部 ${items.length} 筆 ↓`;
+      btn.onclick = () => {
+        container.dataset.showAll = showAll ? 'false' : 'true';
+        container.dataset.showAll === 'true' ? container.dataset.showAll = 'true' : null;
+        // re-render
+        const event = new CustomEvent('rerender');
+        container.dispatchEvent(event);
+      };
+      container.appendChild(btn);
+    }
+  }
 
 </script>
 </body>
