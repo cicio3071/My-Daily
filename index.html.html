@@ -1,0 +1,3094 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── themes ── */
+  :root, [data-theme="light"] {
+    --bg: #f7f4ef;
+    --surface: #fdfbf8;
+    --ink: #1c1a17;
+    --ink-soft: #4a4640;
+    --muted: #9a9188;
+    --border: #e0dbd3;
+    --accent: #8b6f47;
+    --accent-light: #c4a882;
+    --shadow: rgba(0,0,0,0.06);
+    --input-bg: var(--bg);
+  }
+
+  [data-theme="dark"] {
+    --bg: #181612;
+    --surface: #252018;
+    --ink: #f0ebe2;
+    --ink-soft: #ccc4b8;
+    --muted: #908880;
+    --border: #4a4238;
+    --accent: #d4b896;
+    --accent-light: #a07850;
+    --shadow: rgba(0,0,0,0.4);
+    --input-bg: #2e2820;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Serif TC', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── header ── */
+  header {
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 50;
+    transition: background 0.3s;
+  }
+
+  .site-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .date-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 600px) { .date-display { display: none; } }
+
+  .theme-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── tab nav ── */
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    padding: 0 2rem;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    transition: background 0.3s;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.85rem 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--ink-soft); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* mobile bottom nav */
+  @media (max-width: 600px) {
+    .tab-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-bottom: none;
+      border-top: 1px solid var(--border);
+      padding: 0;
+      justify-content: space-around;
+      z-index: 50;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.85rem 0.5rem 1rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+  }
+
+  /* ── main ── */
+  main {
+    flex: 1;
+    padding: 2.5rem 2rem 2rem;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 1.25rem 1rem 6.5rem; }
+  }
+
+  /* ── tab panels ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── module label ── */
+  .module-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .module-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .module-section { margin-bottom: 3rem; }
+
+  /* ── shared panel ── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  /* ── typography upgrades ── */
+  .panel-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  /* ── shared input styles ── */
+  input[type="text"], input[type="date"], input[type="password"],
+  textarea, select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.6rem 0.85rem;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, background 0.3s;
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--muted); font-size: 0.9rem; }
+
+  /* ── shared button ── */
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    border-radius: 3px;
+    padding: 0.7rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.5rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── dots loading ── */
+  .dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    animation: pulse 1.2s ease-in-out infinite;
+    display: inline-block;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%,100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .loading-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+  /* ══════════════════════════════
+     TAB 1: 今日
+  ══════════════════════════════ */
+
+  /* weather */
+  .weather-panel {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 1.75rem;
+  }
+  @media (max-width: 600px) {
+    .weather-panel { gap: 1.25rem; padding: 1.25rem; }
+    .weather-temp { font-size: 2.2rem; }
+    .weather-icon { font-size: 2.2rem; }
+  }
+  .weather-main { display: flex; align-items: center; gap: 1rem; }
+  .weather-icon { font-size: 2.8rem; line-height: 1; }
+  .weather-temp {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .weather-temp sup {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .weather-info { display: flex; flex-direction: column; gap: 0.3rem; }
+  .weather-desc { font-size: 1.05rem; color: var(--ink-soft); }
+  .weather-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .weather-details { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+  .weather-detail { display: flex; flex-direction: column; gap: 0.2rem; }
+  .weather-detail-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .weather-detail-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  /* quote card */
+  .quote-card {
+    padding: 2.5rem 3rem;
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .quote-card::before {
+    content: '\201C';
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--border);
+    position: absolute;
+    top: 0.5rem; left: 1.25rem;
+    line-height: 1; pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .quote-card::before { font-size: 3rem; top: 0.5rem; left: 0.75rem; }
+    .quote-card { padding: 1.75rem 1.25rem 1.5rem; }
+    .card-quote { font-size: 0.98rem; }
+  }
+  .card-quote {
+    font-size: 1.1rem;
+    line-height: 2;
+    color: var(--ink);
+    letter-spacing: 0.03em;
+    position: relative;
+    z-index: 1;
+  }
+  .card-source {
+    margin-top: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* history */
+  .history-items-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .history-item {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-year {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent-light);
+    text-align: right;
+    padding-top: 0.15rem;
+  }
+  .history-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+  }
+
+  /* ══════════════════════════════
+     TAB 2: 生活
+  ══════════════════════════════ */
+
+  /* todo */
+  .todo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 600px) { .todo-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+  .todo-add { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .todo-input { flex: 1; font-size: 0.9rem !important; }
+  .todo-add-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px;
+    width: 34px; height: 34px;
+    font-size: 1.1rem; cursor: pointer;
+    transition: background 0.2s;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .todo-add-btn:hover { background: var(--accent); }
+
+  .todo-panel-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .todo-count {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.1rem 0.5rem; font-size: 0.58rem;
+  }
+  .todo-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+  .todo-item {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+  }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-check {
+    width: 17px; height: 17px; border: 1px solid var(--border);
+    border-radius: 3px; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .todo-check:hover { border-color: var(--accent); }
+  .todo-check.checked { background: var(--accent); border-color: var(--accent); }
+  .todo-check.checked::after { content: '✓'; color: white; font-size: 0.65rem; }
+  .todo-text { flex: 1; font-size: 1rem; color: var(--ink); line-height: 1.5; }
+  .todo-delete {
+    background: none; border: none; color: var(--border);
+    cursor: pointer; font-size: 0.9rem; padding: 0 0.2rem;
+    transition: color 0.2s; flex-shrink: 0;
+  }
+  .todo-delete:hover { color: #b94a2c; }
+  .done-item .todo-text { color: var(--muted); text-decoration: line-through; }
+  .todo-empty { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--border); padding: 0.75rem 0; }
+
+  /* pomodoro */
+  .pomo-inner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.1rem;
+  }
+  .pomo-timer {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.8rem; font-weight: 400;
+    color: var(--ink); line-height: 1; letter-spacing: 0.04em;
+  }
+  .pomo-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .pomo-status.work { color: var(--accent); }
+  .pomo-status.rest { color: #6a9e63; }
+  .pomo-controls { display: flex; gap: 0.75rem; }
+  .pomo-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px;
+    padding: 0.55rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.08em;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .pomo-btn:hover { background: var(--accent); }
+  .pomo-btn.secondary {
+    background: none; color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .pomo-btn.secondary:hover { border-color: var(--accent); color: var(--accent); background: none; }
+  .pomo-tomatoes { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center; }
+  .pomo-tomato { font-size: 1rem; opacity: 0.2; transition: opacity 0.3s; }
+  .pomo-tomato.done { opacity: 1; }
+  .pomo-count { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; }
+  .pomo-duration-btns { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .pomo-dur-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.06em; padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border); border-radius: 20px;
+    background: var(--bg); color: var(--muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pomo-dur-btn:hover { border-color: var(--accent-light); color: var(--ink-soft); }
+  .pomo-dur-btn.active { border-color: var(--accent); color: var(--accent); }
+
+  /* countdown */
+  .countdown-add { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .countdown-add-row { display: flex; gap: 0.5rem; }
+  .countdown-add-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px;
+    padding: 0.5rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.06em;
+    cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .countdown-add-btn:hover { background: var(--accent); }
+  .countdown-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .countdown-item {
+    padding: 0.9rem 1rem; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 3px;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  }
+  .countdown-item.past { opacity: 0.45; }
+  .countdown-info { flex: 1; }
+  .countdown-name { font-size: 1rem; color: var(--ink); margin-bottom: 0.2rem; }
+  .countdown-date { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.06em; }
+  .countdown-days { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--accent); line-height: 1; text-align: right; white-space: nowrap; }
+  .countdown-days span { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--muted); display: block; text-align: right; margin-top: 0.1rem; }
+  .countdown-days.today-label { font-size: 0.75rem; font-family: 'DM Mono', monospace; color: var(--accent); }
+  .countdown-days.past-label { font-size: 0.7rem; font-family: 'DM Mono', monospace; color: var(--muted); }
+  .countdown-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
+  .countdown-del:hover { color: #b94a2c; }
+  .countdown-empty { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--border); }
+
+  /* ══════════════════════════════
+     TAB 3: 記錄
+  ══════════════════════════════ */
+
+  /* murmur */
+  .mur-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+  .mur-nav { display: flex; align-items: center; gap: 0.65rem; }
+  .mur-nav-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0 0.2rem; transition: color 0.2s; }
+  .mur-nav-btn:hover { color: var(--accent); }
+  .mur-month-label { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); min-width: 88px; text-align: center; }
+  .mur-count { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); }
+  .mur-input-area { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: flex-end; }
+  .mur-textarea {
+    flex: 1; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 0.65rem 0.85rem;
+    font-family: 'Noto Serif TC', serif; font-size: 0.9rem;
+    color: var(--ink); outline: none; transition: border-color 0.2s;
+    resize: none; line-height: 1.7; min-height: 60px; max-height: 160px; overflow-y: auto;
+  }
+  .mur-textarea:focus { border-color: var(--accent); }
+  .mur-textarea::placeholder { color: var(--muted); }
+  .mur-send-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px; padding: 0.6rem 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.06em; cursor: pointer; transition: background 0.2s; white-space: nowrap; height: fit-content;
+  }
+  .mur-send-btn:hover { background: var(--accent); }
+  .mur-posts { display: flex; flex-direction: column; }
+  .mur-post { padding: 0.9rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; align-items: flex-start; }
+  .mur-post:first-child { border-top: 1px solid var(--border); }
+  .mur-post-time { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; padding-top: 0.15rem; min-width: 68px; }
+  .mur-post-text { flex: 1; font-size: 1rem; line-height: 1.75; color: var(--ink-soft); white-space: pre-wrap; word-break: break-word; }
+  .mur-post-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; padding: 0 0.2rem; transition: color 0.2s; flex-shrink: 0; }
+  .mur-post-del:hover { color: #b94a2c; }
+  .mur-empty { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--border); padding: 1.5rem 0; text-align: center; }
+
+  /* mood */
+  .mood-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .mood-option {
+    font-size: 0.88rem; padding: 0.35rem 0.8rem;
+    border: 1px solid var(--border); border-radius: 20px;
+    cursor: pointer; transition: all 0.2s; color: var(--ink-soft);
+    background: var(--bg); user-select: none;
+  }
+  .mood-option:hover { border-color: var(--accent-light); }
+  .mood-option.selected { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+  .mood-history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; margin-top: 1.25rem; }
+  .mood-nav { display: flex; align-items: center; gap: 0.5rem; }
+  .mood-nav-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 0.2rem; transition: color 0.2s; }
+  .mood-nav-btn:hover { color: var(--accent); }
+  .mood-nav-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); min-width: 70px; text-align: center; }
+  .mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; max-width: 320px; }
+  .mood-cal-day-name { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--muted); text-align: center; padding-bottom: 0.25rem; max-width: 36px; margin: 0 auto; width: 100%; }
+  .mood-cal-cell { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; border-radius: 50%; max-width: 36px; margin: 0 auto; }
+  .mood-cal-cell.today { outline: 1px solid var(--accent-light); outline-offset: -1px; }
+
+  /* cycle */
+  .cycle-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.25rem; }
+  @media (max-width: 600px) { .cycle-layout { grid-template-columns: 1fr; } }
+  .cycle-form { display: flex; flex-direction: column; gap: 0.75rem; }
+  .cycle-field label { display: block; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+  .cycle-history { margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  .cycle-history-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.65rem; }
+  .cycle-record { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); }
+  .cycle-record:last-child { border-bottom: none; }
+  .cycle-record-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; transition: color 0.2s; }
+  .cycle-record-del:hover { color: #b94a2c; }
+  .mini-cal { width: 100%; }
+  .mini-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+  .mini-cal-nav { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0 0.2rem; transition: color 0.2s; }
+  .mini-cal-nav:hover { color: var(--accent); }
+  .mini-cal-month { font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+  .mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-day-name { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); text-align: center; padding-bottom: 0.4rem; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.75rem; border-radius: 50%; color: var(--ink-soft); }
+  .cal-day.today { font-weight: 600; color: var(--ink); outline: 1px solid var(--accent-light); outline-offset: -1px; }
+  .cal-day.period { background: #d4847a33; color: #8b3a32; }
+  .cal-day.fertile { background: #a8c5a033; color: #3d6b38; }
+  .cal-day.ovulation { background: #a8c5a0; color: #2a5226; font-weight: 600; }
+  .cal-day.luteal { background: #c9b89a22; }
+  .cycle-predictions { margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .pred-row { display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; }
+  .pred-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .pred-dot.period { background: #d4847a; }
+  .pred-dot.ovulation { background: #6a9e63; }
+  .pred-dot.fertile { background: #a8c5a0; }
+  .pred-dot.luteal { background: #c4a882; }
+  .pred-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; min-width: 68px; }
+  .pred-value { color: var(--ink-soft); font-size: 0.9rem; }
+  .cycle-empty-msg { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--border); }
+  .cycle-save-btn { background: var(--ink); color: var(--bg); border: none; border-radius: 3px; padding: 0.6rem; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; cursor: pointer; transition: background 0.2s; }
+  .cycle-save-btn:hover { background: var(--accent); }
+
+  /* reading */
+  .reading-form { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .reading-form-row { display: flex; gap: 0.5rem; }
+  .reading-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 320px; overflow-y: auto; }
+  .reading-item { padding: 0.9rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 3px; }
+  .reading-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .reading-item-title { font-size: 1rem; color: var(--ink); line-height: 1.4; flex: 1; }
+  .reading-item-meta { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  .reading-type-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.15rem 0.45rem; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); text-transform: uppercase; }
+  .reading-item-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; transition: color 0.2s; padding: 0; }
+  .reading-item-del:hover { color: #b94a2c; }
+  .reading-item-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 0.4rem; }
+  .reading-item-review { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+  .reading-empty { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--border); }
+
+  /* ══════════════════════════════
+     TAB 4: 推薦
+  ══════════════════════════════ */
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 600px) { .rec-grid { grid-template-columns: 1fr; gap: 1rem; } }
+  .genre-tags, .mood-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .genre-tag, .mood-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.06em; padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border); border-radius: 20px;
+    cursor: pointer; transition: all 0.2s; color: var(--muted);
+    background: var(--bg); user-select: none;
+  }
+  .genre-tag.selected, .mood-btn.selected { border-color: var(--accent); color: var(--accent); }
+  .genre-tag:hover, .mood-btn:hover { border-color: var(--accent-light); color: var(--ink-soft); }
+  .rec-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: none; }
+  .rec-result.visible { display: block; animation: fadeIn 0.4s ease forwards; }
+  .rec-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.2rem; }
+  .rec-meta { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--accent-light); letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+  .rec-desc { font-size: 0.95rem; line-height: 1.8; color: var(--ink-soft); }
+
+  /* pomodoro alert */
+  .pomo-alert { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .pomo-alert.visible { opacity: 1; pointer-events: all; }
+  .pomo-alert-box { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2.5rem; text-align: center; max-width: 300px; transform: translateY(8px); transition: transform 0.3s; }
+  .pomo-alert.visible .pomo-alert-box { transform: translateY(0); }
+  .pomo-alert-emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+  .pomo-alert-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.5rem; }
+  .pomo-alert-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+
+  /* api modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2.5rem; width: 90%; max-width: 400px; transform: translateY(8px); transition: transform 0.3s; }
+  .modal-overlay.visible .modal { transform: translateY(0); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 400; margin-bottom: 0.5rem; }
+  .modal p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.25rem; }
+  .modal input { margin-bottom: 1rem; }
+  .settings-link { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; background: none; border: none; cursor: pointer; transition: color 0.2s; padding: 0; }
+  .settings-link:hover { color: var(--accent); }
+
+  /* retry */
+  .retry-btn { margin-top: 1rem; background: none; border: 1px solid var(--border); border-radius: 2px; padding: 0.4rem 1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; color: var(--ink-soft); cursor: pointer; transition: all 0.2s; }
+  .retry-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+
+  /* ── chat module ── */
+  .chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 220px);
+    min-height: 400px;
+  }
+
+  @media (max-width: 600px) {
+    .chat-wrap { height: calc(100vh - 260px); }
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 4px 4px 0 0;
+    flex-shrink: 0;
+  }
+
+  .chat-model {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .chat-stats {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .chat-stat-val { color: var(--accent); }
+
+  .chat-new-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chat-new-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--bg);
+    scroll-behavior: smooth;
+  }
+
+  .chat-bubble-wrap {
+    display: flex;
+    animation: fadeIn 0.25s ease forwards;
+  }
+  .chat-bubble-wrap.user { justify-content: flex-end; }
+  .chat-bubble-wrap.ai { justify-content: flex-start; }
+
+  .chat-bubble {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .chat-bubble-wrap.user .chat-bubble {
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 12px 12px 2px 12px;
+  }
+
+  .chat-bubble-wrap.ai .chat-bubble {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 2px;
+  }
+
+  .chat-thinking {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 2px;
+  }
+
+  .chat-input-area {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 4px 4px;
+    flex-shrink: 0;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    padding: 0.65rem 0.9rem !important;
+    font-family: 'Noto Serif TC', serif !important;
+    font-size: 0.95rem !important;
+    color: var(--ink) !important;
+    outline: none !important;
+    resize: none !important;
+    line-height: 1.6 !important;
+    min-height: 42px !important;
+    max-height: 120px !important;
+    overflow-y: auto !important;
+    width: auto !important;
+    transition: border-color 0.2s !important;
+  }
+  .chat-input:focus { border-color: var(--accent) !important; }
+  .chat-input::placeholder { color: var(--muted) !important; font-size: 0.88rem !important; }
+
+  .chat-send-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .chat-send-btn:hover { background: var(--accent); }
+  .chat-send-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+  .chat-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--muted);
+  }
+  .chat-empty-icon { font-size: 2rem; opacity: 0.4; }
+  .chat-empty-text { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; }
+
+  /* today usage panel */
+  .chat-usage-panel {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .chat-usage-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .chat-usage-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .chat-usage-val { font-family: 'DM Mono', monospace; font-size: 0.88rem; color: var(--ink-soft); }
+
+
+  /* ── beagle pet ── */
+  .pet-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+  }
+
+  @media (max-width: 600px) {
+    .pet-container { bottom: 5.5rem; right: 0.75rem; transform: scale(0.8); transform-origin: bottom right; }
+  }
+
+  /* speech bubble */
+  .pet-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px 10px 10px 2px;
+    padding: 0.4rem 0.75rem;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.78rem;
+    color: var(--ink);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px var(--shadow);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    max-width: 140px;
+    white-space: normal;
+    text-align: center;
+  }
+  .pet-bubble.visible { opacity: 1; transform: translateY(0); }
+
+  /* zzz */
+  .pet-zzz {
+    position: absolute;
+    top: -18px;
+    right: -8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0;
+    animation: zzzFloat 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes zzzFloat {
+    0% { opacity: 0; transform: translateY(0); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-12px); }
+  }
+
+  /* dog wrapper */
+  .pet-dog-wrap {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .pet-dog-wrap:active { transform: scale(0.92); }
+
+  /* CSS beagle pixel art */
+  .pet-dog { position: relative; width: 64px; height: 64px; }
+
+  /* action buttons */
+  .pet-actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .pet-action-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .pet-action-btn:hover { border-color: var(--accent); transform: scale(1.1); }
+  .pet-action-btn:active { transform: scale(0.95); }
+
+  /* animations */
+  @keyframes dogWalk {
+    0%,100% { transform: translateX(0) scaleX(1); }
+    25% { transform: translateX(6px) scaleX(1); }
+    50% { transform: translateX(6px) scaleX(-1); }
+    75% { transform: translateX(0) scaleX(-1); }
+  }
+  @keyframes dogJump {
+    0%,100% { transform: translateY(0); }
+    30% { transform: translateY(-12px); }
+    60% { transform: translateY(-6px); }
+  }
+  @keyframes dogSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes dogEat {
+    0%,100% { transform: translateY(0); }
+    25% { transform: translateY(3px); }
+    50% { transform: translateY(0); }
+    75% { transform: translateY(3px); }
+  }
+  @keyframes dogWag {
+    0%,100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+  }
+  @keyframes toyBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .pet-dog-wrap.walking { animation: dogWalk 3s ease-in-out infinite; }
+  .pet-dog-wrap.jumping { animation: dogJump 0.5s ease-out 2; }
+  .pet-dog-wrap.spinning { animation: dogSpin 0.4s linear 2; }
+  .pet-dog-wrap.eating { animation: dogEat 0.3s ease-in-out 4; }
+
+  .pet-toy {
+    position: absolute;
+    font-size: 1.2rem;
+    bottom: 0;
+    right: -28px;
+    animation: toyBounce 0.6s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .pet-toy.visible { opacity: 1; }
+
+  .pet-food {
+    position: absolute;
+    font-size: 1.1rem;
+    bottom: 0;
+    left: -24px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .pet-food.visible { opacity: 1; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">Daily</div>
+  <div class="header-right">
+    <div class="date-display" id="dateDisplay"></div>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 dark</button>
+    <button class="settings-link" onclick="resetKey()">api key</button>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('today', this)">今日</button>
+  <button class="tab-btn" onclick="switchTab('life', this)">生活</button>
+  <button class="tab-btn" onclick="switchTab('record', this)">記錄</button>
+  <button class="tab-btn" onclick="switchTab('recommend', this)">推薦</button>
+  <button class="tab-btn" onclick="switchTab('chat', this)">閒聊</button>
+</nav>
+
+<main>
+
+  <!-- ═══ TAB: 今日 ═══ -->
+  <div class="tab-panel active" id="tab-today">
+
+    <div class="module-section">
+      <div class="module-label">weather · 今日天氣</div>
+      <div class="panel weather-panel" id="weatherPanel">
+        <div class="loading-row">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span style="margin-left:0.4rem">定位中</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">today's card · 今日字卡</div>
+      <div class="panel quote-card" id="cardArea">
+        <div class="loading-row">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span style="margin-left:0.4rem">loading</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">on this day · 歷史上的今天</div>
+      <div class="panel" id="historyPanel">
+        <div class="loading-row" id="historyLoading">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span style="margin-left:0.4rem">loading</span>
+        </div>
+        <div id="historyItems" style="display:none"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TAB: 生活 ═══ -->
+  <div class="tab-panel" id="tab-life">
+
+    <div class="module-section">
+      <div class="module-label">to-do · 待辦事項</div>
+      <div class="todo-grid">
+        <div class="panel">
+          <div class="todo-panel-label">pending <span class="todo-count" id="pendingCount">0</span></div>
+          <div class="todo-add">
+            <input class="todo-input" id="todoInput" placeholder="新增待辦…" maxlength="80" />
+            <button class="todo-add-btn" onclick="addTodo()">+</button>
+          </div>
+          <ul class="todo-list" id="pendingList"></ul>
+        </div>
+        <div class="panel">
+          <div class="todo-panel-label">done <span class="todo-count" id="doneCount">0</span></div>
+          <ul class="todo-list" id="doneList"></ul>
+          <button class="btn-ghost" id="clearBtn" onclick="clearDone()" style="display:none;margin-top:1rem;width:100%">clear all done</button>
+        </div>
+      </div>
+    </div><div class="module-section">
+      <div class="module-label">pomodoro · 番茄鐘</div>
+      <div class="panel">
+        <div class="pomo-inner">
+          <div class="pomo-duration-btns">
+            <button class="pomo-dur-btn active" onclick="setPomoMinutes(15, this)">15 min</button>
+            <button class="pomo-dur-btn" onclick="setPomoMinutes(25, this)">25 min</button>
+            <button class="pomo-dur-btn" onclick="setPomoMinutes(30, this)">30 min</button>
+          </div>
+          <div class="pomo-timer" id="pomoTimer">15:00</div>
+          <div class="pomo-status" id="pomoStatus">ready</div>
+          <div class="pomo-controls">
+            <button class="pomo-btn" id="pomoStartBtn" onclick="pomoStart()">開始</button>
+            <button class="pomo-btn secondary" onclick="pomoReset()">重設</button>
+          </div>
+          <div class="pomo-tomatoes" id="pomoTomatoes"></div>
+          <div class="pomo-count" id="pomoCount">今日 0 個番茄</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">countdown · 倒數日</div>
+      <div class="panel">
+        <div class="countdown-add">
+          <input type="text" id="cdName" placeholder="活動名稱" maxlength="20" />
+          <div class="countdown-add-row">
+            <input type="date" id="cdDate" style="flex:1" />
+            <button class="countdown-add-btn" onclick="addCountdown()">新增</button>
+          </div>
+        </div>
+        <div class="countdown-list" id="countdownList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TAB: 記錄 ═══ -->
+  <div class="tab-panel" id="tab-record">
+
+    <div class="module-section">
+      <div class="module-label">murmur · 本月碎碎念</div>
+      <div class="panel">
+        <div class="mur-header">
+          <div class="mur-nav">
+            <button class="mur-nav-btn" onclick="murPrev()">‹</button>
+            <div class="mur-month-label" id="murMonthLabel"></div>
+            <button class="mur-nav-btn" onclick="murNext()">›</button>
+          </div>
+          <div class="mur-count" id="murCount"></div>
+        </div>
+        <div class="mur-input-area" id="murInputArea">
+          <textarea class="mur-textarea" id="murInput" placeholder="今天想說什麼…" rows="2"></textarea>
+          <button class="mur-send-btn" onclick="addMurmur()">送出</button>
+        </div>
+        <div class="mur-posts" id="murPosts"></div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">mood · 心情紀錄</div>
+      <div class="panel">
+        <div class="mood-options" id="moodOptions"></div>
+        <button class="btn-primary" onclick="saveMood()" style="margin-bottom:0">記錄今日心情</button>
+        <div class="mood-history-header">
+          <div class="mood-nav">
+            <button class="mood-nav-btn" onclick="moodPrev()">‹</button>
+            <div class="mood-nav-label" id="moodNavLabel"></div>
+            <button class="mood-nav-btn" onclick="moodNext()">›</button>
+          </div>
+        </div>
+        <div class="mood-calendar" id="moodCalendar"></div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">cycle · 週期紀錄</div>
+      <div class="cycle-layout">
+        <div class="panel">
+          <div class="panel-sub">記錄本次週期</div>
+          <div class="cycle-form">
+            <div class="cycle-field"><label>開始日期</label><input type="date" id="cycleStart" /></div>
+            <div class="cycle-field"><label>結束日期</label><input type="date" id="cycleEnd" /></div>
+            <button class="cycle-save-btn" onclick="saveCycle()">儲存紀錄</button>
+          </div>
+          <div class="cycle-history">
+            <div class="cycle-history-label">歷史紀錄</div>
+            <div id="cycleHistoryList"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-sub">本月概覽</div>
+          <div class="mini-cal">
+            <div class="mini-cal-header">
+              <button class="mini-cal-nav" onclick="calPrev()">‹</button>
+              <div class="mini-cal-month" id="calMonthLabel"></div>
+              <button class="mini-cal-nav" onclick="calNext()">›</button>
+            </div>
+            <div class="mini-cal-grid" id="calGrid"></div>
+          </div>
+          <div class="cycle-predictions" id="cyclePredictions"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">reading log · 閱讀紀錄</div>
+      <div class="panel">
+        <div class="reading-form">
+          <div class="reading-form-row">
+            <input type="text" id="readingTitle" placeholder="書名 / 電影 / 影集名稱" style="flex:1" maxlength="60" />
+            <select id="readingType" style="width:80px;flex-shrink:0">
+              <option value="書">書</option>
+              <option value="電影">電影</option>
+              <option value="影集">影集</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <textarea id="readingReview" placeholder="短評（可以不寫）" rows="2" style="resize:none"></textarea>
+          <button class="btn-primary" onclick="addReading()">新增紀錄</button>
+        </div>
+        <div class="reading-list" id="readingList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TAB: 推薦 ═══ -->
+  <div class="tab-panel" id="tab-recommend">
+
+    <div class="rec-grid">
+      <div class="panel">
+        <div class="panel-sub">book · 今日書單</div>
+        <div class="genre-tags" id="genreTags"></div>
+        <button class="btn-primary" id="bookBtn" onclick="getBookRec()">幫我推一本</button>
+        <div class="rec-result" id="bookResult"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-sub">film · 今日片單</div>
+        <div class="mood-grid" id="moodBtns"></div>
+        <button class="btn-primary" id="movieBtn" onclick="getMovieRec()">幫我推一部</button>
+        <div class="rec-result" id="movieResult"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ═══ TAB: 閒聊 ═══ -->
+  <div class="tab-panel" id="tab-chat">
+    <div class="chat-wrap">
+      <div class="chat-header">
+        <div>
+          <div class="chat-model">gemini-2.5-flash · 每次開啟為新對話</div>
+        </div>
+        <div class="chat-stats">
+          <span>本次 <span class="chat-stat-val" id="chatMsgCount">0</span> 則</span>
+          <span>≈ <span class="chat-stat-val" id="chatTokenEst">0</span> tokens</span>
+        </div>
+        <button class="chat-new-btn" onclick="newChatSession()">新對話</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty" id="chatEmpty">
+          <div class="chat-empty-icon">💬</div>
+          <div class="chat-empty-text">說點什麼吧</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chatInput" placeholder="隨便說點什麼…" rows="1"></textarea>
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">↑</button>
+      </div>
+    </div>
+    <div class="chat-usage-panel">
+      <div class="chat-usage-item">
+        <div class="chat-usage-label">今日對話次數</div>
+        <div class="chat-usage-val" id="chatDailyCount">0 次</div>
+      </div>
+      <div class="chat-usage-item">
+        <div class="chat-usage-label">今日估算 tokens</div>
+        <div class="chat-usage-val" id="chatDailyTokens">0</div>
+      </div>
+      <div class="chat-usage-item">
+        <div class="chat-usage-label">使用模型</div>
+        <div class="chat-usage-val">gemini-2.5-flash</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+  <!-- Pet -->
+  <div class="pet-container" id="petContainer">
+    <div class="pet-bubble" id="petBubble"></div>
+    <div class="pet-dog-wrap walking" id="petDogWrap" onclick="petClick()" style="line-height:0">
+      <div class="pet-zzz" id="petZzz" style="display:none">zzz</div>
+      <div class="pet-food" id="petFood">🦴</div>
+      <div class="pet-toy" id="petToy">🎾</div>
+      <canvas id="petCanvas" width="80" height="80" style="cursor:pointer;display:block"></canvas>
+    </div>
+    <div class="pet-actions">
+      <button class="pet-action-btn" onclick="petFeed()" title="餵食">🦴</button>
+      <button class="pet-action-btn" onclick="petPlay()" title="玩耍">🎾</button>
+    </div>
+  </div>
+
+
+<!-- Pomodoro Alert -->
+<div class="pomo-alert" id="pomoAlert">
+  <div class="pomo-alert-box">
+    <div class="pomo-alert-emoji" id="pomoAlertEmoji">🍅</div>
+    <div class="pomo-alert-title" id="pomoAlertTitle">時間到！</div>
+    <div class="pomo-alert-msg" id="pomoAlertMsg"></div>
+    <button class="btn-primary" id="pomoAlertBtn" onclick="pomoAlertClose()" style="width:auto;padding:0.6rem 1.5rem">好的</button>
+  </div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>設定 API Key</h2>
+    <p>輸入你的 Gemini API key，只會存在這個瀏覽器裡。</p>
+    <input type="password" id="keyInput" placeholder="AIza..." />
+    <button class="btn-primary" onclick="saveKey()">儲存並開始</button>
+  </div>
+</div>
+
+<script>
+
+  const STORAGE_KEY = 'daily_gemini_key';
+  const CARD_KEY = 'daily_card';
+
+  // date
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  document.getElementById('dateDisplay').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  // init
+  window.addEventListener('DOMContentLoaded', () => {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) {
+      showModal();
+    } else {
+      loadCard(key);
+    }
+  });
+
+  function showModal() {
+    document.getElementById('modalOverlay').classList.add('visible');
+    setTimeout(() => document.getElementById('keyInput').focus(), 300);
+  }
+
+  function hideModal() {
+    document.getElementById('modalOverlay').classList.remove('visible');
+  }
+
+  function saveKey() {
+    const key = document.getElementById('keyInput').value.trim();
+    if (!key) return;
+    localStorage.setItem(STORAGE_KEY, key);
+    hideModal();
+    loadCard(key);
+  }
+
+  function resetKey() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(CARD_KEY);
+    document.getElementById('keyInput').value = '';
+    showModal();
+  }
+
+  // enter key in input
+  document.getElementById('keyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveKey();
+  });
+
+  async function loadCard(key) {
+    // check cache
+    const cached = localStorage.getItem(CARD_KEY);
+    if (cached) {
+      try {
+        const { date, quote, source } = JSON.parse(cached);
+        if (date === todayStr) {
+          renderCard(quote, source);
+          return;
+        }
+      } catch(e) {}
+    }
+
+    // fetch new
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `請給我一句今日字卡，來自文學、哲學、詩歌或散文，中西皆可。
+要求：
+- 句子本身用原文（中文或英文）
+- 標注出處（作者、作品名）
+- 只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
+{"quote":"句子內容","source":"— 作者《作品》"}
+句子長度約 20-60 字，有思考深度，不要心靈雞湯。`
+              }]
+            }],
+            generationConfig: { temperature: 1.2 }
+          })
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const { quote, source } = JSON.parse(clean);
+
+      localStorage.setItem(CARD_KEY, JSON.stringify({ date: todayStr, quote, source }));
+      renderCard(quote, source);
+
+    } catch (err) {
+      renderError(err.message);
+    }
+  }
+
+  function renderCard(quote, source) {
+    const area = document.getElementById('cardArea');
+    area.innerHTML = `
+      <div class="card-quote fade-in">${quote}</div>
+      <div class="card-source fade-in" style="animation-delay:0.15s">${source}</div>
+    `;
+  }
+
+  function renderError(msg) {
+    const area = document.getElementById('cardArea');
+    area.innerHTML = `
+      <div class="card-error">
+        無法載入今日字卡。<br>
+        <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted)">${msg}</span>
+      </div>
+      <button class="retry-btn" onclick="retryLoad()">retry</button>
+    `;
+  }
+
+  function retryLoad() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+    document.getElementById('cardArea').innerHTML = `
+      <div class="card-loading">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span style="margin-left:0.25rem">loading</span>
+      </div>`;
+    loadCard(key);
+  }
+
+  // ── Todo ──
+  const TODO_KEY = 'daily_todos';
+
+  function loadTodos() {
+    try { return JSON.parse(localStorage.getItem(TODO_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveTodos(todos) {
+    localStorage.setItem(TODO_KEY, JSON.stringify(todos));
+  }
+
+  function renderTodos() {
+    const todos = loadTodos();
+    const pending = todos.filter(t => !t.done);
+    const done = todos.filter(t => t.done);
+
+    document.getElementById('pendingCount').textContent = pending.length;
+    document.getElementById('doneCount').textContent = done.length;
+
+    const pl = document.getElementById('pendingList');
+    const dl = document.getElementById('doneList');
+
+    pl.innerHTML = pending.length ? '' : '<li class="todo-empty">nothing here yet</li>';
+    dl.innerHTML = done.length ? '' : '<li class="todo-empty">no completed items</li>';
+
+    pending.forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'todo-item';
+      li.innerHTML = `
+        <div class="todo-check" onclick="toggleTodo('${t.id}')"></div>
+        <span class="todo-text">${escHtml(t.text)}</span>
+        <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="刪除">×</button>
+      `;
+      pl.appendChild(li);
+    });
+
+    done.forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'todo-item done-item';
+      li.innerHTML = `
+        <div class="todo-check checked" onclick="toggleTodo('${t.id}')"></div>
+        <span class="todo-text">${escHtml(t.text)}</span>
+        <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="刪除">×</button>
+      `;
+      dl.appendChild(li);
+    });
+
+    document.getElementById('clearBtn').style.display = done.length ? 'block' : 'none';
+  }
+
+  function addTodo() {
+    const input = document.getElementById('todoInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const todos = loadTodos();
+    todos.unshift({ id: Date.now().toString(), text, done: false });
+    saveTodos(todos);
+    input.value = '';
+    renderTodos();
+  }
+
+  function toggleTodo(id) {
+    const todos = loadTodos();
+    const t = todos.find(t => t.id === id);
+    if (t) t.done = !t.done;
+    saveTodos(todos);
+    renderTodos();
+  }
+
+  function deleteTodo(id) {
+    const todos = loadTodos().filter(t => t.id !== id);
+    saveTodos(todos);
+    renderTodos();
+  }
+
+  function clearDone() {
+    const todos = loadTodos().filter(t => !t.done);
+    saveTodos(todos);
+    renderTodos();
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('todoInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addTodo();
+  });
+
+  renderTodos();
+
+
+  // ── Cycle ──
+  const CYCLE_KEY = 'daily_cycles';
+  let calViewYear, calViewMonth;
+
+  (function initCal() {
+    const n = new Date();
+    calViewYear = n.getFullYear();
+    calViewMonth = n.getMonth();
+  })();
+
+  function loadCycles() {
+    try { return JSON.parse(localStorage.getItem(CYCLE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveCycles(c) { localStorage.setItem(CYCLE_KEY, JSON.stringify(c)); }
+
+  function saveCycle() {
+    const start = document.getElementById('cycleStart').value;
+    const end = document.getElementById('cycleEnd').value;
+    if (!start) { alert('請輸入開始日期'); return; }
+    const cycles = loadCycles();
+    cycles.unshift({ id: Date.now().toString(), start, end: end || null });
+    // keep max 12
+    if (cycles.length > 12) cycles.pop();
+    saveCycles(cycles);
+    document.getElementById('cycleStart').value = '';
+    document.getElementById('cycleEnd').value = '';
+    renderCycleHistory();
+    renderCalendar();
+  }
+
+  function deleteCycle(id) {
+    saveCycles(loadCycles().filter(c => c.id !== id));
+    renderCycleHistory();
+    renderCalendar();
+  }
+
+  function renderCycleHistory() {
+    const cycles = loadCycles();
+    const el = document.getElementById('cycleHistoryList');
+    if (!cycles.length) {
+      el.innerHTML = '<div class="cycle-empty-msg">尚無紀錄</div>';
+      return;
+    }
+    el.innerHTML = cycles.slice(0, 6).map(c => `
+      <div class="cycle-record">
+        <span>${c.start}${c.end ? ' → ' + c.end : ' →'}</span>
+        <button class="cycle-record-del" onclick="deleteCycle('${c.id}')">×</button>
+      </div>
+    `).join('');
+  }
+
+  // compute predictions from cycles
+  function computePredictions() {
+    const cycles = loadCycles().filter(c => c.start);
+    if (!cycles.length) return null;
+
+    // avg cycle length from gaps between start dates
+    let avgCycle = 28;
+    if (cycles.length >= 2) {
+      const sorted = [...cycles].sort((a,b) => a.start.localeCompare(b.start));
+      let total = 0, count = 0;
+      for (let i = 1; i < sorted.length; i++) {
+        const diff = (new Date(sorted[i].start) - new Date(sorted[i-1].start)) / 86400000;
+        if (diff > 14 && diff < 60) { total += diff; count++; }
+      }
+      if (count > 0) avgCycle = Math.round(total / count);
+    }
+
+    // avg period length
+    let avgPeriod = 5;
+    const withEnd = cycles.filter(c => c.end);
+    if (withEnd.length) {
+      const lens = withEnd.map(c => (new Date(c.end) - new Date(c.start)) / 86400000 + 1);
+      avgPeriod = Math.round(lens.reduce((a,b) => a+b, 0) / lens.length);
+    }
+
+    // latest start
+    const latest = [...cycles].sort((a,b) => b.start.localeCompare(a.start))[0];
+    const lastStart = new Date(latest.start);
+
+    const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+    const fmt = d => d.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' });
+
+    const nextStart = addDays(lastStart, avgCycle);
+    const ovulationDay = addDays(nextStart, -14);
+    const fertileStart = addDays(ovulationDay, -2);
+    const fertileEnd = addDays(ovulationDay, 2);
+    const lutealStart = addDays(ovulationDay, 1);
+    const lutealEnd = addDays(nextStart, -1);
+    const nextPeriodEnd = addDays(nextStart, avgPeriod - 1);
+
+    return {
+      avgCycle, avgPeriod,
+      nextStart, nextPeriodEnd,
+      ovulationDay,
+      fertileStart, fertileEnd,
+      lutealStart, lutealEnd,
+      lastStart, lastPeriodEnd: latest.end ? new Date(latest.end) : addDays(lastStart, avgPeriod - 1)
+    };
+  }
+
+  function getDayType(dateStr, pred, cycles) {
+    if (!pred) return null;
+    const d = new Date(dateStr);
+
+    // check if in any recorded period
+    for (const c of cycles) {
+      const s = new Date(c.start);
+      const e = c.end ? new Date(c.end) : new Date(new Date(c.start).getTime() + (pred.avgPeriod - 1) * 86400000);
+      if (d >= s && d <= e) return 'period';
+    }
+
+    const toStr = dt => dt.toISOString().split('T')[0];
+    if (toStr(d) === toStr(pred.ovulationDay)) return 'ovulation';
+    if (d >= pred.fertileStart && d <= pred.fertileEnd) return 'fertile';
+    if (d >= pred.nextStart && d <= pred.nextPeriodEnd) return 'period';
+    if (d >= pred.lutealStart && d <= pred.lutealEnd) return 'luteal';
+    return null;
+  }
+
+  function renderCalendar() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('calMonthLabel').textContent = monthNames[calViewMonth] + ' ' + calViewYear;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    dayNames.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-day-name';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+    const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+    const today = new Date().toISOString().split('T')[0];
+    const pred = computePredictions();
+    const cycles = loadCycles();
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day empty';
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const el = document.createElement('div');
+      el.className = 'cal-day';
+      el.textContent = d;
+      if (dateStr === today) el.classList.add('today');
+      const type = getDayType(dateStr, pred, cycles);
+      if (type) el.classList.add(type);
+      grid.appendChild(el);
+    }
+
+    renderPredictions(pred);
+  }
+
+  function renderPredictions(pred) {
+    const el = document.getElementById('cyclePredictions');
+    if (!pred) {
+      el.innerHTML = '<div class="cycle-empty-msg">輸入紀錄後顯示推算</div>';
+      return;
+    }
+    const fmt = d => d.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' });
+    el.innerHTML = `
+      <div class="pred-row">
+        <div class="pred-dot ovulation"></div>
+        <span class="pred-label">排卵日</span>
+        <span class="pred-value">${fmt(pred.ovulationDay)}</span>
+      </div>
+      <div class="pred-row">
+        <div class="pred-dot fertile"></div>
+        <span class="pred-label">排卵期</span>
+        <span class="pred-value">${fmt(pred.fertileStart)} – ${fmt(pred.fertileEnd)}</span>
+      </div>
+      <div class="pred-row">
+        <div class="pred-dot luteal"></div>
+        <span class="pred-label">黃體期</span>
+        <span class="pred-value">${fmt(pred.lutealStart)} – ${fmt(pred.lutealEnd)}</span>
+      </div>
+      <div class="pred-row">
+        <div class="pred-dot period"></div>
+        <span class="pred-label">下次月經</span>
+        <span class="pred-value">預計 ${fmt(pred.nextStart)}</span>
+      </div>
+      <div class="pred-row" style="margin-top:0.25rem">
+        <div class="pred-dot" style="background:var(--border)"></div>
+        <span class="pred-label">平均週期</span>
+        <span class="pred-value">${pred.avgCycle} 天</span>
+      </div>
+    `;
+  }
+
+  function calPrev() {
+    calViewMonth--;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    renderCalendar();
+  }
+  function calNext() {
+    calViewMonth++;
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+    renderCalendar();
+  }
+
+  renderCycleHistory();
+  renderCalendar();
+
+
+  // ── History ──
+  const HISTORY_KEY = 'daily_history';
+
+  async function loadHistory() {
+    const cached = localStorage.getItem(HISTORY_KEY);
+    if (cached) {
+      try {
+        const { date, items } = JSON.parse(cached);
+        if (date === todayStr) { renderHistory(items); return; }
+      } catch(e) {}
+    }
+
+    try {
+      // fetch from Wikipedia API
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+      const wikiRes = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${month}/${day}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      if (!wikiRes.ok) throw new Error('Wikipedia API failed');
+      const wikiData = await wikiRes.json();
+
+      // pick ~15 random events to send to Gemini for selection
+      const events = wikiData.events || [];
+      const sample = events.sort(() => Math.random() - 0.5).slice(0, 15);
+      const eventList = sample.map(e => `${e.year}: ${e.text}`).join('\n');
+
+      const key = localStorage.getItem(STORAGE_KEY);
+      if (!key) { renderHistoryError('需要 API key'); return; }
+
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `以下是維基百科記載的歷史上今天（${month}月${day}日）發生的真實事件，請從中挑選2個你覺得有趣的——可以是重大歷史事件，也可以是冷門但有趣的小事，兩者各挑一個最好。
+
+用繁體中文簡短描述各一句（20-40字），保留年份。
+
+只回傳 JSON，不要有任何其他文字或 markdown：
+[{"year":"1969","text":"描述一"},{"year":"1234","text":"描述二"}]
+
+事件清單：
+${eventList}`
+              }]
+            }]
+          })
+        }
+      );
+
+      const geminiData = await geminiRes.json();
+      if (!geminiRes.ok) throw new Error(geminiData.error?.message || 'Gemini failed');
+
+      const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/\`\`\`json|\`\`\`/g, '').trim();
+      const items = JSON.parse(clean);
+
+      localStorage.setItem(HISTORY_KEY, JSON.stringify({ date: todayStr, items }));
+      renderHistory(items);
+
+    } catch(err) {
+      renderHistoryError(err.message);
+    }
+  }
+
+  function renderHistory(items) {
+    document.getElementById('historyLoading').style.display = 'none';
+    const el = document.getElementById('historyItems');
+    el.style.display = 'flex';
+    el.innerHTML = '<div class="history-items-wrap">' + items.map(item => `
+      <div class="history-item">
+        <div class="history-year">${item.year}</div>
+        <div class="history-text">${item.text}</div>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  function renderHistoryError(msg) {
+    document.getElementById('historyLoading').style.display = 'none';
+    const el = document.getElementById('historyItems');
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="history-error">無法載入歷史資料：${msg}</div>`;
+  }
+
+  loadHistory();
+
+
+  // ── Recommendations ──
+  const BOOK_GENRES = ['文學','小說','散文','哲學','歷史','人文科學','詩集','心理學','天文'];
+  const MOODS = ['平靜','感傷','想笑','想哭','燒腦','溫暖','疲憊','躁動','聖誕節','萬聖節','情人節','新年'];
+
+  let selectedGenres = [];
+  let selectedMood = null;
+
+  // render genre tags
+  (function initGenres() {
+    const el = document.getElementById('genreTags');
+    BOOK_GENRES.forEach(g => {
+      const tag = document.createElement('span');
+      tag.className = 'genre-tag';
+      tag.textContent = g;
+      tag.onclick = () => {
+        if (selectedGenres.includes(g)) {
+          selectedGenres = selectedGenres.filter(x => x !== g);
+          tag.classList.remove('selected');
+        } else {
+          selectedGenres.push(g);
+          tag.classList.add('selected');
+        }
+      };
+      el.appendChild(tag);
+    });
+  })();
+
+  // render mood buttons
+  (function initMoods() {
+    const el = document.getElementById('moodBtns');
+    MOODS.forEach(m => {
+      const btn = document.createElement('span');
+      btn.className = 'mood-btn';
+      btn.textContent = m;
+      btn.onclick = () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedMood = m;
+      };
+      el.appendChild(btn);
+    });
+  })();
+
+  async function getBookRec() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+    const genres = selectedGenres.length ? selectedGenres : BOOK_GENRES;
+    const btn = document.getElementById('bookBtn');
+    const result = document.getElementById('bookResult');
+
+    btn.disabled = true;
+    result.className = 'rec-result visible';
+    result.innerHTML = '<div class="rec-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.25rem">finding a book</span></div>';
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `請從以下類別中隨機推薦一本書：${genres.join('、')}。
+
+要求：
+- 真實存在的書，不要捏造
+- 可以是中文或外文著作（外文請附中文譯名）
+- 簡短說明為什麼值得讀（30-50字）
+- 帶點個人觀點，不要只是書介
+
+只回傳 JSON，不要有任何其他文字或 markdown：
+{"title":"書名","author":"作者","genre":"類別","desc":"推薦理由"}`
+              }]
+            }],
+            generationConfig: { temperature: 1.3 }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message);
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const book = JSON.parse(clean);
+      result.innerHTML = `
+        <div class="rec-title">${book.title}</div>
+        <div class="rec-meta">${book.author} &nbsp;·&nbsp; ${book.genre}</div>
+        <div class="rec-desc">${book.desc}</div>
+      `;
+    } catch(err) {
+      result.innerHTML = `<div class="rec-desc" style="color:var(--muted)">推薦失敗，再試一次？</div>`;
+    }
+    btn.disabled = false;
+  }
+
+  async function getMovieRec() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+    if (!selectedMood) { alert('請先選擇今天的心情'); return; }
+    const btn = document.getElementById('movieBtn');
+    const result = document.getElementById('movieResult');
+
+    btn.disabled = true;
+    result.className = 'rec-result visible';
+    result.innerHTML = '<div class="rec-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.25rem">finding a film</span></div>';
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `我現在的心情是「${selectedMood}」，請推薦一部適合的電影。
+
+要求：
+- 真實存在的電影
+- 可以是任何國家、任何年代
+- 簡短說明為什麼適合這個心情（30-50字）
+- 不要只推爆款，偶爾可以推冷門好片
+
+只回傳 JSON，不要有任何其他文字或 markdown：
+{"title":"電影名稱","year":"年份","director":"導演","desc":"推薦理由"}`
+              }]
+            }],
+            generationConfig: { temperature: 1.3 }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message);
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const movie = JSON.parse(clean);
+      result.innerHTML = `
+        <div class="rec-title">${movie.title}</div>
+        <div class="rec-meta">${movie.year} &nbsp;·&nbsp; ${movie.director}</div>
+        <div class="rec-desc">${movie.desc}</div>
+      `;
+    } catch(err) {
+      result.innerHTML = `<div class="rec-desc" style="color:var(--muted)">推薦失敗，再試一次？</div>`;
+    }
+    btn.disabled = false;
+  }
+
+
+  // ── Murmur ──
+  const MUR_KEY = 'daily_murmurs';
+  let murViewYear, murViewMonth;
+
+  (function initMur() {
+    const n = new Date();
+    murViewYear = n.getFullYear();
+    murViewMonth = n.getMonth();
+    renderMurmurs();
+  })();
+
+  function loadMurmurs() {
+    try { return JSON.parse(localStorage.getItem(MUR_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveMurmurs(m) { localStorage.setItem(MUR_KEY, JSON.stringify(m)); }
+
+  function addMurmur() {
+    const input = document.getElementById('murInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const murmurs = loadMurmurs();
+    murmurs.unshift({
+      id: Date.now().toString(),
+      text,
+      ts: new Date().toISOString()
+    });
+    saveMurmurs(murmurs);
+    input.value = '';
+    input.style.height = 'auto';
+    // reset view to current month
+    const n = new Date();
+    murViewYear = n.getFullYear();
+    murViewMonth = n.getMonth();
+    renderMurmurs();
+  }
+
+  function deleteMurmur(id) {
+    saveMurmurs(loadMurmurs().filter(m => m.id !== id));
+    renderMurmurs();
+  }
+
+  function renderMurmurs() {
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('murMonthLabel').textContent = monthNames[murViewMonth] + ' ' + murViewYear;
+
+    const isCurrentMonth = murViewYear === new Date().getFullYear() && murViewMonth === new Date().getMonth();
+    document.getElementById('murInputArea').style.display = isCurrentMonth ? 'flex' : 'none';
+
+    const all = loadMurmurs();
+    const filtered = all.filter(m => {
+      const d = new Date(m.ts);
+      return d.getFullYear() === murViewYear && d.getMonth() === murViewMonth;
+    });
+
+    const countEl = document.getElementById('murCount');
+    countEl.textContent = filtered.length ? filtered.length + ' 則' : '';
+
+    const postsEl = document.getElementById('murPosts');
+    if (!filtered.length) {
+      postsEl.innerHTML = '<div class="mur-empty">這個月還沒有碎碎念</div>';
+      return;
+    }
+
+    postsEl.innerHTML = '';
+    filtered.forEach(m => {
+      const d = new Date(m.ts);
+      const timeStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+        String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      const div = document.createElement('div');
+      div.className = 'mur-post';
+      div.innerHTML = `
+        <div class="mur-post-time">${timeStr}</div>
+        <div class="mur-post-text">${escHtml(m.text)}</div>
+        <button class="mur-post-del" onclick="deleteMurmur('${m.id}')">×</button>
+      `;
+      postsEl.appendChild(div);
+    });
+  }
+
+  function murPrev() {
+    murViewMonth--;
+    if (murViewMonth < 0) { murViewMonth = 11; murViewYear--; }
+    renderMurmurs();
+  }
+  function murNext() {
+    murViewMonth++;
+    if (murViewMonth > 11) { murViewMonth = 0; murViewYear++; }
+    renderMurmurs();
+  }
+
+  // auto-grow textarea
+  document.getElementById('murInput').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+  });
+  document.getElementById('murInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      e.preventDefault();
+      addMurmur();
+    }
+  });
+
+
+  // ── Pomodoro ──
+  const POMO_KEY = 'daily_pomo';
+  let pomoInterval = null;
+  let pomoWorkMinutes = 15;
+  let pomoSeconds = 15 * 60;
+  let pomoIsRunning = false;
+  let pomoIsWork = true;
+
+  function setPomoMinutes(mins, btn) {
+    if (pomoIsRunning) return;
+    pomoWorkMinutes = mins;
+    pomoSeconds = mins * 60;
+    pomoIsWork = true;
+    pomoUpdateDisplay();
+    document.querySelectorAll('.pomo-dur-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pomoStatus').textContent = 'ready';
+    document.getElementById('pomoStatus').className = 'pomo-status';
+    document.getElementById('pomoStartBtn').textContent = '開始';
+  }
+
+  function loadPomoCount() {
+    try {
+      const d = JSON.parse(localStorage.getItem(POMO_KEY)) || {};
+      if (d.date === todayStr) return d.count || 0;
+      return 0;
+    } catch { return 0; }
+  }
+
+  function savePomoCount(n) {
+    localStorage.setItem(POMO_KEY, JSON.stringify({ date: todayStr, count: n }));
+  }
+
+  function renderPomoCount() {
+    const n = loadPomoCount();
+    document.getElementById('pomoCount').textContent = '今日 ' + n + ' 個番茄';
+    const tomatoes = document.getElementById('pomoTomatoes');
+    tomatoes.innerHTML = Array.from({length: Math.max(n, 4)}, (_, i) =>
+      `<div class="pomo-tomato${i < n ? ' done' : ''}">🍅</div>`
+    ).join('');
+  }
+
+  function pomoUpdateDisplay() {
+    const m = Math.floor(pomoSeconds / 60);
+    const s = pomoSeconds % 60;
+    document.getElementById('pomoTimer').textContent =
+      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+
+  function pomoStart() {
+    if (pomoIsRunning) {
+      // pause
+      clearInterval(pomoInterval);
+      pomoIsRunning = false;
+      document.getElementById('pomoStartBtn').textContent = '繼續';
+      document.getElementById('pomoStatus').textContent = 'paused';
+      document.getElementById('pomoStatus').className = 'pomo-status';
+    } else {
+      pomoIsRunning = true;
+      document.getElementById('pomoStartBtn').textContent = '暫停';
+      document.getElementById('pomoStatus').textContent = pomoIsWork ? 'working' : 'resting';
+      document.getElementById('pomoStatus').className = 'pomo-status ' + (pomoIsWork ? 'work' : 'rest');
+      pomoInterval = setInterval(() => {
+        pomoSeconds--;
+        pomoUpdateDisplay();
+        if (pomoSeconds <= 0) {
+          clearInterval(pomoInterval);
+          pomoIsRunning = false;
+          if (pomoIsWork) {
+            // work done
+            const n = loadPomoCount() + 1;
+            savePomoCount(n);
+            renderPomoCount();
+            showPomoAlert(
+              '🍅', '工作結束！',
+              '完成第 ' + n + ' 個番茄，請起身休息一下，喝點水，動動身體。',
+              '開始休息'
+            );
+            pomoIsWork = false;
+            pomoSeconds = 5 * 60;
+          } else {
+            // rest done
+            showPomoAlert(
+              '✨', '休息結束！',
+              '可以繼續下一個番茄了，加油！',
+              '繼續工作'
+            );
+            pomoIsWork = true;
+            pomoSeconds = 25 * 60;
+          }
+          pomoUpdateDisplay();
+          document.getElementById('pomoStartBtn').textContent = '開始';
+          document.getElementById('pomoStatus').textContent = pomoIsWork ? 'ready' : 'rest done';
+          document.getElementById('pomoStatus').className = 'pomo-status';
+        }
+      }, 1000);
+    }
+  }
+
+  function pomoReset() {
+    clearInterval(pomoInterval);
+    pomoIsRunning = false;
+    pomoIsWork = true;
+    pomoSeconds = pomoWorkMinutes * 60;
+    pomoUpdateDisplay();
+    document.getElementById('pomoStartBtn').textContent = '開始';
+    document.getElementById('pomoStatus').textContent = 'ready';
+    document.getElementById('pomoStatus').className = 'pomo-status';
+  }
+
+  function showPomoAlert(emoji, title, msg, btnText) {
+    document.getElementById('pomoAlertEmoji').textContent = emoji;
+    document.getElementById('pomoAlertTitle').textContent = title;
+    document.getElementById('pomoAlertMsg').textContent = msg;
+    document.getElementById('pomoAlertBtn').textContent = btnText;
+    document.getElementById('pomoAlert').classList.add('visible');
+    // try notification
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body: msg });
+    }
+  }
+
+  function pomoAlertClose() {
+    document.getElementById('pomoAlert').classList.remove('visible');
+  }
+
+  // request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  renderPomoCount();
+  pomoUpdateDisplay();
+
+  // ── Countdown ──
+  const CD_KEY = 'daily_countdowns';
+
+  function loadCountdowns() {
+    try { return JSON.parse(localStorage.getItem(CD_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveCountdowns(c) { localStorage.setItem(CD_KEY, JSON.stringify(c)); }
+
+  function addCountdown() {
+    const name = document.getElementById('cdName').value.trim();
+    const date = document.getElementById('cdDate').value;
+    if (!name || !date) { alert('請輸入名稱和日期'); return; }
+    const items = loadCountdowns();
+    items.push({ id: Date.now().toString(), name, date });
+    items.sort((a,b) => a.date.localeCompare(b.date));
+    saveCountdowns(items);
+    document.getElementById('cdName').value = '';
+    document.getElementById('cdDate').value = '';
+    renderCountdowns();
+  }
+
+  function deleteCountdown(id) {
+    saveCountdowns(loadCountdowns().filter(c => c.id !== id));
+    renderCountdowns();
+  }
+
+  function renderCountdowns() {
+    const items = loadCountdowns();
+    const el = document.getElementById('countdownList');
+    if (!items.length) {
+      el.innerHTML = '<div class="countdown-empty">尚無倒數項目</div>';
+      return;
+    }
+    el.innerHTML = '';
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    items.forEach(item => {
+      const target = new Date(item.date);
+      target.setHours(0,0,0,0);
+      const diff = Math.round((target - today) / 86400000);
+      const div = document.createElement('div');
+      div.className = 'countdown-item' + (diff < 0 ? ' past' : '');
+      const dateLabel = new Date(item.date).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', weekday: 'short' });
+      let daysHtml;
+      if (diff === 0) {
+        daysHtml = '<div class="countdown-days" style="color:var(--accent)">今天<span>就是今天！</span></div>';
+      } else if (diff > 0) {
+        daysHtml = `<div class="countdown-days">${diff}<span>days to go</span></div>`;
+      } else {
+        daysHtml = `<div class="countdown-days past-label">${Math.abs(diff)} days ago</div>`;
+      }
+      div.innerHTML = `
+        <div class="countdown-info">
+          <div class="countdown-name">${escHtml(item.name)}</div>
+          <div class="countdown-date">${dateLabel}</div>
+        </div>
+        ${daysHtml}
+        <button class="countdown-del" onclick="deleteCountdown('${item.id}')">×</button>
+      `;
+      el.appendChild(div);
+    });
+  }
+
+  renderCountdowns();
+
+
+  // ── Weather ──
+  const WEATHER_KEY = 'daily_weather';
+
+  const WMO_CODES = {
+    0: ['☀️','晴天'], 1: ['🌤️','大致晴朗'], 2: ['⛅','部分多雲'], 3: ['☁️','陰天'],
+    45: ['🌫️','霧'], 48: ['🌫️','霧凇'],
+    51: ['🌦️','毛毛雨'], 53: ['🌦️','毛毛雨'], 55: ['🌦️','毛毛雨'],
+    61: ['🌧️','小雨'], 63: ['🌧️','中雨'], 65: ['🌧️','大雨'],
+    71: ['🌨️','小雪'], 73: ['🌨️','中雪'], 75: ['🌨️','大雪'],
+    80: ['🌦️','陣雨'], 81: ['🌧️','陣雨'], 82: ['⛈️','強陣雨'],
+    95: ['⛈️','雷雨'], 96: ['⛈️','雷雨夾冰雹'], 99: ['⛈️','雷雨夾冰雹'],
+  };
+
+  async function loadWeather() {
+    const cached = localStorage.getItem(WEATHER_KEY);
+    if (cached) {
+      try {
+        const d = JSON.parse(cached);
+        const age = Date.now() - d.ts;
+        if (age < 3600000) { renderWeather(d); return; } // cache 1hr
+      } catch(e) {}
+    }
+
+    if (!navigator.geolocation) {
+      renderWeatherError('瀏覽器不支援定位');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      try {
+        // reverse geocode with Open-Meteo geocoding
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh-TW`,
+          { headers: { 'Accept-Language': 'zh-TW' } }
+        );
+        const geoData = await geoRes.json();
+        const city = geoData.address?.city || geoData.address?.town || geoData.address?.county || '';
+        const country = geoData.address?.country || '';
+
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weathercode,windspeed_10m,apparent_temperature&timezone=auto`
+        );
+        const weatherData = await weatherRes.json();
+        const cur = weatherData.current;
+
+        const data = {
+          ts: Date.now(),
+          temp: Math.round(cur.temperature_2m),
+          feels: Math.round(cur.apparent_temperature),
+          humidity: cur.relative_humidity_2m,
+          wind: Math.round(cur.windspeed_10m),
+          code: cur.weathercode,
+          city, country
+        };
+
+        localStorage.setItem(WEATHER_KEY, JSON.stringify(data));
+        renderWeather(data);
+      } catch(err) {
+        renderWeatherError('無法取得天氣資料');
+      }
+    }, () => {
+      renderWeatherError('請允許位置存取以顯示天氣');
+    });
+  }
+
+  function renderWeather(d) {
+    const [icon, desc] = WMO_CODES[d.code] || ['🌡️','未知'];
+    const location = [d.city, d.country].filter(Boolean).join('・');
+    document.getElementById('weatherPanel').innerHTML = `
+      <div class="weather-main">
+        <div class="weather-icon">${icon}</div>
+        <div class="weather-temp">${d.temp}<sup>°C</sup></div>
+      </div>
+      <div class="weather-info">
+        <div class="weather-desc">${desc}</div>
+        <div class="weather-location">${location || '目前位置'}</div>
+      </div>
+      <div class="weather-details">
+        <div class="weather-detail">
+          <div class="weather-detail-label">體感</div>
+          <div class="weather-detail-value">${d.feels}°C</div>
+        </div>
+        <div class="weather-detail">
+          <div class="weather-detail-label">濕度</div>
+          <div class="weather-detail-value">${d.humidity}%</div>
+        </div>
+        <div class="weather-detail">
+          <div class="weather-detail-label">風速</div>
+          <div class="weather-detail-value">${d.wind} km/h</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderWeatherError(msg) {
+    document.getElementById('weatherPanel').innerHTML =
+      `<div class="weather-error">${msg}</div>`;
+  }
+
+  loadWeather();
+
+
+  // ── Mood ──
+  const MOOD_KEY = 'daily_moods';
+  const MOOD_OPTIONS = [
+    '😌 平靜','😊 開心','🥰 幸福','😔 低落','😢 難過',
+    '😤 煩躁','😴 疲憊','🤔 思考中','😶 空白','🥳 興奮'
+  ];
+  let selectedMoodOption = null;
+  let moodViewYear, moodViewMonth;
+
+  (function initMood() {
+    const n = new Date();
+    moodViewYear = n.getFullYear();
+    moodViewMonth = n.getMonth();
+
+    const el = document.getElementById('moodOptions');
+    MOOD_OPTIONS.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'mood-option';
+      div.textContent = m;
+      div.onclick = () => {
+        document.querySelectorAll('.mood-option').forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedMoodOption = m;
+      };
+      el.appendChild(div);
+    });
+
+    renderMoodCalendar();
+  })();
+
+  function loadMoods() {
+    try { return JSON.parse(localStorage.getItem(MOOD_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveMoods(m) { localStorage.setItem(MOOD_KEY, JSON.stringify(m)); }
+
+  function saveMood() {
+    if (!selectedMoodOption) { alert('請先選擇心情'); return; }
+    const moods = loadMoods();
+    moods[todayStr] = selectedMoodOption;
+    saveMoods(moods);
+    renderMoodCalendar();
+  }
+
+  function renderMoodCalendar() {
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('moodNavLabel').textContent = monthNames[moodViewMonth] + ' ' + moodViewYear;
+
+    const moods = loadMoods();
+    const cal = document.getElementById('moodCalendar');
+    cal.innerHTML = '';
+
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    dayNames.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'mood-cal-day-name';
+      el.textContent = d;
+      cal.appendChild(el);
+    });
+
+    const firstDay = new Date(moodViewYear, moodViewMonth, 1).getDay();
+    const daysInMonth = new Date(moodViewYear, moodViewMonth + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      cal.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${moodViewYear}-${String(moodViewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const el = document.createElement('div');
+      el.className = 'mood-cal-cell';
+      if (dateStr === todayStr) el.classList.add('today');
+      const mood = moods[dateStr];
+      if (mood) {
+        el.classList.add('has-mood');
+        el.textContent = mood.split(' ')[0]; // just emoji
+        el.title = mood;
+      } else {
+        el.style.opacity = '0.2';
+        el.textContent = '·';
+        el.style.fontSize = '0.5rem';
+        el.style.color = 'var(--border)';
+      }
+      cal.appendChild(el);
+    }
+  }
+
+  function moodPrev() {
+    moodViewMonth--;
+    if (moodViewMonth < 0) { moodViewMonth = 11; moodViewYear--; }
+    renderMoodCalendar();
+  }
+  function moodNext() {
+    moodViewMonth++;
+    if (moodViewMonth > 11) { moodViewMonth = 0; moodViewYear++; }
+    renderMoodCalendar();
+  }
+
+  // ── Reading ──
+  const READING_KEY = 'daily_readings';
+
+  function loadReadings() {
+    try { return JSON.parse(localStorage.getItem(READING_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveReadings(r) { localStorage.setItem(READING_KEY, JSON.stringify(r)); }
+
+  function addReading() {
+    const title = document.getElementById('readingTitle').value.trim();
+    const type = document.getElementById('readingType').value;
+    const review = document.getElementById('readingReview').value.trim();
+    if (!title) { alert('請輸入名稱'); return; }
+    const readings = loadReadings();
+    readings.unshift({
+      id: Date.now().toString(),
+      title, type, review,
+      date: todayStr
+    });
+    saveReadings(readings);
+    document.getElementById('readingTitle').value = '';
+      document.getElementById('readingReview').value = '';
+    renderReadings();
+  }
+
+  function deleteReading(id) {
+    saveReadings(loadReadings().filter(r => r.id !== id));
+    renderReadings();
+  }
+
+  function renderReadings() {
+    const readings = loadReadings();
+    const el = document.getElementById('readingList');
+    if (!readings.length) {
+      el.innerHTML = '<div class="reading-empty">尚無紀錄</div>';
+      return;
+    }
+    el.innerHTML = '';
+    readings.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'reading-item';
+      div.innerHTML = `
+        <div class="reading-item-header">
+          <div class="reading-item-title">${escHtml(r.title)}</div>
+          <div class="reading-item-meta">
+            <span class="reading-type-badge">${r.type}</span>
+            <button class="reading-item-del" onclick="deleteReading('${r.id}')">×</button>
+          </div>
+        </div>
+        <div class="reading-item-date">${r.date}</div>
+        ${r.review ? `<div class="reading-item-review">${escHtml(r.review)}</div>` : ''}
+      `;
+      el.appendChild(div);
+    });
+  }
+
+  renderReadings();
+
+
+
+  // ── Theme ──
+  function initTheme() {
+    const saved = localStorage.getItem('daily_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀️ light' : '🌙 dark';
+  }
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('daily_theme', next);
+    document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️ light' : '🌙 dark';
+  }
+  initTheme();
+
+  // ── Tabs ──
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+    localStorage.setItem('daily_tab', id);
+  }
+  // restore last tab
+  const lastTab = localStorage.getItem('daily_tab');
+  if (lastTab) {
+    const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.trim() && b.getAttribute('onclick').includes("'" + lastTab + "'"));
+    if (btn) switchTab(lastTab, btn);
+  }
+
+
+  // ── Chat ──
+  const CHAT_USAGE_KEY = 'daily_chat_usage';
+  const CHAT_SYSTEM = `你是一個直接、有個性的對話夥伴。
+規則：
+- 回應簡潔，說到點上，不廢話
+- 不要說「很好的問題」「當然」「絕對」這類空話
+- 可以有自己的看法，不需要一直附和
+- 不主動追問太多問題，最多一次問一個
+- 語氣自然，像朋友說話，不像客服
+- 用繁體中文回應`;
+
+  let chatHistory = [];
+  let chatSessionMsgs = 0;
+  let chatSessionTokens = 0;
+
+  function loadChatUsage() {
+    try {
+      const d = JSON.parse(localStorage.getItem(CHAT_USAGE_KEY)) || {};
+      if (d.date === todayStr) return d;
+      return { date: todayStr, count: 0, tokens: 0 };
+    } catch { return { date: todayStr, count: 0, tokens: 0 }; }
+  }
+
+  function saveChatUsage(count, tokens) {
+    const d = loadChatUsage();
+    d.count += count;
+    d.tokens += tokens;
+    d.date = todayStr;
+    localStorage.setItem(CHAT_USAGE_KEY, JSON.stringify(d));
+    renderChatUsage();
+  }
+
+  function renderChatUsage() {
+    const d = loadChatUsage();
+    document.getElementById('chatDailyCount').textContent = d.count + ' 次';
+    document.getElementById('chatDailyTokens').textContent = d.tokens.toLocaleString();
+  }
+
+  function estimateTokens(text) {
+    // rough estimate: 1 token ≈ 1.5 Chinese chars or 4 English chars
+    const chinese = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+    const other = text.length - chinese;
+    return Math.ceil(chinese / 1.5 + other / 4);
+  }
+
+  function updateSessionStats() {
+    document.getElementById('chatMsgCount').textContent = chatSessionMsgs;
+    document.getElementById('chatTokenEst').textContent = chatSessionTokens.toLocaleString();
+  }
+
+  function newChatSession() {
+    chatHistory = [];
+    chatSessionMsgs = 0;
+    chatSessionTokens = 0;
+    updateSessionStats();
+    const el = document.getElementById('chatMessages');
+    el.innerHTML = `<div class="chat-empty" id="chatEmpty">
+      <div class="chat-empty-icon">💬</div>
+      <div class="chat-empty-text">說點什麼吧</div>
+    </div>`;
+  }
+
+  async function sendChat() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const btn = document.getElementById('chatSendBtn');
+    btn.disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    // hide empty state
+    const emptyEl = document.getElementById('chatEmpty');
+    if (emptyEl) emptyEl.remove();
+
+    // add user bubble
+    const messagesEl = document.getElementById('chatMessages');
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble-wrap user';
+    userBubble.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
+    messagesEl.appendChild(userBubble);
+
+    // add thinking
+    const thinkingWrap = document.createElement('div');
+    thinkingWrap.className = 'chat-bubble-wrap ai';
+    thinkingWrap.innerHTML = `<div class="chat-thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    messagesEl.appendChild(thinkingWrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    // update history
+    chatHistory.push({ role: 'user', parts: [{ text }] });
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: CHAT_SYSTEM }] },
+            contents: chatHistory,
+            generationConfig: { temperature: 1.0, maxOutputTokens: 800 }
+          })
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'API error');
+
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '…';
+      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+
+      // replace thinking with reply
+      thinkingWrap.innerHTML = `<div class="chat-bubble">${escHtml(reply)}</div>`;
+
+      // update stats
+      const tokens = estimateTokens(text) + estimateTokens(reply);
+      chatSessionMsgs++;
+      chatSessionTokens += tokens;
+      updateSessionStats();
+      saveChatUsage(1, tokens);
+
+    } catch(err) {
+      thinkingWrap.innerHTML = `<div class="chat-bubble" style="color:var(--muted);font-size:0.82rem">${err.message}</div>`;
+    }
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    btn.disabled = false;
+    input.focus();
+  }
+
+  // chat input events
+  document.getElementById('chatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      e.preventDefault();
+      sendChat();
+    }
+  });
+
+  document.getElementById('chatInput').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  renderChatUsage();
+
+
+
+  // ── Pet Canvas Drawing ──
+  const petCanvas = document.getElementById('petCanvas');
+  const petCtx = petCanvas.getContext('2d');
+
+  // pixel size
+  const P = 4;
+
+  // color palette
+  const C = {
+    brown:  '#8B4513',
+    dbrown: '#5C2D0A',
+    lbrown: '#C8864A',
+    cream:  '#F5E6C8',
+    white:  '#FFFAF0',
+    black:  '#1a0a00',
+    nose:   '#2a1a0a',
+    pink:   '#e8806a',
+    eye:    '#3a2010',
+    shine:  'rgba(255,255,255,0.6)',
+    tail:   '#C8864A',
+  };
+
+  function px(ctx, x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * P, y * P, w * P, h * P);
+  }
+
+  let dogFrame = 0;
+  let dogAnim = 'walk'; // walk, sit, jump, spin, eat, sleep
+  let dogDir = 1; // 1=right, -1=left
+  let dogX = 0;
+  let legPhase = 0;
+  let tailWag = 0;
+  let spinAngle = 0;
+  let jumpY = 0;
+  let eatBob = 0;
+  let sleepBreath = 0;
+
+  function drawBeagle(ctx, anim, frame, dir) {
+    ctx.clearRect(0, 0, 80, 80);
+    ctx.save();
+
+    const cx = 40;
+    const cy = 40;
+
+    if (anim === 'spin') {
+      ctx.translate(cx, cy);
+      ctx.rotate(spinAngle);
+      ctx.translate(-cx, -cy);
+    }
+
+    if (anim === 'jump') {
+      ctx.translate(0, -Math.abs(Math.sin(jumpY)) * 14);
+    }
+
+    if (dir === -1) {
+      ctx.translate(80, 0);
+      ctx.scale(-1, 1);
+    }
+
+    const legOffset1 = anim === 'walk' ? Math.sin(legPhase) * 1.5 : 0;
+    const legOffset2 = anim === 'walk' ? Math.sin(legPhase + Math.PI) * 1.5 : 0;
+    const tailOffset = Math.sin(tailWag) * 1.5;
+    const bob = anim === 'eat' ? Math.abs(Math.sin(eatBob)) * 1 : 0;
+    const breathY = anim === 'sleep' ? Math.sin(sleepBreath) * 0.5 : 0;
+
+    const ox = 2; // x offset
+    const oy = 3 + breathY + bob; // y offset
+
+    if (anim === 'sleep') {
+      // sleeping pose - lying down
+      // body horizontal
+      px(ctx, ox+1, oy+8, 10, 4, C.cream);
+      px(ctx, ox+2, oy+8, 8, 2, C.brown);
+      // head to side
+      px(ctx, ox, oy+7, 5, 4, C.cream);
+      px(ctx, ox, oy+7, 5, 2, C.lbrown);
+      // ear flat
+      px(ctx, ox-1, oy+8, 3, 3, C.dbrown);
+      // eye closed
+      px(ctx, ox+1, oy+8, 2, 1, C.black);
+      // legs
+      px(ctx, ox+3, oy+11, 2, 2, C.cream);
+      px(ctx, ox+8, oy+11, 2, 2, C.cream);
+      // tail curled
+      px(ctx, ox+11, oy+9, 2, 2, C.tail);
+      px(ctx, ox+12, oy+7, 1, 2, C.tail);
+      ctx.restore();
+      return;
+    }
+
+    // BODY
+    px(ctx, ox+2, oy+6, 9, 5, C.cream);
+    px(ctx, ox+2, oy+6, 9, 2, C.brown);  // saddle
+    px(ctx, ox+3, oy+5, 7, 2, C.brown);  // upper saddle
+    // belly
+    px(ctx, ox+3, oy+8, 7, 3, C.white);
+
+    // TAIL
+    px(ctx, ox+11, oy+5+tailOffset, 2, 3, C.tail);
+    px(ctx, ox+12, oy+4+tailOffset, 1, 2, C.tail);
+
+    // LEGS
+    // front legs
+    px(ctx, ox+3, oy+10, 2, 3+legOffset1, C.cream);
+    px(ctx, ox+5, oy+10, 2, 3+legOffset2, C.cream);
+    // back legs
+    px(ctx, ox+8, oy+10, 2, 3+legOffset2, C.cream);
+    px(ctx, ox+10, oy+10, 2, 3+legOffset1, C.cream);
+    // paws
+    px(ctx, ox+3, oy+12+legOffset1, 2, 1, C.lbrown);
+    px(ctx, ox+5, oy+12+legOffset2, 2, 1, C.lbrown);
+    px(ctx, ox+8, oy+12+legOffset2, 2, 1, C.lbrown);
+    px(ctx, ox+10, oy+12+legOffset1, 2, 1, C.lbrown);
+
+    // HEAD
+    px(ctx, ox+2, oy+1, 7, 5, C.cream);
+    px(ctx, ox+2, oy+1, 7, 2, C.lbrown);  // head top
+    px(ctx, ox+3, oy+0, 5, 2, C.brown);   // crown
+
+    // SNOUT
+    px(ctx, ox+3, oy+4, 5, 3, C.cream);
+    // nose
+    px(ctx, ox+4, oy+4, 3, 2, C.nose);
+    px(ctx, ox+5, oy+4, 1, 1, C.shine);
+    // mouth
+    px(ctx, ox+4, oy+6, 1, 1, C.pink);
+    px(ctx, ox+6, oy+6, 1, 1, C.pink);
+    // tongue (eating)
+    if (anim === 'eat') px(ctx, ox+5, oy+6, 1, 2, C.pink);
+
+    // EYES
+    px(ctx, ox+3, oy+2, 2, 2, C.eye);
+    px(ctx, ox+7, oy+2, 2, 2, C.eye);
+    px(ctx, ox+3, oy+2, 1, 1, C.shine);
+    px(ctx, ox+7, oy+2, 1, 1, C.shine);
+
+    // EARS (floppy)
+    px(ctx, ox+0, oy+1, 3, 6, C.dbrown);
+    px(ctx, ox+0, oy+4, 2, 4, C.brown);
+    px(ctx, ox+9, oy+1, 3, 6, C.dbrown);
+    px(ctx, ox+10, oy+4, 2, 4, C.brown);
+
+    ctx.restore();
+  }
+
+  function petAnimLoop() {
+    dogFrame++;
+    legPhase += 0.25;
+    tailWag += 0.18;
+    spinAngle += 0.25;
+    jumpY += 0.2;
+    eatBob += 0.3;
+    sleepBreath += 0.05;
+
+    drawBeagle(petCtx, dogAnim, dogFrame, dogDir);
+    requestAnimationFrame(petAnimLoop);
+  }
+
+  petAnimLoop();
+
+  // override petSetAnim to also update dogAnim
+  const _origSetAnim = petSetAnim;
+  // patch state tracking
+  function setPetDogAnim(anim) {
+    dogAnim = anim === 'sitting' ? 'sit' :
+              anim === 'jumping' ? 'jump' :
+              anim === 'spinning' ? 'spin' :
+              anim === 'eating' ? 'eat' :
+              anim === 'sleeping' ? 'sleep' : 'walk';
+    // flip direction randomly when walking
+    if (dogAnim === 'walk' && Math.random() > 0.5) dogDir *= -1;
+  }
+
+  // patch petSetAnim
+  const origPetSetAnim = petSetAnim;
+  petSetAnim = function(anim, duration) {
+    origPetSetAnim(anim, duration);
+    setPetDogAnim(anim);
+  };
+
+  // init
+  setPetDogAnim('walking');
+
+
+  // ── Pet ──
+  const PET_PHRASES = [
+    '汪！', '摸摸我～', '你來了！', '今天也要加油！',
+    '陪我玩嘛', '汪汪！', '我在這裡！', '好無聊喔',
+    '要出去玩嗎？', '汪！汪！'
+  ];
+  const PET_SLEEP_PHRASES = ['zzz...', '讓我再睡一下', '好睏喔'];
+
+  let petState = 'walking'; // walking, sitting, sleeping, jumping, spinning, eating, playing
+  let petLastInteract = Date.now();
+  let petLastFed = 0;
+  let petBubbleTimeout = null;
+  let petStateTimeout = null;
+  let petToyTimeout = null;
+  let petClickCount = 0;
+  let petClickReset = null;
+
+  function petShowBubble(text, duration = 2000) {
+    const bubble = document.getElementById('petBubble');
+    bubble.textContent = text;
+    bubble.classList.add('visible');
+    clearTimeout(petBubbleTimeout);
+    petBubbleTimeout = setTimeout(() => bubble.classList.remove('visible'), duration);
+  }
+
+  function petSetAnim(anim, duration = null) {
+    const wrap = document.getElementById('petDogWrap');
+    wrap.className = 'pet-dog-wrap ' + anim;
+    petState = anim;
+    clearTimeout(petStateTimeout);
+    if (duration) {
+      petStateTimeout = setTimeout(() => petSetAnim('walking'), duration);
+    }
+  }
+
+  function petClick() {
+    petLastInteract = Date.now();
+    const zzz = document.getElementById('petZzz');
+    zzz.style.display = 'none';
+
+    petClickCount++;
+    clearTimeout(petClickReset);
+    petClickReset = setTimeout(() => { petClickCount = 0; }, 600);
+
+    if (petClickCount >= 3) {
+      // excited spin
+      petSetAnim('spinning', 1000);
+      petShowBubble('汪汪汪！！', 2000);
+      petClickCount = 0;
+      return;
+    }
+
+    if (petState === 'sleeping') {
+      petSetAnim('jumping', 800);
+      petShowBubble(PET_SLEEP_PHRASES[Math.floor(Math.random() * PET_SLEEP_PHRASES.length)]);
+      return;
+    }
+
+    petSetAnim('jumping', 800);
+    petShowBubble(PET_PHRASES[Math.floor(Math.random() * PET_PHRASES.length)]);
+  }
+
+  function petFeed() {
+    petLastInteract = Date.now();
+    const now = Date.now();
+    const food = document.getElementById('petFood');
+    const zzz = document.getElementById('petZzz');
+    zzz.style.display = 'none';
+
+    if (now - petLastFed < 30000) {
+      // fed recently
+      petShowBubble('我吃飽了啦～', 2500);
+      petSetAnim('sitting', 1500);
+      return;
+    }
+
+    petLastFed = now;
+    food.classList.add('visible');
+    petSetAnim('eating', 2000);
+    petShowBubble('好吃！！', 2000);
+
+    setTimeout(() => {
+      food.classList.remove('visible');
+      petSetAnim('sitting', 1000);
+      setTimeout(() => petShowBubble('謝謝你！', 1500), 1200);
+    }, 2200);
+  }
+
+  function petPlay() {
+    petLastInteract = Date.now();
+    const toy = document.getElementById('petToy');
+    const zzz = document.getElementById('petZzz');
+    zzz.style.display = 'none';
+
+    if (petToyTimeout) {
+      clearTimeout(petToyTimeout);
+      toy.classList.remove('visible');
+    }
+
+    toy.classList.add('visible');
+    petSetAnim('spinning', 1200);
+    petShowBubble('球球！！', 2000);
+
+    petToyTimeout = setTimeout(() => {
+      toy.classList.remove('visible');
+      petSetAnim('sitting', 1000);
+      setTimeout(() => petShowBubble('好累喔...', 1500), 1200);
+    }, 3500);
+  }
+
+  // idle behavior
+  setInterval(() => {
+    const idle = Date.now() - petLastInteract;
+    const zzz = document.getElementById('petZzz');
+
+    if (petState === 'walking' || petState === 'sitting') {
+      if (idle > 30000) {
+        // sleep after 30s idle
+        petSetAnim('sitting');
+        zzz.style.display = 'block';
+        petState = 'sleeping';
+      } else if (idle > 8000 && petState === 'walking') {
+        // sit after 8s
+        petSetAnim('sitting', 5000);
+      }
+    }
+  }, 3000);
+
+  // random occasional bark
+  setInterval(() => {
+    if (petState === 'walking' && Math.random() < 0.15) {
+      petShowBubble(PET_PHRASES[Math.floor(Math.random() * PET_PHRASES.length)], 1800);
+    }
+  }, 8000);
+
+</script>
+</body>
+</html>
