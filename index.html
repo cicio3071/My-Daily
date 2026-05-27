@@ -1227,94 +1227,153 @@
      TAB 5: 工具
   ══════════════════════════════ */
 
-  /* ── Diary ── */
-  .diary-nav {
+  /* ── Diary — monthly accordion ── */
+  .diary-month-block {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .diary-month-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-  }
-  .diary-nav-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    width: 32px; height: 32px;
-    font-size: 1.1rem;
-    color: var(--muted);
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+    transition: background 0.15s;
   }
-  .diary-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .diary-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .diary-date-label {
+  .diary-month-header:hover { background: var(--bg); }
+  .diary-month-caret {
+    font-size: 0.8rem;
+    color: var(--muted);
+    transition: none;
+    flex-shrink: 0;
+    width: 0.85rem;
+  }
+  .diary-month-title {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
     color: var(--ink);
-    letter-spacing: 0.03em;
+    flex: 1;
   }
-  .diary-date-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-align: center;
-    display: block;
-    margin-top: 0.1rem;
-  }
-  .diary-entry-area {
-    width: 100%;
-    min-height: 200px;
-    resize: vertical;
-    font-family: 'Noto Serif TC', serif;
-    font-size: 1rem;
-    line-height: 1.9;
-    color: var(--ink);
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 1rem 1.25rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .diary-entry-area:focus { border-color: var(--accent); }
-  .diary-entry-area::placeholder { color: var(--muted); font-size: 0.9rem; }
-  .diary-entry-area:read-only {
-    background: var(--surface);
-    color: var(--ink-soft);
-    cursor: default;
-    border-color: transparent;
-  }
-  .diary-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 0.85rem;
-    gap: 0.75rem;
-  }
-  .diary-count {
+  .diary-month-count {
     font-family: 'DM Mono', monospace;
     font-size: 0.65rem;
     color: var(--muted);
     letter-spacing: 0.06em;
   }
-  .diary-dots {
-    display: flex;
-    gap: 0.35rem;
-    flex-wrap: wrap;
-    flex: 1;
+  .diary-month-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border: 1px solid var(--accent-light);
+    border-radius: 10px;
+    padding: 0.1rem 0.5rem;
   }
-  .diary-dot {
-    width: 7px; height: 7px;
+  .diary-month-body {
+    border-top: 1px solid var(--border);
+  }
+  .diary-days-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .diary-day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.65rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    min-height: 44px;
+  }
+  .diary-day-row:last-child { border-bottom: none; }
+  .diary-day-row:hover { background: var(--bg); }
+  .diary-day-row.today { background: rgba(139,111,71,0.04); }
+  .diary-day-row.future { opacity: 0.4; pointer-events: none; }
+  .diary-day-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    width: 72px;
+    padding-top: 0.1rem;
+  }
+  .diary-day-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    min-width: 1.5rem;
+  }
+  .diary-day-week {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .diary-today-dot {
+    width: 5px; height: 5px;
     border-radius: 50%;
-    background: var(--border);
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
+    background: var(--accent);
     flex-shrink: 0;
   }
-  .diary-dot.has-entry { background: var(--accent-light); }
-  .diary-dot.current { background: var(--accent); transform: scale(1.4); }
-  .diary-dot:hover { background: var(--accent); }
+  .diary-day-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .diary-day-preview {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.1rem 0;
+  }
+  .diary-day-preview:hover { color: var(--ink); }
+  .diary-write-btn {
+    background: none; border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.08em;
+    color: var(--border);
+    cursor: pointer; padding: 0;
+    transition: color 0.2s;
+  }
+  .diary-write-btn:hover { color: var(--accent); }
+  .diary-day-empty { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--border); }
+  .diary-inline-textarea {
+    width: 100%;
+    resize: vertical;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--ink);
+    background: var(--input-bg);
+    border: 1px solid var(--accent-light);
+    border-radius: 3px;
+    padding: 0.65rem 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 0.5rem;
+  }
+  .diary-inline-textarea:focus { border-color: var(--accent); }
+  .diary-inline-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .diary-inline-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    flex: 1;
+    letter-spacing: 0.06em;
+  }
 
   /* ── Prompt Builder ── */
   .pb-section {
@@ -1764,7 +1823,10 @@
   <button class="tab-btn" onclick="switchTab('record', this)">記錄</button>
   <button class="tab-btn" onclick="switchTab('recommend', this)">推薦</button>
   <button class="tab-btn" onclick="switchTab('chat', this)">閒聊</button>
-  <button class="tab-btn" onclick="switchTab('tools', this)">工具</button>
+  <button class="tab-btn" onclick="switchTab('diary', this)">日記</button>
+  <button class="tab-btn" onclick="switchTab('prompt', this)">Prompt</button>
+  <button class="tab-btn" onclick="switchTab('clips', this)">剪貼</button>
+  <button class="tab-btn" onclick="switchTab('notes', this)">筆記</button>
 </nav>
 
 <main>
@@ -2066,32 +2128,31 @@
   </div>
 
 
-  <!-- ═══ TAB: 工具 ═══ -->
-  <div class="tab-panel" id="tab-tools">
 
-    <!-- ── 日記 ── -->
+  <!-- ═══ TAB: 日記 ═══ -->
+  <div class="tab-panel" id="tab-diary">
     <div class="module-section">
       <div class="module-label">diary · 日記</div>
-      <div class="panel">
-        <div class="diary-nav">
-          <button class="diary-nav-btn" id="diaryPrevBtn" onclick="diaryNav(-1)">‹</button>
-          <div style="text-align:center">
-            <div class="diary-date-label" id="diaryDateLabel"></div>
-            <span class="diary-date-sub" id="diaryDateSub"></span>
-          </div>
-          <button class="diary-nav-btn" id="diaryNextBtn" onclick="diaryNav(1)">›</button>
+
+      <!-- Month list -->
+      <div id="diaryMonthList"></div>
+
+      <!-- Export/clear bar -->
+      <div class="panel" style="margin-top:1.5rem;padding:1.25rem 1.75rem">
+        <div class="panel-sub">匯出與整理</div>
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+          <select id="diaryExportMonth" style="flex:1;font-size:0.85rem"></select>
+          <button class="btn-ghost" onclick="diaryExportMonth()" style="white-space:nowrap">匯出該月 TXT</button>
+          <button class="btn-ghost" onclick="diaryClearMonth()" style="white-space:nowrap;color:#b94a2c;border-color:#b94a2c" onmouseover="this.style.background='#fff0ee'" onmouseout="this.style.background=''">清除該月</button>
         </div>
-        <textarea class="diary-entry-area" id="diaryTextarea" placeholder="今天發生了什麼…寫給未來的自己。" rows="8"></textarea>
-        <div class="diary-footer">
-          <div class="diary-count" id="diaryCharCount">0 字</div>
-          <div class="diary-dots" id="diaryDots"></div>
-          <button class="btn-ghost" id="diarySaveBtn" onclick="diarySave()" style="white-space:nowrap">儲存</button>
-        </div>
-        <div id="diaryStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.5rem;min-height:1em"></div>
+        <div id="diaryExportStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.6rem;min-height:1em"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--border);margin-top:0.5rem;letter-spacing:0.04em">localStorage 日記資料量不會造成效能問題，清除只是為了整理。</div>
       </div>
     </div>
+  </div>
 
-    <!-- ── 捏圖 Prompt ── -->
+  <!-- ═══ TAB: Prompt ═══ -->
+  <div class="tab-panel" id="tab-prompt">
     <div class="module-section">
       <div class="module-label">prompt · 捏圖 Prompt</div>
 
@@ -2104,6 +2165,9 @@
           <button class="pb-fmt-btn" data-fmt="pixai" onclick="pbSetFmt(this)">Pix AI</button>
           <button class="pb-fmt-btn" data-fmt="generic" onclick="pbSetFmt(this)">通用</button>
         </div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.5rem;line-height:1.7">
+          Gemini — 附圖參照＋中文分區指令 ／ GPT — 英文 prompt ／ Pix AI — [[角色]] 語法 ／ 通用 — 中文，無平台特定語法
+        </div>
       </div>
 
       <!-- 角色 -->
@@ -2113,49 +2177,36 @@
           <button class="pb-collapse-btn" onclick="pbToggleChars(this)">收起 ↑</button>
         </div>
         <div id="pbCharsBody">
-          <!-- 角色一 -->
-          <div class="pb-grid2" id="pbChar1Fields">
-            <div class="pb-field"><label class="pb-label">角色一　姓名</label><input type="text" id="pb-c1name" placeholder="例：南雁" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c1gender" placeholder="例：女" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c1height" placeholder="例：165cm" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c1desc" placeholder="例：黑色長髮、灰色眼睛" oninput="pbRender()"></div>
+          <div class="pb-grid2">
+            <div class="pb-field"><label class="pb-label">角色一　姓名</label><input type="text" id="pb-c1name" placeholder="姓名" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c1gender" placeholder="性別" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c1height" placeholder="身高" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c1desc" placeholder="外貌特徵" oninput="pbRender()"></div>
           </div>
           <div class="pb-char-row">
-            <select id="pbLoad1" onchange="pbLoadCharSelect(this,'pb-c1')">
-              <option value="">— 載入已儲存角色 —</option>
-            </select>
+            <select id="pbLoad1" onchange="pbLoadCharSelect(this,'pb-c1')"><option value="">— 載入已儲存角色 —</option></select>
             <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c1')">儲存角色</button>
           </div>
-
           <div class="pb-divider"></div>
-
-          <!-- 角色二 -->
-          <div class="pb-grid2" id="pbChar2Fields">
-            <div class="pb-field"><label class="pb-label">角色二　姓名</label><input type="text" id="pb-c2name" placeholder="例：辛癸" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c2gender" placeholder="例：男" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c2height" placeholder="例：182cm" oninput="pbRender()"></div>
-            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c2desc" placeholder="例：黑棕色長髮、琥珀色眼睛" oninput="pbRender()"></div>
+          <div class="pb-grid2">
+            <div class="pb-field"><label class="pb-label">角色二　姓名</label><input type="text" id="pb-c2name" placeholder="姓名" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c2gender" placeholder="性別" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c2height" placeholder="身高" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c2desc" placeholder="外貌特徵" oninput="pbRender()"></div>
           </div>
           <div class="pb-char-row">
-            <select id="pbLoad2" onchange="pbLoadCharSelect(this,'pb-c2')">
-              <option value="">— 載入已儲存角色 —</option>
-            </select>
+            <select id="pbLoad2" onchange="pbLoadCharSelect(this,'pb-c2')"><option value="">— 載入已儲存角色 —</option></select>
             <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c2')">儲存角色</button>
           </div>
-
           <div class="pb-divider"></div>
-
-          <!-- 角色三（可選） -->
-          <div class="pb-grid2" id="pbChar3Fields">
+          <div class="pb-grid2">
             <div class="pb-field"><label class="pb-label">角色三　姓名 <span style="font-size:0.58rem;color:var(--border)">(可選)</span></label><input type="text" id="pb-c3name" placeholder="" oninput="pbRender()"></div>
             <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c3gender" placeholder="" oninput="pbRender()"></div>
             <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c3height" placeholder="" oninput="pbRender()"></div>
             <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c3desc" placeholder="" oninput="pbRender()"></div>
           </div>
           <div class="pb-char-row">
-            <select id="pbLoad3" onchange="pbLoadCharSelect(this,'pb-c3')">
-              <option value="">— 載入已儲存角色 —</option>
-            </select>
+            <select id="pbLoad3" onchange="pbLoadCharSelect(this,'pb-c3')"><option value="">— 載入已儲存角色 —</option></select>
             <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c3')">儲存角色</button>
           </div>
         </div>
@@ -2163,10 +2214,7 @@
 
       <!-- 畫面風格 -->
       <div class="pb-section">
-        <div class="pb-section-title">
-          畫面風格
-          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
-        </div>
+        <div class="pb-section-title">畫面風格 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
         <div class="pb-collapsible">
           <div class="pb-field">
             <label class="pb-label">氛圍模板 <span style="font-size:0.58rem;color:var(--accent-light)">快速套用</span></label>
@@ -2182,7 +2230,7 @@
           <div class="pb-field">
             <label class="pb-label">畫風技法 <span style="font-size:0.58rem;color:var(--muted)">可多選</span></label>
             <div class="pb-chips" id="pbStyleChips">
-              <span class="pb-chip" data-val="半寫實動漫風格，參照附圖畫風">半寫實動漫</span>
+              <span class="pb-chip" data-val="半寫實動漫風格">半寫實動漫</span>
               <span class="pb-chip" data-val="水墨畫風格，線條寫意，墨色暈染">水墨</span>
               <span class="pb-chip" data-val="厚塗油畫風格，筆觸明顯，質感豐富">厚塗油畫</span>
               <span class="pb-chip" data-val="淡彩水彩風格，透明感，邊緣柔和">淡彩水彩</span>
@@ -2233,10 +2281,7 @@
 
       <!-- 構圖 -->
       <div class="pb-section">
-        <div class="pb-section-title">
-          構圖
-          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
-        </div>
+        <div class="pb-section-title">構圖 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
         <div class="pb-collapsible">
           <div class="pb-grid2">
             <div class="pb-field">
@@ -2292,19 +2337,16 @@
 
       <!-- 人物細節 -->
       <div class="pb-section">
-        <div class="pb-section-title">
-          人物細節
-          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
-        </div>
+        <div class="pb-section-title">人物細節 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
         <div class="pb-collapsible">
           <div class="pb-field">
             <label class="pb-label">角色一　服裝與動作</label>
-            <textarea id="pb-c1action" placeholder="例：藕粉色長裙，雙手鼓掌，黑髮在金光中飛舞" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c1a-count',200);pbRender()"></textarea>
+            <textarea id="pb-c1action" placeholder="" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c1a-count',200);pbRender()"></textarea>
             <div class="pb-char-count" id="pb-c1a-count">0 / 200</div>
           </div>
           <div class="pb-field">
             <label class="pb-label">角色二　服裝與動作</label>
-            <textarea id="pb-c2action" placeholder="例：深色亞麻無袖背心，右手環腰" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c2a-count',200);pbRender()"></textarea>
+            <textarea id="pb-c2action" placeholder="" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c2a-count',200);pbRender()"></textarea>
             <div class="pb-char-count" id="pb-c2a-count">0 / 200</div>
           </div>
           <div class="pb-field">
@@ -2314,7 +2356,7 @@
           </div>
           <div class="pb-field">
             <label class="pb-label">人物關係與距離</label>
-            <input type="text" id="pb-relation" placeholder="例：零距離，胸膛緊貼背脊" oninput="pbRender()">
+            <input type="text" id="pb-relation" placeholder="" oninput="pbRender()">
           </div>
         </div>
       </div>
@@ -2323,7 +2365,7 @@
       <div class="pb-section">
         <div class="pb-section-title">氛圍補充 <span style="font-size:0.58rem;color:var(--border);text-transform:none;letter-spacing:0">可選</span></div>
         <div class="pb-field">
-          <textarea id="pb-vibe" placeholder="例：空氣中混合泥土腥甜、汗水與小米酒醇香" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-vibe-count',200);pbRender()"></textarea>
+          <textarea id="pb-vibe" placeholder="" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-vibe-count',200);pbRender()"></textarea>
           <div class="pb-char-count" id="pb-vibe-count">0 / 200</div>
         </div>
       </div>
@@ -2343,8 +2385,10 @@
         <div id="pbCopyStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.5rem;min-height:1em"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ── 複製清單 ── -->
+  <!-- ═══ TAB: 剪貼 ═══ -->
+  <div class="tab-panel" id="tab-clips">
     <div class="module-section">
       <div class="module-label">clipboard · 複製清單</div>
       <div class="panel">
@@ -2357,8 +2401,10 @@
         <div class="clip-copy-ok" id="clipCopyOk"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ── 筆記 ── -->
+  <!-- ═══ TAB: 筆記 ═══ -->
+  <div class="tab-panel" id="tab-notes">
     <div class="module-section">
       <div class="module-label">notes · 筆記</div>
       <div class="panel" style="padding:1.5rem">
@@ -2369,7 +2415,6 @@
         <div class="notes-list" id="notesList"></div>
       </div>
     </div>
-
   </div>
 
 </main>
@@ -4698,90 +4743,223 @@ ${eventList}`
   }
 
   // ════════════════════════════════════════
-  //  DIARY MODULE
+  //  DIARY MODULE  — monthly accordion
   // ════════════════════════════════════════
-  let diaryOffset = 0; // 0 = today, -1 = yesterday, etc.
 
-  function diaryGetDate(offset) {
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    return d.toISOString().split('T')[0];
+  function diaryGetEntries() {
+    try { return JSON.parse(localStorage.getItem(DIARY_KEY) || '{}'); } catch { return {}; }
+  }
+  function diarySaveEntries(obj) { localStorage.setItem(DIARY_KEY, JSON.stringify(obj)); }
+
+  // Returns array of YYYY-MM strings that should be shown.
+  // Starts from the month of the earliest entry (or current month) up to current month.
+  function diaryGetMonths() {
+    const entries = diaryGetEntries();
+    const dates = Object.keys(entries).sort();
+    const nowYM = todayStr.slice(0, 7);
+    let startYM = nowYM;
+    if (dates.length) startYM = dates[0].slice(0, 7) < nowYM ? dates[0].slice(0, 7) : nowYM;
+    const months = [];
+    let cursor = new Date(startYM + '-01');
+    const endDate = new Date(nowYM + '-01');
+    while (cursor <= endDate) {
+      months.push(cursor.toISOString().slice(0, 7));
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return months.reverse(); // newest first
   }
 
-  function diaryFormatLabel(dateStr) {
-    const [y, m, day] = dateStr.split('-').map(Number);
-    const d = new Date(y, m - 1, day);
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    return {
-      main: `${y} · ${String(m).padStart(2,'0')} · ${String(day).padStart(2,'0')}`,
-      sub: `週${weekdays[d.getDay()]}` + (dateStr === todayStr ? '　今天' : '')
-    };
+  // Get days in a month
+  function diaryDaysInMonth(ym) {
+    const [y, m] = ym.split('-').map(Number);
+    return new Date(y, m, 0).getDate();
   }
 
-  function diaryLoad() {
-    const entries = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
-    const dateStr = diaryGetDate(diaryOffset);
-    const { main, sub } = diaryFormatLabel(dateStr);
-    document.getElementById('diaryDateLabel').textContent = main;
-    document.getElementById('diaryDateSub').textContent = sub;
-
-    const ta = document.getElementById('diaryTextarea');
-    ta.value = entries[dateStr] || '';
-    ta.readOnly = false;
-
-    document.getElementById('diaryCharCount').textContent = ta.value.length + ' 字';
-    document.getElementById('diaryStatus').textContent = '';
-    document.getElementById('diaryNextBtn').disabled = diaryOffset >= 0;
-    diaryRenderDots(entries);
+  function diaryMonthLabel(ym) {
+    const [y, m] = ym.split('-').map(Number);
+    return y + ' 年 ' + m + ' 月';
   }
 
-  function diaryRenderDots(entries) {
-    const container = document.getElementById('diaryDots');
+  // Render the whole diary tab
+  function diaryRender() {
+    const container = document.getElementById('diaryMonthList');
     container.innerHTML = '';
-    // show last 30 days as dots
-    for (let i = -29; i <= 0; i++) {
-      const ds = diaryGetDate(i);
-      const dot = document.createElement('div');
-      dot.className = 'diary-dot' +
-        (entries[ds] ? ' has-entry' : '') +
-        (i === diaryOffset ? ' current' : '');
-      dot.title = ds;
-      const capturedI = i;
-      dot.onclick = () => { diaryOffset = capturedI; diaryLoad(); };
-      container.appendChild(dot);
+    const entries = diaryGetEntries();
+    const months = diaryGetMonths();
+
+    // Populate export month selector
+    const expSel = document.getElementById('diaryExportMonth');
+    expSel.innerHTML = '';
+    months.forEach(ym => {
+      const opt = document.createElement('option');
+      opt.value = ym;
+      opt.textContent = diaryMonthLabel(ym);
+      expSel.appendChild(opt);
+    });
+
+    months.forEach(ym => {
+      const days = diaryDaysInMonth(ym);
+      const isCurrentMonth = ym === todayStr.slice(0, 7);
+      const entryCount = Object.keys(entries).filter(d => d.startsWith(ym)).length;
+
+      // Month header card
+      const monthDiv = document.createElement('div');
+      monthDiv.className = 'diary-month-block';
+      monthDiv.dataset.ym = ym;
+
+      const isOpen = isCurrentMonth; // current month open by default
+
+      monthDiv.innerHTML = `
+        <div class="diary-month-header" onclick="diaryToggleMonth('${ym}')">
+          <span class="diary-month-caret" id="diaryMonthCaret-${ym}">${isOpen ? '▾' : '▸'}</span>
+          <span class="diary-month-title">${diaryMonthLabel(ym)}</span>
+          <span class="diary-month-count">${entryCount} 篇</span>
+          ${isCurrentMonth ? '<span class="diary-month-badge">本月</span>' : ''}
+        </div>
+        <div class="diary-month-body" id="diaryBody-${ym}" style="display:${isOpen ? 'block' : 'none'}">
+          <div class="diary-days-grid" id="diaryGrid-${ym}"></div>
+        </div>
+      `;
+      container.appendChild(monthDiv);
+
+      if (isOpen) diaryRenderMonth(ym, entries);
+    });
+  }
+
+  function diaryToggleMonth(ym) {
+    const body = document.getElementById('diaryBody-' + ym);
+    const caret = document.getElementById('diaryMonthCaret-' + ym);
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    caret.textContent = open ? '▸' : '▾';
+    if (!open) diaryRenderMonth(ym, diaryGetEntries());
+  }
+
+  function diaryRenderMonth(ym, entries) {
+    const grid = document.getElementById('diaryGrid-' + ym);
+    grid.innerHTML = '';
+    const days = diaryDaysInMonth(ym);
+    const [y, m] = ym.split('-').map(Number);
+
+    for (let d = 1; d <= days; d++) {
+      const dateStr = ym + '-' + String(d).padStart(2, '0');
+      const isToday = dateStr === todayStr;
+      const isFuture = dateStr > todayStr;
+      const hasEntry = !!entries[dateStr];
+
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'diary-day-row' + (isToday ? ' today' : '') + (isFuture ? ' future' : '');
+
+      const weekday = ['日','一','二','三','四','五','六'][new Date(y, m - 1, d).getDay()];
+      const preview = hasEntry ? entries[dateStr].slice(0, 40).replace(/\n/g, ' ') + (entries[dateStr].length > 40 ? '…' : '') : '';
+
+      dayDiv.innerHTML = `
+        <div class="diary-day-meta">
+          <span class="diary-day-num">${d}</span>
+          <span class="diary-day-week">週${weekday}</span>
+          ${isToday ? '<span class="diary-today-dot"></span>' : ''}
+        </div>
+        <div class="diary-day-content" id="diaryContent-${dateStr}">
+          ${hasEntry
+            ? `<div class="diary-day-preview" onclick="diaryOpenEdit('${dateStr}')">${escHtml(preview)}</div>`
+            : (isFuture
+              ? '<span class="diary-day-empty future">—</span>'
+              : `<button class="diary-write-btn" onclick="diaryOpenEdit('${dateStr}')">+ 寫今天</button>`)
+          }
+        </div>
+      `;
+      grid.appendChild(dayDiv);
     }
   }
 
-  function diaryNav(dir) {
-    diaryOffset += dir;
-    if (diaryOffset > 0) diaryOffset = 0;
-    diaryLoad();
+  // Inline edit: expand a textarea in the day row
+  function diaryOpenEdit(dateStr) {
+    const entries = diaryGetEntries();
+    const contentDiv = document.getElementById('diaryContent-' + dateStr);
+    if (!contentDiv) return;
+
+    // If already editing, do nothing
+    if (contentDiv.querySelector('textarea')) return;
+
+    contentDiv.innerHTML = `
+      <textarea class="diary-inline-textarea" id="diaryTA-${dateStr}" rows="5">${escHtml(entries[dateStr] || '')}</textarea>
+      <div class="diary-inline-actions">
+        <span class="diary-inline-count" id="diaryCount-${dateStr}">${(entries[dateStr] || '').length} 字</span>
+        <button class="btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.75rem" onclick="diarySaveInline('${dateStr}')">儲存</button>
+        <button class="btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.75rem" onclick="diaryCloseEdit('${dateStr}')">取消</button>
+      </div>
+    `;
+    const ta = document.getElementById('diaryTA-' + dateStr);
+    ta.focus();
+    ta.addEventListener('input', () => {
+      document.getElementById('diaryCount-' + dateStr).textContent = ta.value.length + ' 字';
+    });
+    ta.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); diarySaveInline(dateStr); }
+    });
   }
 
-  function diarySave() {
-    const dateStr = diaryGetDate(diaryOffset);
-    const text = document.getElementById('diaryTextarea').value;
-    const entries = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
-    if (text.trim()) {
-      entries[dateStr] = text;
-    } else {
-      delete entries[dateStr];
+  function diarySaveInline(dateStr) {
+    const ta = document.getElementById('diaryTA-' + dateStr);
+    if (!ta) return;
+    const text = ta.value;
+    const entries = diaryGetEntries();
+    if (text.trim()) entries[dateStr] = text; else delete entries[dateStr];
+    diarySaveEntries(entries);
+    // Re-render just this day
+    const ym = dateStr.slice(0, 7);
+    diaryRenderMonth(ym, entries);
+    // Update count in month header
+    const countEl = document.querySelector('[data-ym="' + ym + '"] .diary-month-count');
+    if (countEl) countEl.textContent = Object.keys(entries).filter(d => d.startsWith(ym)).length + ' 篇';
+    // Update export selector
+    const expSel = document.getElementById('diaryExportMonth');
+    if (expSel && expSel.options.length === 0) diaryRender();
+  }
+
+  function diaryCloseEdit(dateStr) {
+    diaryRenderMonth(dateStr.slice(0, 7), diaryGetEntries());
+  }
+
+  function diaryExportMonth() {
+    const ym = document.getElementById('diaryExportMonth').value;
+    if (!ym) return;
+    const entries = diaryGetEntries();
+    const days = diaryDaysInMonth(ym);
+    let txt = diaryMonthLabel(ym) + ' 日記\n' + '='.repeat(30) + '\n\n';
+    let hasAny = false;
+    for (let d = 1; d <= days; d++) {
+      const ds = ym + '-' + String(d).padStart(2, '0');
+      if (entries[ds]) {
+        txt += ds + '\n' + '-'.repeat(20) + '\n' + entries[ds] + '\n\n';
+        hasAny = true;
+      }
     }
-    localStorage.setItem(DIARY_KEY, JSON.stringify(entries));
-    document.getElementById('diaryStatus').textContent = '✓ 已儲存';
-    setTimeout(() => document.getElementById('diaryStatus').textContent = '', 2000);
-    diaryRenderDots(entries);
+    if (!hasAny) { document.getElementById('diaryExportStatus').textContent = '該月無紀錄'; return; }
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'diary-' + ym + '.txt'; a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('diaryExportStatus').textContent = '✓ 已匯出 ' + ym;
+    setTimeout(() => document.getElementById('diaryExportStatus').textContent = '', 3000);
   }
 
-  document.getElementById('diaryTextarea').addEventListener('input', function() {
-    document.getElementById('diaryCharCount').textContent = this.value.length + ' 字';
-  });
+  function diaryClearMonth() {
+    const ym = document.getElementById('diaryExportMonth').value;
+    if (!ym) return;
+    const label = diaryMonthLabel(ym);
+    if (!confirm('確定要清除「' + label + '」的所有日記嗎？此操作無法還原。')) return;
+    const entries = diaryGetEntries();
+    Object.keys(entries).filter(d => d.startsWith(ym)).forEach(d => delete entries[d]);
+    diarySaveEntries(entries);
+    diaryRender();
+    document.getElementById('diaryExportStatus').textContent = '✓ 已清除 ' + label;
+    setTimeout(() => document.getElementById('diaryExportStatus').textContent = '', 3000);
+  }
 
-  document.getElementById('diaryTextarea').addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); diarySave(); }
-  });
+  diaryRender();
 
-  diaryLoad();
 
 
   // ════════════════════════════════════════
