@@ -3370,32 +3370,7 @@ ${eventList}`
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `以下是我 ${monthLabel} 的生活紀錄，請幫我整理成一份溫柔、有質感的月份回顧，用繁體中文寫，語氣像朋友寫給自己的信，不要太正式，可以有一點文學感。
-
-碎碎念：
-${summary.murmurs.join('
-')}
-
-心情紀錄：
-${summary.moods.join('
-')}
-
-閱讀紀錄：
-${summary.readings.join('
-')}
-
-完成的待辦：
-${summary.doneTodos.join('
-')}
-
-請整理成：
-1. 開場（這個月的整體感受，2-3句）
-2. 心情回顧（根據心情紀錄）
-3. 閱讀與收穫
-4. 值得記住的事（從碎碎念裡挑有意思的）
-5. 給下個月的自己一句話
-
-只回傳純文字，不要 markdown 符號。`
+                text: '以下是我 ' + monthLabel + ' 的生活紀錄，請幫我整理成一份溫柔、有質感的月份回顧，用繁體中文寫，語氣像朋友寫給自己的信，不要太正式，可以有一點文學感。\n\n碎碎念：\n' + summary.murmurs.join('\n') + '\n\n心情紀錄：\n' + summary.moods.join('\n') + '\n\n閱讀紀錄：\n' + summary.readings.join('\n') + '\n\n完成的待辦：\n' + summary.doneTodos.join('\n') + '\n\n請整理成：\n1. 開場（這個月的整體感受，2-3句）\n2. 心情回顧（根據心情紀錄）\n3. 閱讀與收穫\n4. 值得記住的事（從碎碎念裡挑有意思的）\n5. 給下個月的自己一句話\n\n只回傳純文字，不要 markdown 符號。'
               }]
             }],
             generationConfig: { temperature: 0.9 }
