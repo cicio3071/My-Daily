@@ -2945,8 +2945,10 @@ ${eventList}`
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: CHAT_SYSTEM }] },
-            contents: chatHistory,
-            generationConfig: { temperature: 1.0, maxOutputTokens: 800 }
+            contents: chatMode === 'xinkui' ? chatHistory.slice(-40) : chatHistory,
+            generationConfig: chatMode === 'xinkui'
+              ? { temperature: 1.1, maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } }
+              : { temperature: 1.0, maxOutputTokens: 800 }
           })
         }
       );
