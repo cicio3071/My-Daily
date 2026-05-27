@@ -1578,6 +1578,19 @@
         <div class="chat-usage-val">gemini-2.5-flash</div>
       </div>
     </div>
+
+    <!-- Xinkui Memory -->
+    <div class="xinkui-memory-area" id="xinkuiMemoryArea">
+      <div class="memory-label">
+        活動記憶
+        <span class="memory-hint">每則建議 50 字以內，最多 5 則</span>
+      </div>
+      <div class="memory-add-row">
+        <input type="text" class="memory-input" id="memoryInput" placeholder="新增一件辛癸應該記得的事…" maxlength="100" />
+        <button class="memory-add-btn" onclick="addMemory()">新增</button>
+      </div>
+      <div class="memory-list" id="memoryList"></div>
+    </div>
   </div>
 
 </main>
