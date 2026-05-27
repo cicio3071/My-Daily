@@ -1753,6 +1753,35 @@
     cursor: text;
   }
 
+  /* ── Gist sync indicator ── */
+  .sync-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .sync-indicator:hover { border-color: var(--accent); }
+  .sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .sync-dot.ok { background: #5a9e6f; }
+  .sync-dot.syncing { background: var(--accent-light); animation: pulse 1s ease-in-out infinite; }
+  .sync-dot.error { background: #b94a2c; }
+  .sync-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
   /* ── export module ── */
   .export-section { margin-top: 3rem; }
 
@@ -1812,6 +1841,10 @@
   <div class="site-title">Daily</div>
   <div class="header-right">
     <div class="date-display" id="dateDisplay"></div>
+    <div class="sync-indicator" id="syncIndicator" onclick="gistManualSync()" title="點擊立即同步" style="display:none">
+      <span class="sync-dot" id="syncDot"></span>
+      <span class="sync-label" id="syncLabel">sync</span>
+    </div>
     <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 dark</button>
     <button class="settings-link" onclick="resetKey()">api key</button>
   </div>
@@ -2016,7 +2049,7 @@
     <!-- Export Section -->
     <div class="export-section">
       <div class="module-label">export · 匯出備份</div>
-      <div class="export-grid">
+      <div class="export-grid" style="grid-template-columns:1fr 1fr">
 
         <!-- JSON backup -->
         <div class="export-panel">
@@ -2042,6 +2075,44 @@
         </div>
 
       </div>
+
+      <!-- Gist Sync — full width -->
+      <div class="export-panel" style="margin-top:1.25rem">
+        <span class="export-icon">☁️</span>
+        <div class="export-title">GitHub Gist 雲端同步</div>
+        <div class="export-desc">設定後自動在開啟／關閉頁面時同步，手機與電腦共用同一份資料。資料只存在你自己的 GitHub 帳號，私人 Gist，只有你看得到。</div>
+
+        <div id="gistSetupArea">
+          <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem">
+            <input type="password" id="gistTokenInput" placeholder="ghp_…  貼入 GitHub Personal Access Token" style="flex:1;font-size:0.85rem">
+            <button class="btn-ghost" style="white-space:nowrap" onclick="gistSaveToken()">儲存</button>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.7">
+            Token 只需勾選 <strong>gist</strong> 權限。只存在此瀏覽器 localStorage，不傳送給任何第三方。
+          </div>
+        </div>
+
+        <div id="gistConnectedArea" style="display:none">
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.85rem">
+            <div style="flex:1">
+              <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:0.2rem">GIST ID</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--ink-soft)" id="gistIdDisplay">—</div>
+            </div>
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:0.2rem">上次同步</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--ink-soft)" id="gistLastSync">—</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="btn-primary" style="width:auto;padding:0.6rem 1.25rem" onclick="gistManualSync()">立即同步</button>
+            <button class="btn-ghost" onclick="gistPullFromCloud()">從雲端還原</button>
+            <button class="btn-ghost" style="color:var(--muted)" onclick="gistDisconnect()">中斷連線</button>
+          </div>
+        </div>
+
+        <div class="export-status" id="gistStatus"></div>
+      </div>
+
     </div>
 
   </div>
@@ -4560,6 +4631,227 @@ ${eventList}`
     };
     reader.readAsText(file);
   }
+
+  // ════════════════════════════════════════
+  //  GITHUB GIST SYNC
+  // ════════════════════════════════════════
+  const GIST_TOKEN_KEY = 'daily_gist_token';
+  const GIST_ID_KEY    = 'daily_gist_id';
+  const GIST_SYNC_KEY  = 'daily_gist_last_sync';
+  const GIST_FILENAME  = 'daily-dashboard-data.json';
+
+  function gistGetToken() { return localStorage.getItem(GIST_TOKEN_KEY) || ''; }
+  function gistGetId()    { return localStorage.getItem(GIST_ID_KEY) || ''; }
+
+  function gistSetStatus(msg, type) {
+    // type: 'ok' | 'error' | 'loading' | ''
+    const el = document.getElementById('gistStatus');
+    if (el) el.textContent = msg;
+    const dot = document.getElementById('syncDot');
+    const label = document.getElementById('syncLabel');
+    if (!dot) return;
+    dot.className = 'sync-dot' + (type ? ' ' + type : '');
+    if (label) label.textContent = type === 'syncing' ? '同步中' : type === 'ok' ? '已同步' : type === 'error' ? '失敗' : 'sync';
+  }
+
+  function gistUpdateUI() {
+    const token = gistGetToken();
+    const gistId = gistGetId();
+    const setup = document.getElementById('gistSetupArea');
+    const connected = document.getElementById('gistConnectedArea');
+    const indicator = document.getElementById('syncIndicator');
+    if (!setup || !connected) return;
+    if (token) {
+      setup.style.display = 'none';
+      connected.style.display = 'block';
+      if (indicator) indicator.style.display = 'flex';
+      document.getElementById('gistIdDisplay').textContent = gistId || '首次同步時自動建立';
+      const last = localStorage.getItem(GIST_SYNC_KEY);
+      document.getElementById('gistLastSync').textContent = last
+        ? new Date(last).toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' })
+        : '尚未同步';
+    } else {
+      setup.style.display = 'block';
+      connected.style.display = 'none';
+      if (indicator) indicator.style.display = 'none';
+    }
+  }
+
+  function gistSaveToken() {
+    const val = document.getElementById('gistTokenInput').value.trim();
+    if (!val) return;
+    if (!val.startsWith('ghp_') && !val.startsWith('github_pat_')) {
+      gistSetStatus('✗ Token 格式不對，應以 ghp_ 開頭', 'error');
+      return;
+    }
+    localStorage.setItem(GIST_TOKEN_KEY, val);
+    document.getElementById('gistTokenInput').value = '';
+    gistUpdateUI();
+    gistSetStatus('Token 已儲存，正在首次同步…', 'syncing');
+    gistPushToCloud().then(() => {
+      gistSetStatus('✓ 連線成功', 'ok');
+      setTimeout(() => gistSetStatus('', ''), 3000);
+    }).catch(err => gistSetStatus('✗ ' + err.message, 'error'));
+  }
+
+  function gistDisconnect() {
+    if (!confirm('確定要中斷 Gist 同步嗎？本機資料不會刪除。')) return;
+    localStorage.removeItem(GIST_TOKEN_KEY);
+    localStorage.removeItem(GIST_ID_KEY);
+    localStorage.removeItem(GIST_SYNC_KEY);
+    gistUpdateUI();
+    gistSetStatus('', '');
+  }
+
+  // Collect all data as a JSON object
+  function gistCollectData() {
+    const data = {};
+    EXPORT_KEYS.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) data[k] = v;
+    });
+    return data;
+  }
+
+  // Push local → Gist
+  async function gistPushToCloud() {
+    const token = gistGetToken();
+    if (!token) throw new Error('未設定 Token');
+    gistSetStatus('同步中…', 'syncing');
+
+    const content = JSON.stringify(gistCollectData(), null, 2);
+    const gistId = gistGetId();
+    const body = {
+      description: 'Daily Dashboard Data',
+      public: false,
+      files: { [GIST_FILENAME]: { content } }
+    };
+
+    let res;
+    if (gistId) {
+      // Update existing gist
+      res = await fetch('https://api.github.com/gists/' + gistId, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } else {
+      // Create new gist
+      res = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    }
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+    localStorage.setItem(GIST_ID_KEY, data.id);
+    const now = new Date().toISOString();
+    localStorage.setItem(GIST_SYNC_KEY, now);
+    gistUpdateUI();
+    gistSetStatus('✓ 已同步', 'ok');
+    setTimeout(() => gistSetStatus('', 'ok'), 3000);
+  }
+
+  // Pull Gist → local (overwrite)
+  async function gistPullFromCloud() {
+    const token = gistGetToken();
+    const gistId = gistGetId();
+    if (!token) { gistSetStatus('✗ 未設定 Token', 'error'); return; }
+    if (!gistId) { gistSetStatus('✗ 尚未建立 Gist，請先推送一次', 'error'); return; }
+
+    if (!confirm('從雲端還原會覆蓋本機所有資料，確定嗎？')) return;
+
+    gistSetStatus('下載中…', 'syncing');
+    try {
+      const res = await fetch('https://api.github.com/gists/' + gistId, {
+        headers: { 'Authorization': 'token ' + token }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const gist = await res.json();
+      const rawUrl = gist.files[GIST_FILENAME]?.raw_url;
+      if (!rawUrl) throw new Error('找不到資料檔案');
+
+      const dataRes = await fetch(rawUrl);
+      const data = await dataRes.json();
+      Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+
+      localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+      gistSetStatus('✓ 已從雲端還原，重新整理中…', 'ok');
+      setTimeout(() => location.reload(), 1500);
+    } catch(err) {
+      gistSetStatus('✗ ' + err.message, 'error');
+    }
+  }
+
+  // Manual sync button
+  async function gistManualSync() {
+    try {
+      await gistPushToCloud();
+    } catch(err) {
+      gistSetStatus('✗ ' + err.message, 'error');
+    }
+  }
+
+  // Auto-sync on page load (pull if cloud is newer) and on page hide (push)
+  async function gistAutoSyncOnLoad() {
+    const token = gistGetToken();
+    const gistId = gistGetId();
+    if (!token || !gistId) return;
+
+    gistSetStatus('檢查更新…', 'syncing');
+    try {
+      const res = await fetch('https://api.github.com/gists/' + gistId, {
+        headers: { 'Authorization': 'token ' + token }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const gist = await res.json();
+
+      const cloudUpdated = new Date(gist.updated_at).getTime();
+      const localSynced = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
+
+      if (cloudUpdated > localSynced + 5000) {
+        // Cloud is newer — pull
+        gistSetStatus('發現較新的雲端資料，下載中…', 'syncing');
+        const rawUrl = gist.files[GIST_FILENAME]?.raw_url;
+        if (rawUrl) {
+          const dataRes = await fetch(rawUrl);
+          const data = await dataRes.json();
+          Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+          localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+          gistUpdateUI();
+          gistSetStatus('✓ 已從雲端更新', 'ok');
+          setTimeout(() => { gistSetStatus('', 'ok'); location.reload(); }, 1200);
+          return;
+        }
+      }
+
+      gistSetStatus('✓ 已是最新', 'ok');
+      setTimeout(() => gistSetStatus('', 'ok'), 2500);
+    } catch(err) {
+      // Silent fail on load — don't bother the user
+      gistSetStatus('', '');
+    }
+  }
+
+  // Push on page unload / hide
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && gistGetToken()) {
+      // Use sendBeacon-style: fire and forget
+      gistPushToCloud().catch(() => {});
+    }
+  });
+
+  // Init Gist UI
+  gistUpdateUI();
+  gistAutoSyncOnLoad();
+
+
 
   // populate month selector
   (function initReportMonth() {
