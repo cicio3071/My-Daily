@@ -3027,16 +3027,19 @@ ${eventList}`
     CHAT_SYSTEM = chatMode === 'xinkui' ? buildXinkuiSystem() : CHAT_SYSTEM_DEFAULT;
     const btn = document.getElementById('chatModeBtn');
     const label = document.getElementById('chatModelLabel');
+    const area = document.getElementById('xinkuiMemoryArea');
     if (chatMode === 'xinkui') {
       btn.textContent = '切換通用';
       btn.style.borderColor = 'var(--accent)';
       btn.style.color = 'var(--accent)';
       label.textContent = '辛癸 · 每次開啟為新對話';
+      if (area) { area.classList.add('visible'); renderMemoryList(); }
     } else {
       btn.textContent = '切換辛癸';
       btn.style.borderColor = '';
       btn.style.color = '';
       label.textContent = 'gemini-2.5-flash · 每次開啟為新對話';
+      if (area) { area.classList.remove('visible'); }
     }
     newChatSession();
   }
@@ -3660,12 +3663,7 @@ ${eventList}`
     }
   }
 
-  // hook into toggleChatMode
-  const _origToggleChatMode = toggleChatMode;
-  toggleChatMode = function() {
-    _origToggleChatMode();
-    updateMemoryAreaVisibility();
-  };
+  // memory visibility handled inside toggleChatMode
 
   // enter key for memory input
   const memInputEl = document.getElementById('memoryInput');
