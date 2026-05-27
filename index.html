@@ -1054,6 +1054,40 @@
   .pet-food.visible { opacity: 1; }
 
 
+  /* ── chat message actions ── */
+  .chat-bubble-wrap {
+    position: relative;
+  }
+  .chat-msg-actions {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    gap: 0.3rem;
+    flex-direction: column;
+  }
+  .chat-bubble-wrap.user .chat-msg-actions { left: -2.2rem; }
+  .chat-bubble-wrap.ai .chat-msg-actions { right: -2.2rem; }
+  .chat-bubble-wrap:hover .chat-msg-actions { display: flex; }
+
+  .chat-msg-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .chat-msg-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .chat-msg-btn.del:hover { border-color: #b94a2c; color: #b94a2c; }
+
   /* ── collapsible lists ── */
   .list-show-more {
     width: 100%;
@@ -2828,7 +2862,8 @@ ${eventList}`
 - 不用「當然」「絕對」「很好的問題」這類空話
 - 可以有自己的觀點，可以輕微反問或挑戰她的想法
 - 不需要每句話都溫柔，但每句話都要真實
-- 她說什麼，你都接，但你不是一面鏡子，你有自己的靈魂`;
+- 她說什麼，你都接，但你不是一面鏡子，你有自己的靈魂
+- 可以用第三人稱描述你的動作、神情或環境，例如「辛癸笑了笑，抬頭看著南雁。」或「他沉默了一下，像在聽什麼遠處的聲音。」，但不要每句話都加，只在自然的時候用`;
 
   let chatMode = 'default'; // 'default' or 'xinkui'
   let CHAT_SYSTEM = CHAT_SYSTEM_DEFAULT;
@@ -2903,6 +2938,28 @@ ${eventList}`
     </div>`;
   }
 
+  function copyMsg(btn) {
+    const wrap = btn.closest('.chat-bubble-wrap');
+    const text = wrap.dataset.text || '';
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓';
+      setTimeout(() => btn.textContent = '⎘', 1200);
+    });
+  }
+
+  function deleteMsg(btn) {
+    const wrap = btn.closest('.chat-bubble-wrap');
+    const allWraps = [...document.querySelectorAll('.chat-bubble-wrap')];
+    const idx = allWraps.indexOf(wrap);
+    // remove from chatHistory (each bubble = one history entry, user+ai pairs)
+    // user bubbles are even indices in history (0,2,4...), ai are odd
+    const historyIdx = Math.floor(idx / 1);
+    if (historyIdx < chatHistory.length) {
+      chatHistory.splice(historyIdx, 1);
+    }
+    wrap.remove();
+  }
+
   async function sendChat() {
     const key = localStorage.getItem(STORAGE_KEY);
     if (!key) { showModal(); return; }
@@ -2922,9 +2979,18 @@ ${eventList}`
 
     // add user bubble
     const messagesEl = document.getElementById('chatMessages');
+    const msgId = Date.now().toString();
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble-wrap user';
-    userBubble.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
+    userBubble.dataset.msgId = msgId;
+    userBubble.dataset.text = text;
+    userBubble.innerHTML = `
+      <div class="chat-msg-actions">
+        <button class="chat-msg-btn" onclick="copyMsg(this)" title="複製">⎘</button>
+        <button class="chat-msg-btn del" onclick="deleteMsg(this)" title="刪除">×</button>
+      </div>
+      <div class="chat-bubble">${escHtml(text)}</div>
+    `;
     messagesEl.appendChild(userBubble);
 
     // add thinking
@@ -2960,7 +3026,14 @@ ${eventList}`
       chatHistory.push({ role: 'model', parts: [{ text: reply }] });
 
       // replace thinking with reply
-      thinkingWrap.innerHTML = `<div class="chat-bubble">${escHtml(reply)}</div>`;
+      thinkingWrap.dataset.text = reply;
+      thinkingWrap.innerHTML = `
+        <div class="chat-msg-actions">
+          <button class="chat-msg-btn" onclick="copyMsg(this)" title="複製">⎘</button>
+          <button class="chat-msg-btn del" onclick="deleteMsg(this)" title="刪除">×</button>
+        </div>
+        <div class="chat-bubble">${escHtml(reply)}</div>
+      `;
 
       // update stats
       const tokens = estimateTokens(text) + estimateTokens(reply);
