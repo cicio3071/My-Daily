@@ -1223,6 +1223,477 @@
     letter-spacing: 0.06em;
   }
 
+  /* ══════════════════════════════
+     TAB 5: 工具
+  ══════════════════════════════ */
+
+  /* ── Diary ── */
+  .diary-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .diary-nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    width: 32px; height: 32px;
+    font-size: 1.1rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .diary-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .diary-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .diary-date-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    letter-spacing: 0.03em;
+  }
+  .diary-date-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-align: center;
+    display: block;
+    margin-top: 0.1rem;
+  }
+  .diary-entry-area {
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: var(--ink);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1rem 1.25rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .diary-entry-area:focus { border-color: var(--accent); }
+  .diary-entry-area::placeholder { color: var(--muted); font-size: 0.9rem; }
+  .diary-entry-area:read-only {
+    background: var(--surface);
+    color: var(--ink-soft);
+    cursor: default;
+    border-color: transparent;
+  }
+  .diary-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.85rem;
+    gap: 0.75rem;
+  }
+  .diary-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .diary-dots {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+  .diary-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .diary-dot.has-entry { background: var(--accent-light); }
+  .diary-dot.current { background: var(--accent); transform: scale(1.4); }
+  .diary-dot:hover { background: var(--accent); }
+
+  /* ── Prompt Builder ── */
+  .pb-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .pb-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pb-collapsible { display: block; }
+  .pb-collapse-btn {
+    background: none; border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--muted);
+    cursor: pointer; padding: 0;
+    transition: color 0.2s;
+    letter-spacing: 0.06em;
+  }
+  .pb-collapse-btn:hover { color: var(--accent); }
+  .pb-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 600px) { .pb-grid2 { grid-template-columns: 1fr; } }
+  .pb-field { margin-bottom: 0.75rem; }
+  .pb-field:last-child { margin-bottom: 0; }
+  .pb-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .pb-field input[type="text"], .pb-field textarea, .pb-field select {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  .pb-field textarea { resize: vertical; min-height: 60px; }
+  .pb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pb-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.04em;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    background: var(--bg);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .pb-chip.active { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+  .pb-chip:hover { border-color: var(--accent-light); color: var(--ink-soft); }
+  .pb-tpl-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; }
+  .pb-tpl-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.06em;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--muted);
+    background: var(--bg);
+    transition: all 0.15s;
+  }
+  .pb-tpl-btn.active, .pb-tpl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pb-output-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--ink);
+    white-space: pre-wrap;
+    min-height: 100px;
+    word-break: break-word;
+  }
+  .pb-output-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .pb-output-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .pb-char-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 0.3rem;
+  }
+  .pb-char-count.over { color: #b94a2c; }
+  .pb-format-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+  }
+  .pb-fmt-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.08em;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    background: none;
+    transition: all 0.15s;
+  }
+  .pb-fmt-btn.active { border-color: var(--accent); color: var(--accent); }
+  .pb-btn-row { display: flex; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
+  .pb-divider { border: none; border-top: 1px solid var(--border); margin: 0.85rem 0; }
+  .pb-char-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .pb-char-row select { flex: 1; font-size: 0.82rem !important; padding: 0.4rem 0.65rem !important; }
+  .pb-saved-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; min-height: 0; }
+  .pb-saved-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.04em;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--muted);
+    background: var(--bg);
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .pb-saved-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .pb-saved-del { color: var(--border); font-size: 0.62rem; line-height: 1; }
+  .pb-saved-del:hover { color: #b94a2c; }
+  .pb-ratio-custom { margin-top: 0.4rem; display: none; }
+  .pb-ratio-custom.show { display: block; }
+
+  /* ── Clip List ── */
+  .clip-add-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .clip-add-row input { flex: 1; font-size: 0.9rem !important; }
+  .clip-add-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px;
+    padding: 0.6rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.06em;
+    cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .clip-add-btn:hover { background: var(--accent); }
+  .clip-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .clip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+  .clip-item:hover { border-color: var(--accent-light); }
+  .clip-item-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 0.15rem;
+    min-width: 60px;
+  }
+  .clip-item-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    word-break: break-word;
+    cursor: pointer;
+  }
+  .clip-item-text:hover { color: var(--ink); }
+  .clip-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+  .clip-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 3px;
+    width: 28px; height: 28px;
+    font-size: 0.75rem;
+    cursor: pointer; color: var(--muted);
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .clip-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .clip-btn.del:hover { border-color: #b94a2c; color: #b94a2c; }
+  .clip-copy-ok {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-top: 0.5rem;
+    min-height: 1em;
+  }
+  .clip-edit-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .clip-edit-modal.visible { display: flex; }
+  .clip-edit-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    width: 90%; max-width: 460px;
+  }
+  .clip-edit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+  .clip-edit-box input { margin-bottom: 0.75rem; }
+  .clip-edit-box textarea { resize: vertical; min-height: 80px; margin-bottom: 1rem; }
+  .clip-edit-btns { display: flex; gap: 0.5rem; }
+
+  /* ── Notes ── */
+  .notes-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+  }
+  .notes-add-btn {
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 3px;
+    padding: 0.55rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.06em;
+    cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .notes-add-btn:hover { background: var(--accent); }
+  .notes-search {
+    flex: 1;
+    font-size: 0.88rem !important;
+    padding: 0.5rem 0.85rem !important;
+  }
+  .notes-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.3s;
+  }
+  .note-card.expanded { border-color: var(--accent-light); }
+  .note-header {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1.25rem;
+    cursor: pointer;
+    gap: 0.75rem;
+    user-select: none;
+  }
+  .note-header:hover { background: var(--bg); }
+  .note-caret {
+    font-size: 0.65rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .note-card.expanded .note-caret { transform: rotate(90deg); }
+  .note-title-text {
+    flex: 1;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .note-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .note-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+  .note-action-btn {
+    background: none; border: none;
+    color: var(--muted); font-size: 0.8rem;
+    cursor: pointer; padding: 0.15rem 0.35rem;
+    border-radius: 2px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .note-action-btn:hover { color: var(--accent); background: var(--bg); }
+  .note-action-btn.del:hover { color: #b94a2c; }
+  .note-body { display: none; border-top: 1px solid var(--border); }
+  .note-card.expanded .note-body { display: block; }
+  .note-editor-area {
+    width: 100%;
+    min-height: 160px;
+    resize: vertical;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--ink);
+    background: var(--input-bg);
+    border: none;
+    padding: 1rem 1.25rem;
+    outline: none;
+    transition: background 0.3s;
+  }
+  .note-preview {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    min-height: 80px;
+  }
+  /* Markdown preview styles */
+  .note-preview h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.75rem; margin-top: 1rem; font-weight: 400; }
+  .note-preview h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.5rem; margin-top: 0.85rem; font-weight: 400; }
+  .note-preview h3 { font-family: 'DM Mono', monospace; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; margin-top: 0.75rem; }
+  .note-preview p { margin-bottom: 0.75rem; }
+  .note-preview ul, .note-preview ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+  .note-preview li { margin-bottom: 0.25rem; }
+  .note-preview code { font-family: 'DM Mono', monospace; font-size: 0.82rem; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; padding: 0.1rem 0.35rem; color: var(--accent); }
+  .note-preview pre { background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 0.85rem 1rem; margin-bottom: 0.75rem; overflow-x: auto; }
+  .note-preview pre code { background: none; border: none; padding: 0; }
+  .note-preview blockquote { border-left: 2px solid var(--accent-light); padding-left: 1rem; color: var(--muted); font-style: italic; margin-bottom: 0.75rem; }
+  .note-preview strong { color: var(--ink); font-weight: 600; }
+  .note-preview em { font-style: italic; }
+  .note-preview hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .note-preview a { color: var(--accent); }
+  .note-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1.25rem 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .note-view-tabs { display: flex; gap: 0.35rem; }
+  .note-tab-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.08em;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer; color: var(--muted); background: none;
+    transition: all 0.15s;
+  }
+  .note-tab-btn.active { border-color: var(--accent); color: var(--accent); }
+  .note-word-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .note-title-input {
+    background: none; border: none; outline: none;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem; color: var(--ink);
+    flex: 1;
+    cursor: text;
+  }
+
   /* ── export module ── */
   .export-section { margin-top: 3rem; }
 
@@ -1293,6 +1764,7 @@
   <button class="tab-btn" onclick="switchTab('record', this)">記錄</button>
   <button class="tab-btn" onclick="switchTab('recommend', this)">推薦</button>
   <button class="tab-btn" onclick="switchTab('chat', this)">閒聊</button>
+  <button class="tab-btn" onclick="switchTab('tools', this)">工具</button>
 </nav>
 
 <main>
@@ -1593,6 +2065,313 @@
     </div>
   </div>
 
+
+  <!-- ═══ TAB: 工具 ═══ -->
+  <div class="tab-panel" id="tab-tools">
+
+    <!-- ── 日記 ── -->
+    <div class="module-section">
+      <div class="module-label">diary · 日記</div>
+      <div class="panel">
+        <div class="diary-nav">
+          <button class="diary-nav-btn" id="diaryPrevBtn" onclick="diaryNav(-1)">‹</button>
+          <div style="text-align:center">
+            <div class="diary-date-label" id="diaryDateLabel"></div>
+            <span class="diary-date-sub" id="diaryDateSub"></span>
+          </div>
+          <button class="diary-nav-btn" id="diaryNextBtn" onclick="diaryNav(1)">›</button>
+        </div>
+        <textarea class="diary-entry-area" id="diaryTextarea" placeholder="今天發生了什麼…寫給未來的自己。" rows="8"></textarea>
+        <div class="diary-footer">
+          <div class="diary-count" id="diaryCharCount">0 字</div>
+          <div class="diary-dots" id="diaryDots"></div>
+          <button class="btn-ghost" id="diarySaveBtn" onclick="diarySave()" style="white-space:nowrap">儲存</button>
+        </div>
+        <div id="diaryStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.5rem;min-height:1em"></div>
+      </div>
+    </div>
+
+    <!-- ── 捏圖 Prompt ── -->
+    <div class="module-section">
+      <div class="module-label">prompt · 捏圖 Prompt</div>
+
+      <!-- 目標平台 -->
+      <div class="pb-section">
+        <div class="pb-section-title">輸出格式</div>
+        <div class="pb-format-tabs">
+          <button class="pb-fmt-btn active" data-fmt="gemini" onclick="pbSetFmt(this)">Gemini</button>
+          <button class="pb-fmt-btn" data-fmt="gpt" onclick="pbSetFmt(this)">GPT / DALL-E</button>
+          <button class="pb-fmt-btn" data-fmt="pixai" onclick="pbSetFmt(this)">Pix AI</button>
+          <button class="pb-fmt-btn" data-fmt="generic" onclick="pbSetFmt(this)">通用</button>
+        </div>
+      </div>
+
+      <!-- 角色 -->
+      <div class="pb-section">
+        <div class="pb-section-title">
+          角色錨定
+          <button class="pb-collapse-btn" onclick="pbToggleChars(this)">收起 ↑</button>
+        </div>
+        <div id="pbCharsBody">
+          <!-- 角色一 -->
+          <div class="pb-grid2" id="pbChar1Fields">
+            <div class="pb-field"><label class="pb-label">角色一　姓名</label><input type="text" id="pb-c1name" placeholder="例：南雁" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c1gender" placeholder="例：女" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c1height" placeholder="例：165cm" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c1desc" placeholder="例：黑色長髮、灰色眼睛" oninput="pbRender()"></div>
+          </div>
+          <div class="pb-char-row">
+            <select id="pbLoad1" onchange="pbLoadCharSelect(this,'pb-c1')">
+              <option value="">— 載入已儲存角色 —</option>
+            </select>
+            <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c1')">儲存角色</button>
+          </div>
+
+          <div class="pb-divider"></div>
+
+          <!-- 角色二 -->
+          <div class="pb-grid2" id="pbChar2Fields">
+            <div class="pb-field"><label class="pb-label">角色二　姓名</label><input type="text" id="pb-c2name" placeholder="例：辛癸" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c2gender" placeholder="例：男" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c2height" placeholder="例：182cm" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c2desc" placeholder="例：黑棕色長髮、琥珀色眼睛" oninput="pbRender()"></div>
+          </div>
+          <div class="pb-char-row">
+            <select id="pbLoad2" onchange="pbLoadCharSelect(this,'pb-c2')">
+              <option value="">— 載入已儲存角色 —</option>
+            </select>
+            <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c2')">儲存角色</button>
+          </div>
+
+          <div class="pb-divider"></div>
+
+          <!-- 角色三（可選） -->
+          <div class="pb-grid2" id="pbChar3Fields">
+            <div class="pb-field"><label class="pb-label">角色三　姓名 <span style="font-size:0.58rem;color:var(--border)">(可選)</span></label><input type="text" id="pb-c3name" placeholder="" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c3gender" placeholder="" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">身高</label><input type="text" id="pb-c3height" placeholder="" oninput="pbRender()"></div>
+            <div class="pb-field"><label class="pb-label">外貌特徵</label><input type="text" id="pb-c3desc" placeholder="" oninput="pbRender()"></div>
+          </div>
+          <div class="pb-char-row">
+            <select id="pbLoad3" onchange="pbLoadCharSelect(this,'pb-c3')">
+              <option value="">— 載入已儲存角色 —</option>
+            </select>
+            <button class="btn-ghost" style="white-space:nowrap;font-size:0.65rem;padding:0.4rem 0.75rem" onclick="pbSaveChar('pb-c3')">儲存角色</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 畫面風格 -->
+      <div class="pb-section">
+        <div class="pb-section-title">
+          畫面風格
+          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
+        </div>
+        <div class="pb-collapsible">
+          <div class="pb-field">
+            <label class="pb-label">氛圍模板 <span style="font-size:0.58rem;color:var(--accent-light)">快速套用</span></label>
+            <div class="pb-tpl-row" id="pbTplRow">
+              <button class="pb-tpl-btn" data-tpl="conflict" onclick="pbApplyTpl(this)">衝突張力</button>
+              <button class="pb-tpl-btn" data-tpl="tender" onclick="pbApplyTpl(this)">溫柔靠近</button>
+              <button class="pb-tpl-btn" data-tpl="solitude" onclick="pbApplyTpl(this)">獨處靜謐</button>
+              <button class="pb-tpl-btn" data-tpl="festive" onclick="pbApplyTpl(this)">節慶熱鬧</button>
+              <button class="pb-tpl-btn" data-tpl="epic" onclick="pbApplyTpl(this)">史詩壯闊</button>
+              <button class="pb-tpl-btn" data-tpl="night" onclick="pbApplyTpl(this)">深夜密謀</button>
+            </div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">畫風技法 <span style="font-size:0.58rem;color:var(--muted)">可多選</span></label>
+            <div class="pb-chips" id="pbStyleChips">
+              <span class="pb-chip" data-val="半寫實動漫風格，參照附圖畫風">半寫實動漫</span>
+              <span class="pb-chip" data-val="水墨畫風格，線條寫意，墨色暈染">水墨</span>
+              <span class="pb-chip" data-val="厚塗油畫風格，筆觸明顯，質感豐富">厚塗油畫</span>
+              <span class="pb-chip" data-val="淡彩水彩風格，透明感，邊緣柔和">淡彩水彩</span>
+              <span class="pb-chip" data-val="電影截圖質感，寫實攝影感">電影截圖感</span>
+              <span class="pb-chip" data-val="Q版卡通風格，頭大身小，圓潤可愛">Q版</span>
+              <span class="pb-chip" data-val="潦草插圖風格，手繪線條，隨興感">潦草插圖</span>
+              <span class="pb-chip" data-val="精緻插圖風格，細膩線條，高完成度">精緻插圖</span>
+              <span class="pb-chip" data-val="塗鴉風格，粗獷筆觸，即興感強">塗鴉</span>
+            </div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">光線性質 <span style="font-size:0.58rem;color:var(--muted)">可多選</span></label>
+            <div class="pb-chips" id="pbLightChips">
+              <span class="pb-chip" data-val="正午烈日直射，強光高反差">正午烈日</span>
+              <span class="pb-chip" data-val="清晨柔和光，薄霧感，冷暖交界">清晨</span>
+              <span class="pb-chip" data-val="黃昏側光，橙金暖調，長影">黃昏側光</span>
+              <span class="pb-chip" data-val="燭光昏黃，跳動光源，陰影濃重">燭光</span>
+              <span class="pb-chip" data-val="陰天漫射光，柔和均勻，無明顯陰影">陰天漫射</span>
+              <span class="pb-chip" data-val="月光冷白，高對比，靜謐感">月光冷白</span>
+              <span class="pb-chip" data-val="螢幕光源，藍白冷光，現代感">螢幕光</span>
+              <span class="pb-chip" data-val="逆光剪影，強烈背光，輪廓發光">逆光</span>
+              <span class="pb-chip" data-val="丁達爾光束穿透，光柱明顯，塵埃漂浮感">丁達爾</span>
+              <span class="pb-chip" data-val="室內燈光，暖黃柔和，生活感">室內燈光</span>
+            </div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">整體色調 <span style="font-size:0.58rem;color:var(--muted)">可多選</span></label>
+            <div class="pb-chips" id="pbToneChips">
+              <span class="pb-chip" data-val="暖色調，紅橙黃為主">暖色調</span>
+              <span class="pb-chip" data-val="冷色調，藍紫綠為主">冷色調</span>
+              <span class="pb-chip" data-val="中性色調，灰棕米白為主">中性色調</span>
+              <span class="pb-chip" data-val="大地色系，暖棕深褐">大地色系</span>
+              <span class="pb-chip" data-val="莫蘭迪色，低飽和粉灰">莫蘭迪</span>
+              <span class="pb-chip" data-val="單色調，同色相深淺變化">單色調</span>
+              <span class="pb-chip" data-val="互補色對比，強烈視覺張力">互補色</span>
+              <span class="pb-chip" data-val="黑白高對比，無彩色">黑白</span>
+              <span class="pb-chip" data-val="賽博龐克，霓虹粉紫藍，高對比暗底">賽博龐克</span>
+              <span class="pb-chip" data-val="復古色調，褪色感，低飽和懷舊">復古</span>
+            </div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">補充畫風描述</label>
+            <textarea id="pb-style-extra" placeholder="例：丁達爾光束穿透揚塵，電影截圖質感" maxlength="100" rows="2" oninput="pbCountChars(this,'pb-style-count',100);pbRender()"></textarea>
+            <div class="pb-char-count" id="pb-style-count">0 / 100</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 構圖 -->
+      <div class="pb-section">
+        <div class="pb-section-title">
+          構圖
+          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
+        </div>
+        <div class="pb-collapsible">
+          <div class="pb-grid2">
+            <div class="pb-field">
+              <label class="pb-label">鏡頭距離</label>
+              <select id="pb-shot" onchange="pbRender()">
+                <option value="特寫鏡頭（Close-up）">特寫</option>
+                <option value="中景鏡頭（Medium shot），上半身完整" selected>中景</option>
+                <option value="中長焦（Medium-long shot），全身可見">中長焦</option>
+                <option value="全景鏡頭（Full shot）">全景</option>
+                <option value="遠景鏡頭（Extreme wide shot）">遠景</option>
+              </select>
+            </div>
+            <div class="pb-field">
+              <label class="pb-label">視角</label>
+              <select id="pb-angle" onchange="pbRender()">
+                <option value="平視角度（Eye-level）">平視</option>
+                <option value="略微仰拍（Low angle）" selected>略微仰拍</option>
+                <option value="俯拍（High angle）">俯拍</option>
+                <option value="鳥瞰（Bird's-eye view）">鳥瞰</option>
+                <option value="斜側45度（Three-quarter view）">斜側45度</option>
+                <option value="正側面（Profile view）">正側面</option>
+                <option value="過肩視角（Over-the-shoulder）">過肩視角</option>
+              </select>
+            </div>
+          </div>
+          <div class="pb-grid2" style="margin-top:0.75rem">
+            <div class="pb-field">
+              <label class="pb-label">畫面比例</label>
+              <select id="pb-ratio" onchange="pbToggleRatio(this);pbRender()">
+                <option value="16:9 橫式" selected>16:9 橫式</option>
+                <option value="9:16 直式">9:16 直式</option>
+                <option value="1:1 方形">1:1 方形</option>
+                <option value="4:3 橫式">4:3 橫式</option>
+                <option value="3:4 直式">3:4 直式</option>
+                <option value="2.35:1 電影寬銀幕">2.35:1 電影寬銀幕</option>
+                <option value="custom">自行輸入…</option>
+              </select>
+              <div class="pb-ratio-custom" id="pb-ratio-custom-wrap">
+                <input type="text" id="pb-ratio-custom" placeholder="例：21:9" style="margin-top:0.4rem" oninput="pbRender()">
+              </div>
+            </div>
+            <div class="pb-field">
+              <label class="pb-label">構圖補充</label>
+              <input type="text" id="pb-comp-extra" placeholder="例：焦點落在兩人表情" oninput="pbRender()">
+            </div>
+          </div>
+          <div class="pb-field" style="margin-top:0.75rem">
+            <label class="pb-label">背景描述</label>
+            <input type="text" id="pb-bg" placeholder="例：部落廣場、遠山與藍天" oninput="pbRender()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 人物細節 -->
+      <div class="pb-section">
+        <div class="pb-section-title">
+          人物細節
+          <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button>
+        </div>
+        <div class="pb-collapsible">
+          <div class="pb-field">
+            <label class="pb-label">角色一　服裝與動作</label>
+            <textarea id="pb-c1action" placeholder="例：藕粉色長裙，雙手鼓掌，黑髮在金光中飛舞" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c1a-count',200);pbRender()"></textarea>
+            <div class="pb-char-count" id="pb-c1a-count">0 / 200</div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">角色二　服裝與動作</label>
+            <textarea id="pb-c2action" placeholder="例：深色亞麻無袖背心，右手環腰" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c2a-count',200);pbRender()"></textarea>
+            <div class="pb-char-count" id="pb-c2a-count">0 / 200</div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">角色三　服裝與動作 <span style="font-size:0.58rem;color:var(--border)">(可選)</span></label>
+            <textarea id="pb-c3action" placeholder="" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c3a-count',200);pbRender()"></textarea>
+            <div class="pb-char-count" id="pb-c3a-count">0 / 200</div>
+          </div>
+          <div class="pb-field">
+            <label class="pb-label">人物關係與距離</label>
+            <input type="text" id="pb-relation" placeholder="例：零距離，胸膛緊貼背脊" oninput="pbRender()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 氛圍 -->
+      <div class="pb-section">
+        <div class="pb-section-title">氛圍補充 <span style="font-size:0.58rem;color:var(--border);text-transform:none;letter-spacing:0">可選</span></div>
+        <div class="pb-field">
+          <textarea id="pb-vibe" placeholder="例：空氣中混合泥土腥甜、汗水與小米酒醇香" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-vibe-count',200);pbRender()"></textarea>
+          <div class="pb-char-count" id="pb-vibe-count">0 / 200</div>
+        </div>
+      </div>
+
+      <!-- 輸出 -->
+      <div class="pb-section">
+        <div class="pb-section-title">產出</div>
+        <div class="pb-output-meta">
+          <span class="pb-output-label" id="pbOutLabel">完整格式</span>
+          <span class="pb-output-label" id="pbOutCount">0 字</span>
+        </div>
+        <div class="pb-output-box" id="pbOutput">（填寫上方欄位後自動生成）</div>
+        <div class="pb-btn-row">
+          <button class="btn-ghost" onclick="pbCopy()">複製</button>
+          <button class="btn-ghost" onclick="pbClearAll()">清除全部</button>
+        </div>
+        <div id="pbCopyStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.5rem;min-height:1em"></div>
+      </div>
+    </div>
+
+    <!-- ── 複製清單 ── -->
+    <div class="module-section">
+      <div class="module-label">clipboard · 複製清單</div>
+      <div class="panel">
+        <div class="clip-add-row">
+          <input type="text" id="clipNameInput" placeholder="標籤名稱" style="max-width:110px;flex-shrink:0" maxlength="20">
+          <input type="text" id="clipTextInput" placeholder="要複製的文字內容…" maxlength="500" style="flex:1">
+          <button class="clip-add-btn" onclick="clipAdd()">新增</button>
+        </div>
+        <div class="clip-list" id="clipList"></div>
+        <div class="clip-copy-ok" id="clipCopyOk"></div>
+      </div>
+    </div>
+
+    <!-- ── 筆記 ── -->
+    <div class="module-section">
+      <div class="module-label">notes · 筆記</div>
+      <div class="panel" style="padding:1.5rem">
+        <div class="notes-toolbar">
+          <input class="notes-search" type="text" id="notesSearch" placeholder="搜尋筆記…" oninput="notesRender()">
+          <button class="notes-add-btn" onclick="notesAdd()">+ 新筆記</button>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
   <!-- Pet -->
@@ -1611,7 +2390,20 @@
   </div>
 
 
-<!-- Pomodoro Alert -->
+<!-- Clip Edit Modal -->
+<div class="clip-edit-modal" id="clipEditModal">
+  <div class="clip-edit-box">
+    <div class="clip-edit-title">編輯項目</div>
+    <input type="text" id="clipEditName" placeholder="標籤名稱" maxlength="20">
+    <textarea id="clipEditText" placeholder="文字內容" rows="4" maxlength="500" style="resize:vertical;width:100%;margin-bottom:1rem"></textarea>
+    <div class="clip-edit-btns">
+      <button class="btn-primary" style="width:auto;padding:0.6rem 1.25rem" onclick="clipEditSave()">儲存</button>
+      <button class="btn-ghost" onclick="clipEditClose()">取消</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="pomo-alert" id="pomoAlert">
   <div class="pomo-alert-box">
     <div class="pomo-alert-emoji" id="pomoAlertEmoji">🍅</div>
@@ -3623,7 +4415,11 @@ ${eventList}`
 
 
   // ── Export / Import ──
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, MEMORY_KEY];
+  const DIARY_KEY = 'daily_diary';
+  const CLIP_KEY = 'daily_clips';
+  const NOTES_KEY = 'daily_notes';
+  const PB_CHARS_KEY = 'daily_pb_chars';
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, MEMORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY];
   const CHAT_SESSION_KEY = 'daily_chat_session';
 
   // ── Xinkui Memory ──
@@ -3900,6 +4696,641 @@ ${eventList}`
       container.appendChild(btn);
     }
   }
+
+  // ════════════════════════════════════════
+  //  DIARY MODULE
+  // ════════════════════════════════════════
+  let diaryOffset = 0; // 0 = today, -1 = yesterday, etc.
+
+  function diaryGetDate(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.toISOString().split('T')[0];
+  }
+
+  function diaryFormatLabel(dateStr) {
+    const [y, m, day] = dateStr.split('-').map(Number);
+    const d = new Date(y, m - 1, day);
+    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    return {
+      main: `${y} · ${String(m).padStart(2,'0')} · ${String(day).padStart(2,'0')}`,
+      sub: `週${weekdays[d.getDay()]}` + (dateStr === todayStr ? '　今天' : '')
+    };
+  }
+
+  function diaryLoad() {
+    const entries = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
+    const dateStr = diaryGetDate(diaryOffset);
+    const { main, sub } = diaryFormatLabel(dateStr);
+    document.getElementById('diaryDateLabel').textContent = main;
+    document.getElementById('diaryDateSub').textContent = sub;
+
+    const ta = document.getElementById('diaryTextarea');
+    ta.value = entries[dateStr] || '';
+    ta.readOnly = false;
+
+    document.getElementById('diaryCharCount').textContent = ta.value.length + ' 字';
+    document.getElementById('diaryStatus').textContent = '';
+    document.getElementById('diaryNextBtn').disabled = diaryOffset >= 0;
+    diaryRenderDots(entries);
+  }
+
+  function diaryRenderDots(entries) {
+    const container = document.getElementById('diaryDots');
+    container.innerHTML = '';
+    // show last 30 days as dots
+    for (let i = -29; i <= 0; i++) {
+      const ds = diaryGetDate(i);
+      const dot = document.createElement('div');
+      dot.className = 'diary-dot' +
+        (entries[ds] ? ' has-entry' : '') +
+        (i === diaryOffset ? ' current' : '');
+      dot.title = ds;
+      const capturedI = i;
+      dot.onclick = () => { diaryOffset = capturedI; diaryLoad(); };
+      container.appendChild(dot);
+    }
+  }
+
+  function diaryNav(dir) {
+    diaryOffset += dir;
+    if (diaryOffset > 0) diaryOffset = 0;
+    diaryLoad();
+  }
+
+  function diarySave() {
+    const dateStr = diaryGetDate(diaryOffset);
+    const text = document.getElementById('diaryTextarea').value;
+    const entries = JSON.parse(localStorage.getItem(DIARY_KEY) || '{}');
+    if (text.trim()) {
+      entries[dateStr] = text;
+    } else {
+      delete entries[dateStr];
+    }
+    localStorage.setItem(DIARY_KEY, JSON.stringify(entries));
+    document.getElementById('diaryStatus').textContent = '✓ 已儲存';
+    setTimeout(() => document.getElementById('diaryStatus').textContent = '', 2000);
+    diaryRenderDots(entries);
+  }
+
+  document.getElementById('diaryTextarea').addEventListener('input', function() {
+    document.getElementById('diaryCharCount').textContent = this.value.length + ' 字';
+  });
+
+  document.getElementById('diaryTextarea').addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); diarySave(); }
+  });
+
+  diaryLoad();
+
+
+  // ════════════════════════════════════════
+  //  PROMPT BUILDER MODULE
+  // ════════════════════════════════════════
+  let pbFmt = 'gemini';
+
+  const PB_TEMPLATES = {
+    conflict: { light: '逆光剪影，強烈背光，輪廓發光', tone: '互補色對比，強烈視覺張力', vibe: '空氣緊繃，對峙瞬間，呼吸凝結，肌肉蓄力待發' },
+    tender: { light: '陰天漫射光，柔和均勻，無明顯陰影', tone: '莫蘭迪色，低飽和粉灰', vibe: '細微的溫度傳遞，靠近的距離，呼吸輕而緩' },
+    solitude: { light: '月光冷白，高對比，靜謐感', tone: '冷色調，藍紫綠為主', vibe: '夜深人靜，只有風聲，一人獨處的空曠與沉澱' },
+    festive: { light: '正午烈日直射，強光高反差', tone: '大地色系，暖棕深褐', vibe: '人聲鼎沸，鑼鼓喧天，塵土飛揚，沸騰的生命力' },
+    epic: { light: '黃昏側光，橙金暖調，長影', tone: '暖色調，紅橙黃為主', vibe: '山河壯闊，風吹衣袂，站在命運的轉折點' },
+    night: { light: '燭光昏黃，跳動光源，陰影濃重', tone: '中性色調，灰棕米白為主', vibe: '壓低的聲音，秘密在黑暗中流動，燭火將熄' }
+  };
+
+  function pbSetFmt(btn) {
+    document.querySelectorAll('.pb-fmt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    pbFmt = btn.dataset.fmt;
+    pbRender();
+  }
+
+  function pbToggleChars(btn) {
+    const body = document.getElementById('pbCharsBody');
+    const collapsed = body.style.display === 'none';
+    body.style.display = collapsed ? 'block' : 'none';
+    btn.textContent = collapsed ? '收起 ↑' : '展開 ↓';
+  }
+
+  function pbToggleSection(btn) {
+    const section = btn.closest('.pb-section');
+    const collapsible = section.querySelector('.pb-collapsible');
+    const collapsed = collapsible.style.display === 'none';
+    collapsible.style.display = collapsed ? 'block' : 'none';
+    btn.textContent = collapsed ? '收起 ↑' : '展開 ↓';
+  }
+
+  // chip toggle
+  document.querySelectorAll('.pb-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      pbRender();
+    });
+  });
+
+  function pbGetChips(gid) {
+    return [...document.querySelectorAll('#' + gid + ' .pb-chip.active')].map(c => c.dataset.val).join('，');
+  }
+
+  function pbApplyTpl(btn) {
+    const isActive = btn.classList.contains('active');
+    document.querySelectorAll('.pb-tpl-btn').forEach(b => b.classList.remove('active'));
+    if (isActive) { pbRender(); return; }
+    btn.classList.add('active');
+    const tpl = PB_TEMPLATES[btn.dataset.tpl];
+    document.querySelectorAll('#pbLightChips .pb-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.val === tpl.light);
+    });
+    document.querySelectorAll('#pbToneChips .pb-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.val === tpl.tone);
+    });
+    document.getElementById('pb-vibe').value = tpl.vibe;
+    pbCountChars(document.getElementById('pb-vibe'), 'pb-vibe-count', 200);
+    pbRender();
+  }
+
+  function pbToggleRatio(sel) {
+    document.getElementById('pb-ratio-custom-wrap').classList.toggle('show', sel.value === 'custom');
+  }
+
+  function pbCountChars(el, cid, max) {
+    const n = el.value.length, c = document.getElementById(cid);
+    if (!c) return;
+    c.textContent = n + ' / ' + max;
+    c.classList.toggle('over', n >= max);
+  }
+
+  function pbVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  function pbCharDesc(name, gender, height, desc) {
+    const parts = [gender, height, desc].filter(Boolean);
+    return name + (parts.length ? '（' + parts.join('、') + '）' : '');
+  }
+
+  function pbGetRatio() {
+    const sel = document.getElementById('pb-ratio');
+    if (sel.value === 'custom') { const c = pbVal('pb-ratio-custom'); return c ? c : ''; }
+    return sel.value;
+  }
+
+  function pbRender() {
+    const c1n = pbVal('pb-c1name') || '角色一';
+    const c1g = pbVal('pb-c1gender'), c1h = pbVal('pb-c1height'), c1d = pbVal('pb-c1desc');
+    const c2n = pbVal('pb-c2name') || '角色二';
+    const c2g = pbVal('pb-c2gender'), c2h = pbVal('pb-c2height'), c2d = pbVal('pb-c2desc');
+    const c3n = pbVal('pb-c3name');
+    const c3g = pbVal('pb-c3gender'), c3h = pbVal('pb-c3height'), c3d = pbVal('pb-c3desc');
+
+    const sc = pbGetChips('pbStyleChips'), lc = pbGetChips('pbLightChips'), tc = pbGetChips('pbToneChips');
+    const se = pbVal('pb-style-extra');
+    const ratio = pbGetRatio(), shot = document.getElementById('pb-shot').value, angle = document.getElementById('pb-angle').value;
+    const ce = pbVal('pb-comp-extra'), bg = pbVal('pb-bg');
+    const c1a = pbVal('pb-c1action'), c2a = pbVal('pb-c2action'), c3a = pbVal('pb-c3action');
+    const rel = pbVal('pb-relation'), vibe = pbVal('pb-vibe');
+
+    let L = [];
+
+    if (pbFmt === 'gemini') {
+      L.push('【指令】直接生成圖片。');
+      L.push('第一張附圖角色：' + pbCharDesc(c1n, c1g, c1h, c1d));
+      if (pbVal('pb-c2name')) L.push('第二張附圖角色：' + pbCharDesc(c2n, c2g, c2h, c2d));
+      if (c3n) L.push('第三張附圖角色：' + pbCharDesc(c3n, c3g, c3h, c3d));
+      L.push('臉部特徵嚴格參照附圖，不得更動。');
+    } else if (pbFmt === 'gpt') {
+      L.push('Generate an image with the following specifications:');
+      L.push('Character 1: ' + pbCharDesc(c1n, c1g, c1h, c1d));
+      if (pbVal('pb-c2name')) L.push('Character 2: ' + pbCharDesc(c2n, c2g, c2h, c2d));
+      if (c3n) L.push('Character 3: ' + pbCharDesc(c3n, c3g, c3h, c3d));
+    } else if (pbFmt === 'pixai') {
+      L.push('[[' + c1n + ']]');
+      if (pbVal('pb-c2name')) L.push('[[' + c2n + ']]');
+      if (c3n) L.push('[[' + c3n + ']]');
+    } else {
+      L.push('角色一：' + pbCharDesc(c1n, c1g, c1h, c1d));
+      if (pbVal('pb-c2name')) L.push('角色二：' + pbCharDesc(c2n, c2g, c2h, c2d));
+      if (c3n) L.push('角色三：' + pbCharDesc(c3n, c3g, c3h, c3d));
+    }
+
+    L.push('');
+    const styleArr = [sc, lc, tc, se].filter(Boolean).join('，');
+    if (styleArr) {
+      if (pbFmt === 'gpt') {
+        L.push('Style: ' + styleArr + '.');
+      } else {
+        L.push('【畫面風格】');
+        L.push(styleArr + '。');
+      }
+      L.push('');
+    }
+
+    const compParts = [ratio ? '尺寸：' + ratio : '', shot + '，' + angle + '。', ce, bg ? '背景：' + bg : ''].filter(Boolean).join(' ');
+    if (compParts) {
+      if (pbFmt === 'gpt') {
+        L.push('Composition: ' + compParts);
+      } else {
+        L.push('【構圖】');
+        L.push(compParts);
+      }
+      L.push('');
+    }
+
+    const hasDetail = c1a || c2a || c3a || rel;
+    if (hasDetail) {
+      if (pbFmt !== 'gpt') L.push('【人物細節】');
+      if (c1a) L.push(c1n + '：' + c1a);
+      if (c2a) L.push(c2n + '：' + c2a);
+      if (c3a && c3n) L.push(c3n + '：' + c3a);
+      if (rel) L.push('關係：' + rel);
+      L.push('');
+    }
+
+    if (vibe) {
+      if (pbFmt === 'gpt') {
+        L.push('Atmosphere: ' + vibe + '.');
+      } else {
+        L.push('【氛圍補充】');
+        L.push(vibe);
+        L.push('');
+      }
+    }
+
+    L.push(pbFmt === 'gpt' ? 'High quality, 8K resolution.' : '高品質，高解析，8K。');
+
+    const txt = L.join('\n');
+    document.getElementById('pbOutput').textContent = txt;
+    document.getElementById('pbOutCount').textContent = txt.replace(/\s/g, '').length + ' 字';
+  }
+
+  function pbCopy() {
+    const txt = document.getElementById('pbOutput').textContent;
+    if (!txt || txt.startsWith('（')) return;
+    navigator.clipboard.writeText(txt).then(() => {
+      const el = document.getElementById('pbCopyStatus');
+      el.textContent = '✓ 已複製';
+      setTimeout(() => el.textContent = '', 2000);
+    });
+  }
+
+  function pbClearAll() {
+    ['pb-c1name','pb-c1gender','pb-c1height','pb-c1desc',
+     'pb-c2name','pb-c2gender','pb-c2height','pb-c2desc',
+     'pb-c3name','pb-c3gender','pb-c3height','pb-c3desc',
+     'pb-style-extra','pb-comp-extra','pb-bg',
+     'pb-c1action','pb-c2action','pb-c3action','pb-relation','pb-vibe','pb-ratio-custom'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.querySelectorAll('.pb-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.pb-tpl-btn').forEach(c => c.classList.remove('active'));
+    document.getElementById('pb-ratio').selectedIndex = 0;
+    document.getElementById('pb-ratio-custom-wrap').classList.remove('show');
+    [['pb-style-count',100],['pb-c1a-count',200],['pb-c2a-count',200],['pb-c3a-count',200],['pb-vibe-count',200]].forEach(([id,max]) => {
+      const el = document.getElementById(id); if (el) { el.textContent = '0 / ' + max; el.classList.remove('over'); }
+    });
+    pbRender();
+  }
+
+  // Char save/load
+  function pbRefreshSelects() {
+    const list = JSON.parse(localStorage.getItem(PB_CHARS_KEY) || '[]');
+    ['pbLoad1','pbLoad2','pbLoad3'].forEach(sid => {
+      const sel = document.getElementById(sid);
+      sel.innerHTML = '<option value="">— 載入已儲存角色 —</option>';
+      list.forEach((ch, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = ch.name + (ch.gender ? '　' + ch.gender : '') + (ch.height ? '　' + ch.height : '');
+        sel.appendChild(opt);
+      });
+      if (list.length) {
+        const grp = document.createElement('optgroup');
+        grp.label = '─ 刪除 ─';
+        list.forEach((ch, i) => {
+          const opt = document.createElement('option');
+          opt.value = 'del:' + i;
+          opt.textContent = '✕ ' + ch.name;
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
+    });
+  }
+
+  function pbLoadCharSelect(sel, prefix) {
+    const v = sel.value; if (!v) return;
+    if (v.startsWith('del:')) {
+      const i = parseInt(v.split(':')[1]);
+      const list = JSON.parse(localStorage.getItem(PB_CHARS_KEY) || '[]');
+      list.splice(i, 1);
+      localStorage.setItem(PB_CHARS_KEY, JSON.stringify(list));
+      pbRefreshSelects(); return;
+    }
+    const list = JSON.parse(localStorage.getItem(PB_CHARS_KEY) || '[]');
+    const ch = list[parseInt(v)]; if (!ch) return;
+    document.getElementById(prefix + 'name').value = ch.name || '';
+    document.getElementById(prefix + 'gender').value = ch.gender || '';
+    document.getElementById(prefix + 'height').value = ch.height || '';
+    document.getElementById(prefix + 'desc').value = ch.desc || '';
+    sel.value = '';
+    pbRender();
+  }
+
+  function pbSaveChar(prefix) {
+    const name = pbVal(prefix + 'name');
+    if (!name) { alert('請先填入角色姓名'); return; }
+    const ch = { name, gender: pbVal(prefix + 'gender'), height: pbVal(prefix + 'height'), desc: pbVal(prefix + 'desc') };
+    const list = JSON.parse(localStorage.getItem(PB_CHARS_KEY) || '[]');
+    const exist = list.findIndex(c => c.name === name);
+    if (exist >= 0) list[exist] = ch; else list.push(ch);
+    localStorage.setItem(PB_CHARS_KEY, JSON.stringify(list));
+    pbRefreshSelects();
+  }
+
+  pbRefreshSelects();
+  pbRender();
+
+
+  // ════════════════════════════════════════
+  //  CLIP LIST MODULE
+  // ════════════════════════════════════════
+  let clipEditId = null;
+
+  function clipLoad() {
+    return JSON.parse(localStorage.getItem(CLIP_KEY) || '[]');
+  }
+  function clipSave(list) {
+    localStorage.setItem(CLIP_KEY, JSON.stringify(list));
+  }
+
+  function clipRender() {
+    const list = clipLoad();
+    const container = document.getElementById('clipList');
+    if (!list.length) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:0.68rem;color:var(--border);padding:0.5rem 0">尚無項目，新增你常用的文字吧</div>';
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'clip-item';
+      div.innerHTML = `
+        <div class="clip-item-name">${escHtml(item.name || '項目' + (i+1))}</div>
+        <div class="clip-item-text" onclick="clipCopyItem(${i})" title="點擊複製">${escHtml(item.text)}</div>
+        <div class="clip-actions">
+          <button class="clip-btn" onclick="clipCopyItem(${i})" title="複製">⎘</button>
+          <button class="clip-btn" onclick="clipEditOpen(${i})" title="編輯">✎</button>
+          <button class="clip-btn del" onclick="clipDelete(${i})" title="刪除">×</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function clipAdd() {
+    const nameEl = document.getElementById('clipNameInput');
+    const textEl = document.getElementById('clipTextInput');
+    const name = nameEl.value.trim();
+    const text = textEl.value.trim();
+    if (!text) return;
+    const list = clipLoad();
+    list.push({ name: name || '項目' + (list.length + 1), text });
+    clipSave(list);
+    nameEl.value = ''; textEl.value = '';
+    clipRender();
+  }
+
+  function clipCopyItem(i) {
+    const list = clipLoad();
+    if (!list[i]) return;
+    navigator.clipboard.writeText(list[i].text).then(() => {
+      const el = document.getElementById('clipCopyOk');
+      el.textContent = '✓ 已複製：' + (list[i].name || '');
+      setTimeout(() => el.textContent = '', 2000);
+    });
+  }
+
+  function clipDelete(i) {
+    const list = clipLoad();
+    list.splice(i, 1);
+    clipSave(list);
+    clipRender();
+  }
+
+  function clipEditOpen(i) {
+    clipEditId = i;
+    const list = clipLoad();
+    const item = list[i];
+    document.getElementById('clipEditName').value = item.name || '';
+    document.getElementById('clipEditText').value = item.text || '';
+    document.getElementById('clipEditModal').classList.add('visible');
+  }
+
+  function clipEditClose() {
+    clipEditId = null;
+    document.getElementById('clipEditModal').classList.remove('visible');
+  }
+
+  function clipEditSave() {
+    if (clipEditId === null) return;
+    const list = clipLoad();
+    list[clipEditId] = {
+      name: document.getElementById('clipEditName').value.trim() || list[clipEditId].name,
+      text: document.getElementById('clipEditText').value.trim()
+    };
+    clipSave(list);
+    clipRender();
+    clipEditClose();
+  }
+
+  document.getElementById('clipTextInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') clipAdd();
+  });
+
+  clipRender();
+
+
+  // ════════════════════════════════════════
+  //  NOTES MODULE
+  // ════════════════════════════════════════
+  function notesLoad() {
+    return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]');
+  }
+  function notesSave(list) {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(list));
+  }
+
+  // Minimal Markdown renderer
+  function notesMD(text) {
+    if (!text) return '';
+    let html = escHtml(text);
+    // Unescape for processing — we'll re-escape within code blocks
+    html = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    // code blocks
+    html = html.replace(/```([\s\S]*?)```/g, (_, code) =>
+      '<pre><code>' + code.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code></pre>');
+    // inline code
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // headings
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // hr
+    html = html.replace(/^---+$/gm, '<hr>');
+    // blockquote
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    // bold italic
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    // bold
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // italic
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // strikethrough
+    html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+    // links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    // unordered list lines
+    html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+    // ordered list lines
+    html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    // wrap consecutive <li> in <ul>
+    html = html.replace(/(<li>[\s\S]*?<\/li>)(?:\n|$)/g, (match) => '<ul>' + match + '</ul>');
+    // Fix nested ul: collapse consecutive ul tags
+    html = html.replace(/<\/ul>\s*<ul>/g, '');
+    // paragraphs — wrap non-tag lines
+    html = html.split('\n').map(line => {
+      line = line.trim();
+      if (!line) return '';
+      if (/^<(h[123]|ul|ol|li|pre|hr|blockquote)/.test(line)) return line;
+      return '<p>' + line + '</p>';
+    }).join('\n');
+
+    return html;
+  }
+
+  function notesAdd() {
+    const list = notesLoad();
+    const newNote = {
+      id: Date.now().toString(),
+      title: '未命名筆記',
+      content: '',
+      created: todayStr,
+      updated: todayStr
+    };
+    list.unshift(newNote);
+    notesSave(list);
+    notesRender();
+    // auto-expand new note
+    setTimeout(() => {
+      const card = document.querySelector('[data-note-id="' + newNote.id + '"]');
+      if (card) {
+        card.classList.add('expanded');
+        const titleInput = card.querySelector('.note-title-input');
+        if (titleInput) { titleInput.focus(); titleInput.select(); }
+      }
+    }, 50);
+  }
+
+  function notesDelete(id) {
+    const list = notesLoad().filter(n => n.id !== id);
+    notesSave(list);
+    notesRender();
+  }
+
+  function notesToggle(id) {
+    const card = document.querySelector('[data-note-id="' + id + '"]');
+    if (card) card.classList.toggle('expanded');
+  }
+
+  function notesUpdateTitle(id, value) {
+    const list = notesLoad();
+    const note = list.find(n => n.id === id);
+    if (note) { note.title = value || '未命名筆記'; note.updated = todayStr; notesSave(list); }
+  }
+
+  function notesUpdateContent(id, value) {
+    const list = notesLoad();
+    const note = list.find(n => n.id === id);
+    if (note) { note.content = value; note.updated = todayStr; notesSave(list); }
+    // update word count
+    const card = document.querySelector('[data-note-id="' + id + '"]');
+    if (card) {
+      const wc = card.querySelector('.note-word-count');
+      if (wc) wc.textContent = value.length + ' 字';
+    }
+  }
+
+  function notesSetView(id, view) {
+    const card = document.querySelector('[data-note-id="' + id + '"]');
+    if (!card) return;
+    const editor = card.querySelector('.note-editor-area');
+    const preview = card.querySelector('.note-preview');
+    const tabs = card.querySelectorAll('.note-tab-btn');
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    if (view === 'edit') {
+      editor.style.display = 'block';
+      preview.style.display = 'none';
+    } else {
+      editor.style.display = 'none';
+      preview.style.display = 'block';
+      preview.innerHTML = notesMD(editor.value);
+    }
+  }
+
+  function notesRender() {
+    const query = document.getElementById('notesSearch').value.trim().toLowerCase();
+    let list = notesLoad();
+    if (query) list = list.filter(n => n.title.toLowerCase().includes(query) || n.content.toLowerCase().includes(query));
+
+    const container = document.getElementById('notesList');
+    if (!list.length) {
+      container.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:0.68rem;color:var(--border);padding:0.5rem 0">' +
+        (query ? '找不到符合的筆記' : '尚無筆記，點右上角新增') + '</div>';
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach(note => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      card.dataset.noteId = note.id;
+      card.innerHTML = `
+        <div class="note-header" onclick="notesToggle('${note.id}')">
+          <span class="note-caret">▶</span>
+          <input class="note-title-input" value="${escHtml(note.title)}"
+            onclick="event.stopPropagation()"
+            onblur="notesUpdateTitle('${note.id}', this.value)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+            maxlength="60">
+          <span class="note-meta">${note.updated}</span>
+          <div class="note-actions" onclick="event.stopPropagation()">
+            <button class="note-action-btn del" onclick="notesDelete('${note.id}')" title="刪除">×</button>
+          </div>
+        </div>
+        <div class="note-body">
+          <textarea class="note-editor-area" rows="8"
+            placeholder="支援基礎 Markdown：# 標題、**粗體**、*斜體*、\`程式碼\`、- 列表、> 引用…"
+            oninput="notesUpdateContent('${note.id}', this.value)"
+          >${escHtml(note.content)}</textarea>
+          <div class="note-preview" style="display:none"></div>
+          <div class="note-footer">
+            <div class="note-view-tabs">
+              <button class="note-tab-btn active" data-view="edit" onclick="notesSetView('${note.id}','edit')">編輯</button>
+              <button class="note-tab-btn" data-view="preview" onclick="notesSetView('${note.id}','preview')">預覽</button>
+            </div>
+            <span class="note-word-count">${note.content.length} 字</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  notesRender();
+
 
 </script>
 </body>
