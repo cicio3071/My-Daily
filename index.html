@@ -4704,8 +4704,33 @@ ${eventList}`
       gistSetStatus('✓ 已是最新', 'ok');
       setTimeout(() => gistSetStatus('', 'ok'), 2500);
     } catch(err) {
-      gistSetStatus('✗ 同步失敗：' + err.message, 'error');
-      setTimeout(() => gistSetStatus('', ''), 5000);
+      // retry once after 3 seconds
+      setTimeout(async () => {
+        try {
+          const r2 = await fetch('https://api.github.com/gists/' + gistId, { headers: gistH(token) });
+          if (!r2.ok) throw new Error('HTTP ' + r2.status);
+          const g2 = await r2.json();
+          const cloudUpdated2 = new Date(g2.updated_at).getTime();
+          const localSynced2 = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
+          if (cloudUpdated2 > localSynced2 + 5000) {
+            const fc = g2.files[GIST_FILENAME]?.content;
+            if (fc) {
+              const d2 = JSON.parse(fc);
+              Object.keys(d2).forEach(k => localStorage.setItem(k, d2[k]));
+              localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+              gistUpdateUI();
+              gistSetStatus('✓ 已從雲端更新', 'ok');
+              setTimeout(() => { gistSetStatus('', 'ok'); location.reload(); }, 1200);
+              return;
+            }
+          }
+          gistSetStatus('✓ 已是最新', 'ok');
+          setTimeout(() => gistSetStatus('', 'ok'), 2500);
+        } catch(e2) {
+          gistSetStatus('✗ 同步失敗：' + e2.message, 'error');
+          setTimeout(() => gistSetStatus('', ''), 5000);
+        }
+      }, 3000);
     }
   }
 
@@ -4717,7 +4742,7 @@ ${eventList}`
 
   // Init Gist UI
   gistUpdateUI();
-  gistAutoSyncOnLoad();
+  setTimeout(gistAutoSyncOnLoad, 2000);
 
 
 
