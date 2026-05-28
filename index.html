@@ -2116,8 +2116,11 @@
             <input type="password" id="gistTokenInput" placeholder="ghp_…  貼入 GitHub Personal Access Token" style="flex:1;font-size:0.85rem">
             <button class="btn-ghost" style="white-space:nowrap" onclick="gistSaveToken()">儲存</button>
           </div>
+          <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem">
+            <input type="text" id="gistIdInput" placeholder="Gist ID（換裝置時貼入，首次可留空）" style="flex:1;font-size:0.85rem;font-family:'DM Mono',monospace">
+          </div>
           <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.7">
-            Token 只需勾選 <strong>gist</strong> 權限。只存在此瀏覽器 localStorage，不傳送給任何第三方。
+            Token 只需勾選 <strong>gist</strong> 權限。換裝置時請填入原裝置的 Gist ID，確保同步到同一份資料。
           </div>
         </div>
 
@@ -4568,12 +4571,44 @@ ${eventList}`
     }
     localStorage.setItem(GIST_TOKEN_KEY, val);
     document.getElementById('gistTokenInput').value = '';
-    gistUpdateUI();
-    gistSetStatus('Token 已儲存，正在首次同步…', 'syncing');
-    gistPushToCloud().then(() => {
-      gistSetStatus('✓ 連線成功', 'ok');
-      setTimeout(() => gistSetStatus('', ''), 3000);
-    }).catch(err => gistSetStatus('✗ ' + err.message, 'error'));
+
+    // If user provided an existing Gist ID, save it and pull from cloud
+    const idInput = document.getElementById('gistIdInput');
+    const existingId = idInput ? idInput.value.trim() : '';
+    if (existingId) {
+      localStorage.setItem(GIST_ID_KEY, existingId);
+      if (idInput) idInput.value = '';
+      gistUpdateUI();
+      gistSetStatus('已設定 Gist ID，從雲端載入資料中…', 'syncing');
+      // Pull directly without confirm dialog
+      (async () => {
+        try {
+          const res = await fetch('https://api.github.com/gists/' + existingId, {
+            headers: gistH(val)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const gist = await res.json();
+          const fileContent = gist.files[GIST_FILENAME]?.content;
+          if (!fileContent) throw new Error('找不到資料檔案');
+          const data = JSON.parse(fileContent);
+          Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+          localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+          gistUpdateUI();
+          gistSetStatus('✓ 已從雲端載入，重新整理中…', 'ok');
+          setTimeout(() => location.reload(), 1500);
+        } catch(err) {
+          gistSetStatus('✗ ' + err.message, 'error');
+        }
+      })();
+    } else {
+      // New device, no existing ID — push local data to create new gist
+      gistUpdateUI();
+      gistSetStatus('Token 已儲存，正在建立 Gist…', 'syncing');
+      gistPushToCloud().then(() => {
+        gistSetStatus('✓ 連線成功', 'ok');
+        setTimeout(() => gistSetStatus('', ''), 3000);
+      }).catch(err => gistSetStatus('✗ ' + err.message, 'error'));
+    }
   }
 
   function gistDisconnect() {
