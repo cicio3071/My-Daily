@@ -4775,6 +4775,20 @@ ${eventList}`
     }
   });
 
+  // Auto-push on data change (debounced 5s)
+  let gistPushTimer = null;
+  const _origSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(key, value) {
+    _origSetItem(key, value);
+    // Only trigger sync for data keys, not gist meta keys
+    if (gistGetToken() && EXPORT_KEYS && EXPORT_KEYS.includes(key)) {
+      clearTimeout(gistPushTimer);
+      gistPushTimer = setTimeout(() => {
+        gistPushToCloud().catch(() => {});
+      }, 5000);
+    }
+  };
+
   // Init Gist UI
   gistUpdateUI();
   setTimeout(gistAutoSyncOnLoad, 2000);
