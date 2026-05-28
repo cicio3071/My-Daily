@@ -4651,20 +4651,26 @@ ${eventList}`
 
     gistSetStatus('下載中…', 'syncing');
     try {
-      const res = await fetch('https://api.github.com/gists/' + gistId, {
-        headers: { 'Authorization': 'token ' + token }
+      const res = await fetch('https://api.github.com/gists/' + gistId + '?t=' + Date.now(), {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json',
+          'Cache-Control': 'no-cache'
+        },
+        cache: 'no-store'
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) throw new Error('API 錯誤 HTTP ' + res.status);
       const gist = await res.json();
-      const rawUrl = gist.files[GIST_FILENAME]?.raw_url;
-      if (!rawUrl) throw new Error('找不到資料檔案');
+      const fileContent = gist.files[GIST_FILENAME]?.content;
+      if (!fileContent) throw new Error('找不到資料檔案，請先在電腦上推送一次');
 
-      const dataRes = await fetch(rawUrl);
-      const data = await dataRes.json();
-      Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+      const data = JSON.parse(fileContent);
+      const keys = Object.keys(data);
+      if (!keys.length) throw new Error('雲端資料是空的');
+      keys.forEach(k => localStorage.setItem(k, data[k]));
 
       localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
-      gistSetStatus('✓ 已從雲端還原，重新整理中…', 'ok');
+      gistSetStatus('✓ 已還原 ' + keys.length + ' 筆資料，重新整理中…', 'ok');
       setTimeout(() => location.reload(), 1500);
     } catch(err) {
       gistSetStatus('✗ ' + err.message, 'error');
@@ -4680,7 +4686,7 @@ ${eventList}`
     }
   }
 
-  // Auto-sync on page load (pull if cloud is newer) and on page hide (push)
+  // Auto-sync on page load — pull if cloud is newer
   async function gistAutoSyncOnLoad() {
     const token = gistGetToken();
     const gistId = gistGetId();
@@ -4688,8 +4694,13 @@ ${eventList}`
 
     gistSetStatus('檢查更新…', 'syncing');
     try {
-      const res = await fetch('https://api.github.com/gists/' + gistId, {
-        headers: { 'Authorization': 'token ' + token }
+      const res = await fetch('https://api.github.com/gists/' + gistId + '?t=' + Date.now(), {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json',
+          'Cache-Control': 'no-cache'
+        },
+        cache: 'no-store'
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
@@ -4698,13 +4709,12 @@ ${eventList}`
       const localSynced = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
 
       if (cloudUpdated > localSynced + 5000) {
-        // Cloud is newer — pull
+        // Cloud is newer — pull content directly (no raw_url, avoids Safari CORS issues)
         gistSetStatus('發現較新的雲端資料，下載中…', 'syncing');
-        const rawUrl = gist.files[GIST_FILENAME]?.raw_url;
-        if (rawUrl) {
-          const dataRes = await fetch(rawUrl);
-          const data = await dataRes.json();
-          Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+        const fileContent = gist.files[GIST_FILENAME]?.content;
+        if (fileContent) {
+          const data = JSON.parse(fileContent);
+          Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
           localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
           gistUpdateUI();
           gistSetStatus('✓ 已從雲端更新', 'ok');
@@ -4716,15 +4726,14 @@ ${eventList}`
       gistSetStatus('✓ 已是最新', 'ok');
       setTimeout(() => gistSetStatus('', 'ok'), 2500);
     } catch(err) {
-      // Silent fail on load — don't bother the user
-      gistSetStatus('', '');
+      gistSetStatus('✗ 載入時同步失敗：' + err.message, 'error');
+      setTimeout(() => gistSetStatus('', ''), 5000);
     }
   }
 
   // Push on page unload / hide
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && gistGetToken()) {
-      // Use sendBeacon-style: fire and forget
       gistPushToCloud().catch(() => {});
     }
   });
