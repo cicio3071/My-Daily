@@ -126,6 +126,9 @@
     overflow-x: auto;
     scrollbar-width: none;
     transition: background 0.3s;
+    position: sticky;
+    top: 56px;
+    z-index: 40;
   }
   .tab-nav::-webkit-scrollbar { display: none; }
 
@@ -2689,7 +2692,17 @@
     area.innerHTML = `
       <div class="card-quote fade-in">${quote}</div>
       <div class="card-source fade-in" style="animation-delay:0.15s">${source}</div>
+      <button onclick="forceRefreshCard()" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;margin-top:1rem;padding:0;transition:color 0.2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↻ 換一張</button>
     `;
+  }
+
+  function forceRefreshCard() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+    localStorage.removeItem(CARD_KEY);
+    const area = document.getElementById('cardArea');
+    area.innerHTML = `<div class="loading-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.4rem">loading</span></div>`;
+    loadCard(key);
   }
 
   function renderError(msg) {
