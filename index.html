@@ -5,45 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── themes ── */
   :root, [data-theme="light"] {
-    --bg: #f7f4ef;
-    --surface: #fdfbf8;
-    --ink: #1c1a17;
-    --ink-soft: #4a4640;
-    --muted: #9a9188;
-    --border: #e0dbd3;
-    --accent: #8b6f47;
-    --accent-light: #c4a882;
-    --shadow: rgba(0,0,0,0.06);
-    --input-bg: var(--bg);
+    --bg: #faf6f0;
+    --surface: #fdfaf5;
+    --ink: #3a2c1a;
+    --ink-soft: #6b5540;
+    --muted: #a89070;
+    --border: #e4d8c8;
+    --accent: #c9aa82;
+    --accent-light: #e0cdb0;
+    --shadow: rgba(80,50,20,0.07);
+    --input-bg: #fdf9f3;
+    --deco: rgba(201,170,130,0.18);
   }
 
   [data-theme="dark"] {
-    --bg: #181612;
-    --surface: #252018;
-    --ink: #f0ebe2;
-    --ink-soft: #ccc4b8;
-    --muted: #908880;
-    --border: #4a4238;
-    --accent: #d4b896;
-    --accent-light: #a07850;
-    --shadow: rgba(0,0,0,0.4);
-    --input-bg: #2e2820;
+    --bg: #141c2e;
+    --surface: #1a2438;
+    --ink: #d8e8f8;
+    --ink-soft: #a8c0d8;
+    --muted: #6888a8;
+    --border: #2a3a58;
+    --accent: #7aA0d0;
+    --accent-light: #4a6fa8;
+    --shadow: rgba(0,0,0,0.5);
+    --input-bg: #111828;
+    --deco: rgba(74,111,168,0.15);
   }
 
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── background decorative curves ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 15%, var(--deco) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, var(--deco) 0%, transparent 60%);
+  }
+
+  main, header, nav {
+    position: relative;
+    z-index: 1;
   }
 
   /* ── header ── */
@@ -216,7 +236,7 @@
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 0.6rem 0.85rem;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     font-size: 1rem;
     color: var(--ink);
     outline: none;
@@ -562,7 +582,7 @@
   .mur-textarea {
     flex: 1; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: 3px; padding: 0.65rem 0.85rem;
-    font-family: 'Noto Serif TC', serif; font-size: 0.9rem;
+    font-family: 'Lora', serif; font-size: 0.9rem;
     color: var(--ink); outline: none; transition: border-color 0.2s;
     resize: none; line-height: 1.7; min-height: 60px; max-height: 160px; overflow-y: auto;
   }
@@ -842,7 +862,7 @@
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     padding: 0.65rem 0.9rem !important;
-    font-family: 'Noto Serif TC', serif !important;
+    font-family: 'Lora', serif !important;
     font-size: 0.95rem !important;
     color: var(--ink) !important;
     outline: none !important;
@@ -926,7 +946,7 @@
     border: 1px solid var(--border);
     border-radius: 10px 10px 10px 2px;
     padding: 0.4rem 0.75rem;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     font-size: 0.78rem;
     color: var(--ink);
     white-space: nowrap;
@@ -1348,7 +1368,7 @@
   .diary-inline-textarea {
     width: 100%;
     resize: vertical;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     font-size: 0.95rem;
     line-height: 1.9;
     color: var(--ink);
@@ -1692,7 +1712,7 @@
   .note-card.expanded .note-caret { transform: rotate(90deg); }
   .note-title-text {
     flex: 1;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     font-size: 1rem;
     color: var(--ink);
   }
@@ -1776,7 +1796,7 @@
   }
   .note-title-input {
     background: none; border: none; outline: none;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Lora', serif;
     font-size: 1rem; color: var(--ink);
     flex: 1;
     cursor: text;
@@ -2559,9 +2579,11 @@
   const STORAGE_KEY = 'daily_gemini_key';
   const CARD_KEY = 'daily_card';
 
-  // date
+  // date — use local time (not UTC, to avoid timezone offset issues)
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
   document.getElementById('dateDisplay').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -4897,7 +4919,7 @@ ${eventList}`
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@300;400&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #f7f4ef; color: #1c1a17; font-family: 'Noto Serif TC', serif; padding: 3rem 2rem; }
+  body { background: #f7f4ef; color: #1c1a17; font-family: 'Lora', serif; padding: 3rem 2rem; }
   .wrap { max-width: 680px; margin: 0 auto; }
   .header { margin-bottom: 3rem; border-bottom: 1px solid #e0dbd3; padding-bottom: 2rem; }
   .header-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a09890; margin-bottom: 0.75rem; }
@@ -4986,7 +5008,9 @@ ${eventList}`
     let cursor = new Date(startYM + '-01');
     const endDate = new Date(nowYM + '-01');
     while (cursor <= endDate) {
-      months.push(cursor.toISOString().slice(0, 7));
+      const y = cursor.getFullYear();
+      const m = String(cursor.getMonth() + 1).padStart(2, '0');
+      months.push(y + '-' + m);
       cursor.setMonth(cursor.getMonth() + 1);
     }
     return months.reverse(); // newest first
