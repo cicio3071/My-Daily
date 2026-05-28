@@ -1883,12 +1883,9 @@
   <button class="tab-btn active" onclick="switchTab('today', this)">今日</button>
   <button class="tab-btn" onclick="switchTab('life', this)">生活</button>
   <button class="tab-btn" onclick="switchTab('record', this)">記錄</button>
-  <button class="tab-btn" onclick="switchTab('recommend', this)">推薦</button>
   <button class="tab-btn" onclick="switchTab('chat', this)">探討</button>
   <button class="tab-btn" onclick="switchTab('diary', this)">日記</button>
-  <button class="tab-btn" onclick="switchTab('prompt', this)">Prompt</button>
-  <button class="tab-btn" onclick="switchTab('clips', this)">剪貼</button>
-  <button class="tab-btn" onclick="switchTab('notes', this)">筆記</button>
+  <button class="tab-btn" onclick="switchTab('more', this)">更多</button>
 </nav>
 
 <main>
@@ -1924,6 +1921,24 @@
           <span style="margin-left:0.4rem">loading</span>
         </div>
         <div id="historyItems" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">recommend · 今日推薦</div>
+      <div class="rec-grid">
+        <div class="panel">
+          <div class="panel-sub">book · 今日書單</div>
+          <div class="genre-tags" id="genreTags"></div>
+          <button class="btn-primary" id="bookBtn" onclick="getBookRec()">幫我推一本</button>
+          <div class="rec-result" id="bookResult"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-sub">film · 今日片單</div>
+          <div class="mood-grid" id="moodBtns"></div>
+          <button class="btn-primary" id="movieBtn" onclick="getMovieRec()">幫我推一部</button>
+          <div class="rec-result" id="movieResult"></div>
+        </div>
       </div>
     </div>
 
@@ -2149,26 +2164,6 @@
 
   </div>
 
-  <!-- ═══ TAB: 推薦 ═══ -->
-  <div class="tab-panel" id="tab-recommend">
-
-    <div class="rec-grid">
-      <div class="panel">
-        <div class="panel-sub">book · 今日書單</div>
-        <div class="genre-tags" id="genreTags"></div>
-        <button class="btn-primary" id="bookBtn" onclick="getBookRec()">幫我推一本</button>
-        <div class="rec-result" id="bookResult"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-sub">film · 今日片單</div>
-        <div class="mood-grid" id="moodBtns"></div>
-        <button class="btn-primary" id="movieBtn" onclick="getMovieRec()">幫我推一部</button>
-        <div class="rec-result" id="movieResult"></div>
-      </div>
-    </div>
-
-  </div>
-
 
   <!-- ═══ TAB: 探討 ═══ -->
   <div class="tab-panel" id="tab-chat">
@@ -2248,9 +2243,9 @@
     </div>
   </div>
 
-  <!-- ═══ TAB: Prompt ═══ -->
-  <div class="tab-panel" id="tab-prompt">
-    <div class="module-section">
+  <!-- ═══ TAB: 更多 ═══ -->
+  <div class="tab-panel" id="tab-more">
+<div class="module-section">
       <div class="module-label">prompt · 捏圖 Prompt</div>
 
       <!-- 目標平台 -->
@@ -2482,11 +2477,8 @@
         <div id="pbCopyStatus" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.06em;margin-top:0.5rem;min-height:1em"></div>
       </div>
     </div>
-  </div>
 
-  <!-- ═══ TAB: 剪貼 ═══ -->
-  <div class="tab-panel" id="tab-clips">
-    <div class="module-section">
+<div class="module-section">
       <div class="module-label">clipboard · 複製清單</div>
       <div class="panel">
         <div class="clip-add-row">
@@ -2498,11 +2490,8 @@
         <div class="clip-copy-ok" id="clipCopyOk"></div>
       </div>
     </div>
-  </div>
 
-  <!-- ═══ TAB: 筆記 ═══ -->
-  <div class="tab-panel" id="tab-notes">
-    <div class="module-section">
+<div class="module-section">
       <div class="module-label">notes · 筆記</div>
       <div class="panel" style="padding:1.5rem">
         <div class="notes-toolbar">
