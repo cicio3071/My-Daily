@@ -4595,6 +4595,10 @@ ${eventList}`
     return data;
   }
 
+  function gistH(token) {
+    return { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+  }
+
   // Push local → Gist
   async function gistPushToCloud() {
     const token = gistGetToken();
@@ -4603,26 +4607,19 @@ ${eventList}`
 
     const content = JSON.stringify(gistCollectData(), null, 2);
     const gistId = gistGetId();
-    const body = {
+    const body = JSON.stringify({
       description: 'Daily Dashboard Data',
       public: false,
       files: { [GIST_FILENAME]: { content } }
-    };
+    });
 
-    let res;
-    if (gistId) {
-      res = await fetch('https://api.github.com/gists/' + gistId + '?access_token=' + token, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-        body: JSON.stringify(body)
-      });
-    } else {
-      res = await fetch('https://api.github.com/gists?access_token=' + token, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-        body: JSON.stringify(body)
-      });
-    }
+    const url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
+    const method = gistId ? 'PATCH' : 'POST';
+    const res = await fetch(url, {
+      method,
+      headers: { ...gistH(token), 'Content-Type': 'application/json' },
+      body
+    });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
@@ -4648,14 +4645,9 @@ ${eventList}`
 
     gistSetStatus('下載中…', 'syncing');
     try {
-      const res = await fetch(
-        'https://api.github.com/gists/' + gistId + '?access_token=' + token + '&t=' + Date.now(),
-        {
-          method: 'GET',
-          headers: { 'Accept': 'application/vnd.github.v3+json' },
-          cache: 'no-store'
-        }
-      );
+      const res = await fetch('https://api.github.com/gists/' + gistId, {
+        headers: gistH(token)
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
       const fileContent = gist.files[GIST_FILENAME]?.content;
@@ -4674,16 +4666,11 @@ ${eventList}`
     }
   }
 
-  // Manual sync button
   async function gistManualSync() {
-    try {
-      await gistPushToCloud();
-    } catch(err) {
-      gistSetStatus('✗ ' + err.message, 'error');
-    }
+    try { await gistPushToCloud(); }
+    catch(err) { gistSetStatus('✗ ' + err.message, 'error'); }
   }
 
-  // Auto-sync on page load — pull if cloud is newer
   async function gistAutoSyncOnLoad() {
     const token = gistGetToken();
     const gistId = gistGetId();
@@ -4691,14 +4678,9 @@ ${eventList}`
 
     gistSetStatus('檢查更新…', 'syncing');
     try {
-      const res = await fetch(
-        'https://api.github.com/gists/' + gistId + '?access_token=' + token + '&t=' + Date.now(),
-        {
-          method: 'GET',
-          headers: { 'Accept': 'application/vnd.github.v3+json' },
-          cache: 'no-store'
-        }
-      );
+      const res = await fetch('https://api.github.com/gists/' + gistId, {
+        headers: gistH(token)
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
 
@@ -4727,7 +4709,6 @@ ${eventList}`
     }
   }
 
-  // Push on page hide
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && gistGetToken()) {
       gistPushToCloud().catch(() => {});
