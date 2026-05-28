@@ -4611,30 +4611,27 @@ ${eventList}`
 
     let res;
     if (gistId) {
-      // Update existing gist
-      res = await fetch('https://api.github.com/gists/' + gistId, {
+      res = await fetch('https://api.github.com/gists/' + gistId + '?access_token=' + token, {
         method: 'PATCH',
-        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
         body: JSON.stringify(body)
       });
     } else {
-      // Create new gist
-      res = await fetch('https://api.github.com/gists', {
+      res = await fetch('https://api.github.com/gists?access_token=' + token, {
         method: 'POST',
-        headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
         body: JSON.stringify(body)
       });
     }
 
     if (!res.ok) {
-      const err = await res.json();
+      const err = await res.json().catch(() => ({}));
       throw new Error(err.message || 'HTTP ' + res.status);
     }
 
     const data = await res.json();
     localStorage.setItem(GIST_ID_KEY, data.id);
-    const now = new Date().toISOString();
-    localStorage.setItem(GIST_SYNC_KEY, now);
+    localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
     gistUpdateUI();
     gistSetStatus('✓ 已同步', 'ok');
     setTimeout(() => gistSetStatus('', 'ok'), 3000);
@@ -4651,15 +4648,15 @@ ${eventList}`
 
     gistSetStatus('下載中…', 'syncing');
     try {
-      const res = await fetch('https://api.github.com/gists/' + gistId + '?t=' + Date.now(), {
-        headers: {
-          'Authorization': 'token ' + token,
-          'Accept': 'application/vnd.github.v3+json',
-          'Cache-Control': 'no-cache'
-        },
-        cache: 'no-store'
-      });
-      if (!res.ok) throw new Error('API 錯誤 HTTP ' + res.status);
+      const res = await fetch(
+        'https://api.github.com/gists/' + gistId + '?access_token=' + token + '&t=' + Date.now(),
+        {
+          method: 'GET',
+          headers: { 'Accept': 'application/vnd.github.v3+json' },
+          cache: 'no-store'
+        }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
       const fileContent = gist.files[GIST_FILENAME]?.content;
       if (!fileContent) throw new Error('找不到資料檔案，請先在電腦上推送一次');
@@ -4694,14 +4691,14 @@ ${eventList}`
 
     gistSetStatus('檢查更新…', 'syncing');
     try {
-      const res = await fetch('https://api.github.com/gists/' + gistId + '?t=' + Date.now(), {
-        headers: {
-          'Authorization': 'token ' + token,
-          'Accept': 'application/vnd.github.v3+json',
-          'Cache-Control': 'no-cache'
-        },
-        cache: 'no-store'
-      });
+      const res = await fetch(
+        'https://api.github.com/gists/' + gistId + '?access_token=' + token + '&t=' + Date.now(),
+        {
+          method: 'GET',
+          headers: { 'Accept': 'application/vnd.github.v3+json' },
+          cache: 'no-store'
+        }
+      );
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
 
@@ -4709,7 +4706,6 @@ ${eventList}`
       const localSynced = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
 
       if (cloudUpdated > localSynced + 5000) {
-        // Cloud is newer — pull content directly (no raw_url, avoids Safari CORS issues)
         gistSetStatus('發現較新的雲端資料，下載中…', 'syncing');
         const fileContent = gist.files[GIST_FILENAME]?.content;
         if (fileContent) {
@@ -4726,12 +4722,12 @@ ${eventList}`
       gistSetStatus('✓ 已是最新', 'ok');
       setTimeout(() => gistSetStatus('', 'ok'), 2500);
     } catch(err) {
-      gistSetStatus('✗ 載入時同步失敗：' + err.message, 'error');
+      gistSetStatus('✗ 同步失敗：' + err.message, 'error');
       setTimeout(() => gistSetStatus('', ''), 5000);
     }
   }
 
-  // Push on page unload / hide
+  // Push on page hide
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && gistGetToken()) {
       gistPushToCloud().catch(() => {});
