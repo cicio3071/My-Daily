@@ -638,10 +638,13 @@
   .mood-nav-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 0.2rem; transition: color 0.2s; }
   .mood-nav-btn:hover { color: var(--accent); }
   .mood-nav-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); min-width: 70px; text-align: center; }
-  .mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; max-width: 320px; }
-  .mood-cal-day-name { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--muted); text-align: center; padding-bottom: 0.25rem; max-width: 36px; margin: 0 auto; width: 100%; }
-  .mood-cal-cell { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; border-radius: 50%; max-width: 36px; margin: 0 auto; }
-  .mood-cal-cell.today { outline: 1px solid var(--accent-light); outline-offset: -1px; }
+  .mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; max-width: 360px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .mood-cal-day-name { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--muted); text-align: center; padding: 0.35rem 0; background: var(--surface); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .mood-cal-day-name:last-child { border-right: none; }
+  .mood-cal-cell { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg); transition: background 0.15s; }
+  .mood-cal-cell:nth-child(7n) { border-right: none; }
+  .mood-cal-cell.today { background: var(--surface); outline: 1.5px solid var(--accent-light); outline-offset: -1.5px; z-index: 1; position: relative; }
+  .mood-cal-cell.empty { background: var(--surface); opacity: 0.5; }
 
   /* cycle */
   .cycle-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.25rem; }
@@ -3782,6 +3785,7 @@ ${eventList}`
 
     for (let i = 0; i < firstDay; i++) {
       const el = document.createElement('div');
+      el.className = 'mood-cal-cell empty';
       cal.appendChild(el);
     }
 
@@ -3793,13 +3797,13 @@ ${eventList}`
       const mood = moods[dateStr];
       if (mood) {
         el.classList.add('has-mood');
-        el.textContent = mood.split(' ')[0]; // just emoji
+        el.textContent = mood.split(' ')[0];
         el.title = mood;
       } else {
-        el.style.opacity = '0.2';
-        el.textContent = '·';
-        el.style.fontSize = '0.5rem';
-        el.style.color = 'var(--border)';
+        const dayNum = document.createElement('span');
+        dayNum.textContent = d;
+        dayNum.style.cssText = 'font-family:"DM Mono",monospace;font-size:0.55rem;color:var(--border);';
+        el.appendChild(dayNum);
       }
       cal.appendChild(el);
     }
