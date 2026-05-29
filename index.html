@@ -1737,6 +1737,10 @@
     font-family: 'Lora', serif;
     font-size: 1rem;
     color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
   .note-meta {
     font-family: 'DM Mono', monospace;
@@ -1822,6 +1826,9 @@
     font-size: 1rem; color: var(--ink);
     flex: 1;
     cursor: text;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── Gist sync indicator ── */
