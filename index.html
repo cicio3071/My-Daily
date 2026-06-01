@@ -1860,6 +1860,99 @@
     color: var(--muted);
   }
 
+  /* ── Rainbow Card ── */
+  .rainbow-card {
+    border-radius: 12px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: default;
+  }
+  .rainbow-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    opacity: 0.15;
+    z-index: 0;
+  }
+  .rainbow-card-inner { position: relative; z-index: 1; }
+  .rainbow-card-color {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+  .rainbow-card-theme {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+  .rainbow-card-message {
+    font-family: 'Lora', serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    opacity: 0.85;
+    margin-bottom: 1.25rem;
+  }
+  .rainbow-card-question {
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    font-style: italic;
+    line-height: 1.7;
+    opacity: 0.7;
+    padding-top: 1rem;
+    border-top: 1px solid currentColor;
+    border-opacity: 0.2;
+  }
+  .rainbow-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+  .rainbow-card-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+  }
+  .rainbow-redraw-btn {
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    color: inherit;
+  }
+  .rainbow-redraw-btn:hover { opacity: 1; }
+  .rainbow-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    padding: 2rem 0;
+  }
+
   /* ── export module ── */
   .export-section { margin-top: 3rem; }
 
@@ -1958,6 +2051,16 @@
         <div class="loading-row">
           <div class="dot"></div><div class="dot"></div><div class="dot"></div>
           <span style="margin-left:0.4rem">loading</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">rainbow card · 彩虹卡</div>
+      <div id="rainbowCardArea">
+        <div class="rainbow-loading">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span>loading</span>
         </div>
       </div>
     </div>
@@ -2623,6 +2726,7 @@
       showModal();
     } else {
       loadCard(key);
+      loadRainbowCard(key);
     }
   }
 
@@ -2684,16 +2788,24 @@
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `請給我一句今日字卡，來自文學、哲學、詩歌或散文，中西皆可。
+                text: `請給我一句今日字卡。
+來源範圍（每次從不同類別隨機選取，不要偏重某一類）：
+- 東方古典：老子、莊子、孔子、王陽明、蘇軾、李白、杜甫、張愛玲、三島由紀夫、川端康成、村上春樹等
+- 西方文學：莎士比亞、普魯斯特、卡夫卡、赫曼赫塞、卡繆、波赫士、聶魯達、里爾克、托爾斯泰、杜斯妥也夫斯基等
+- 哲學：尼采、沙特、西蒙波娃、維根斯坦、海德格、斯多葛派（奧理略、愛比克泰德）、東方禪宗等
+- 心理學：榮格、阿德勒、弗洛姆、維克多弗蘭克等
+- 現代詩人：聶魯達、策蘭、西維亞普拉斯、余秀華、夏宇等
+- 當代作家：奧利弗薩克斯、蘇珊桑塔格、波娃、塔可夫斯基、辛波絲卡等
+
 要求：
-- 句子本身用原文（中文或英文）
+- 句子本身用原文（中文或英文，英文名句可附中譯）
 - 標注出處（作者、作品名）
 - 只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
 {"quote":"句子內容","source":"— 作者《作品》"}
-句子長度約 20-60 字，有思考深度，不要心靈雞湯。`
+句子長度約 20-80 字，有思考深度，不要心靈雞湯式的勵志語，要有文學或思想厚度。`
               }]
             }],
-            generationConfig: { temperature: 1.2 }
+            generationConfig: { temperature: 1.4 }
           })
         }
       );
@@ -2730,6 +2842,121 @@
     area.innerHTML = `<div class="loading-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.4rem">loading</span></div>`;
     loadCard(key);
   }
+
+  // ════════════════════════════════════════
+  //  RAINBOW CARD
+  // ════════════════════════════════════════
+  const RAINBOW_KEY = 'daily_rainbow_card';
+
+  const RAINBOW_COLORS = [
+    { id: 'red',    name: '紅',  english: 'RED',    theme: '熱情',   bg: '#c0392b', text: '#fff5f5' },
+    { id: 'orange', name: '橙',  english: 'ORANGE', theme: '創造力', bg: '#d35400', text: '#fff8f0' },
+    { id: 'yellow', name: '黃',  english: 'YELLOW', theme: '喜悅',   bg: '#c9a227', text: '#fffef0' },
+    { id: 'green',  name: '綠',  english: 'GREEN',  theme: '成長',   bg: '#27ae60', text: '#f0fff4' },
+    { id: 'blue',   name: '藍',  english: 'BLUE',   theme: '平靜',   bg: '#2980b9', text: '#f0f8ff' },
+    { id: 'indigo', name: '靛',  english: 'INDIGO', theme: '直覺',   bg: '#4a3fa0', text: '#f5f0ff' },
+    { id: 'violet', name: '紫',  english: 'VIOLET', theme: '靈性',   bg: '#8e44ad', text: '#fdf5ff' },
+    { id: 'pink',   name: '粉',  english: 'PINK',   theme: '慈愛',   bg: '#c0527a', text: '#fff0f5' },
+    { id: 'white',  name: '白',  english: 'WHITE',  theme: '清明',   bg: '#7f8c8d', text: '#f8f9fa' },
+    { id: 'gold',   name: '金',  english: 'GOLD',   theme: '豐盛',   bg: '#b7950b', text: '#fffef0' },
+  ];
+
+  const RAINBOW_MESSAGES = {
+    red:    { message: '今天，讓自己被熱情帶著走。不必想太多，先點燃那個讓你眼睛發亮的東西。', question: '此刻，什麼事情讓你心跳加速？' },
+    orange: { message: '創造力不是天賦，是一種選擇。今天，試著用不同的方式做一件日常的事。', question: '如果沒有任何限制，你最想創造什麼？' },
+    yellow: { message: '喜悅是輕盈的，它不需要理由。今天，讓自己注意那些微小但真實的美好。', question: '今天，什麼小事讓你不自覺地笑了？' },
+    green:  { message: '成長有時是悄悄發生的，像根系在地底伸展，地面上還看不見。', question: '最近你在哪個方面，感覺自己正在慢慢改變？' },
+    blue:   { message: '平靜不是空洞，而是一種深度。今天，給自己一段不需要做任何事的時間。', question: '什麼樣的狀態，讓你感覺最像自己？' },
+    indigo: { message: '直覺是你積累所有經驗後的低語。今天，試著傾聽那個第一個浮現的答案。', question: '有什麼事，你其實心裡早就知道答案了？' },
+    violet: { message: '有些事情超出解釋的範圍，卻依然真實。今天，讓自己對神秘保持開放。', question: '你相信什麼，雖然無法證明？' },
+    pink:   { message: '慈愛從自己開始。今天，對自己說一句你會對好朋友說的話。', question: '如果用同樣的溫柔對待自己，你會說什麼？' },
+    white:  { message: '清明是看見事物本來面目的能力。今天，試著放下一個先入為主的想法。', question: '有什麼事，如果你不帶評判地去看，會看見不同的東西？' },
+    gold:   { message: '豐盛不只是物質，也是你已經擁有的一切。今天，數一數你的財富。', question: '此刻，你生命裡有哪三件事值得感謝？' },
+  };
+
+  async function loadRainbowCard(key) {
+    // Check cache
+    try {
+      const cached = localStorage.getItem(RAINBOW_KEY);
+      if (cached) {
+        const { date, data } = JSON.parse(cached);
+        if (date === todayStr) { renderRainbowCard(data); return; }
+      }
+    } catch(e) {}
+
+    // Pick today's color deterministically from date
+    const dateHash = todayStr.replace(/-/g, '');
+    const colorIdx = parseInt(dateHash) % RAINBOW_COLORS.length;
+    const color = RAINBOW_COLORS[colorIdx];
+    const msg = RAINBOW_MESSAGES[color.id];
+
+    // Use Gemini to generate a personalized reflection prompt
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text:
+              `今天的彩虹卡主題是「${color.theme}」（${color.english}）。
+請根據這個主題，生成一句引導語和一個反思問題。
+要求：
+- 引導語：溫柔、有深度，不要雞湯，約30-50字，可帶一點詩意
+- 反思問題：開放式，幫助人向內探索，約15-25字
+- 只回傳 JSON，不要其他文字：
+{"message":"引導語內容","question":"反思問題"}` }] }],
+            generationConfig: { temperature: 1.2, maxOutputTokens: 200 }
+          })
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const clean = text.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        const cardData = { color, message: parsed.message, question: parsed.question };
+        localStorage.setItem(RAINBOW_KEY, JSON.stringify({ date: todayStr, data: cardData }));
+        renderRainbowCard(cardData);
+        return;
+      }
+    } catch(e) {}
+
+    // Fallback to static messages
+    const cardData = { color, message: msg.message, question: msg.question };
+    localStorage.setItem(RAINBOW_KEY, JSON.stringify({ date: todayStr, data: cardData }));
+    renderRainbowCard(cardData);
+  }
+
+  function renderRainbowCard(data) {
+    const { color, message, question } = data;
+    const area = document.getElementById('rainbowCardArea');
+    area.innerHTML = `
+      <div class="rainbow-card fade-in" style="background:${color.bg};color:${color.text}">
+        <div class="rainbow-card-inner">
+          <div class="rainbow-card-color">${color.english} · ${color.name} · ${color.theme}</div>
+          <div class="rainbow-card-theme">${color.theme}</div>
+          <div class="rainbow-card-message">${escHtml(message)}</div>
+          <div class="rainbow-card-question">${escHtml(question)}</div>
+        </div>
+        <div class="rainbow-card-footer">
+          <span class="rainbow-card-date">${todayStr}</span>
+          <button class="rainbow-redraw-btn" onclick="forceRedrawRainbow()" style="color:${color.text}">明日再抽</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function forceRedrawRainbow() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) return;
+    localStorage.removeItem(RAINBOW_KEY);
+    const area = document.getElementById('rainbowCardArea');
+    area.innerHTML = `<div class="rainbow-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>loading</span></div>`;
+    loadRainbowCard(key);
+  }
+
+
 
   function renderError(msg) {
     const area = document.getElementById('cardArea');
@@ -4481,7 +4708,7 @@ ${eventList}`
   const CLIP_KEY = 'daily_clips';
   const NOTES_KEY = 'daily_notes';
   const PB_CHARS_KEY = 'daily_pb_chars';
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, MEMORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY];
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, MEMORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY, RAINBOW_KEY];
   const CHAT_SESSION_KEY = 'daily_chat_session';
 
   // ── Xinkui Memory ──
