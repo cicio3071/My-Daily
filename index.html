@@ -1861,26 +1861,87 @@
   }
 
   /* ── Rainbow Card ── */
-  .rainbow-wrap {
+  .rainbow-pick-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+  .rainbow-deck {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+  .rainbow-deck-card {
+    width: 52px;
+    height: 80px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+  }
+  .rainbow-deck-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px var(--shadow);
+  }
+  .rainbow-deck-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(255,255,255,0.04) 4px,
+      rgba(255,255,255,0.04) 8px
+    );
+  }
+  .rainbow-deck-card-back {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #c9aa82 0%, #8b6e52 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+  }
+  .rainbow-deck-card.picked {
+    cursor: default;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* flip reveal */
+  .rainbow-result-wrap {
     perspective: 1000px;
     width: 100%;
-    max-width: 380px;
+    max-width: 360px;
     margin: 0 auto;
-    height: 240px;
-    cursor: pointer;
+    height: 220px;
   }
-  .rainbow-flipper {
+  .rainbow-result-flipper {
     position: relative;
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
     transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
-  .rainbow-flipper.flipped { transform: rotateY(180deg); }
-  .rainbow-face {
+  .rainbow-result-flipper.flipped { transform: rotateY(180deg); }
+  .rainbow-result-face {
     position: absolute;
     inset: 0;
-    border-radius: 16px;
+    border-radius: 14px;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     display: flex;
@@ -1889,124 +1950,82 @@
     justify-content: center;
     overflow: hidden;
   }
-  .rainbow-front {
+  .rainbow-result-front {
     background: var(--surface);
     border: 1px solid var(--border);
-  }
-  .rainbow-front-color-bar {
-    width: 100%;
-    height: 8px;
-    border-radius: 16px 16px 0 0;
-    flex-shrink: 0;
-    position: absolute;
-    top: 0;
-  }
-  .rainbow-front-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 0.75rem;
-    padding: 1.5rem;
   }
-  .rainbow-front-orb {
-    width: 72px;
-    height: 72px;
+  .rainbow-result-front-orb {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    opacity: 0.92;
-    flex-shrink: 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
-  .rainbow-front-name {
+  .rainbow-result-front-name {
     font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: var(--ink);
-    letter-spacing: 0.02em;
   }
-  .rainbow-front-hint {
+  .rainbow-result-front-hint {
     font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     color: var(--muted);
     letter-spacing: 0.12em;
-    text-transform: uppercase;
-    animation: blink 2.5s ease-in-out infinite;
+    animation: blink 2.2s ease-in-out infinite;
   }
-  @keyframes blink {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
-  .rainbow-back {
+  .rainbow-result-back {
     transform: rotateY(180deg);
-    padding: 1.75rem;
+    padding: 1.5rem;
     flex-direction: column;
     justify-content: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
+    align-items: flex-start;
   }
   .rainbow-back-theme {
     font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     opacity: 0.7;
-    align-self: flex-start;
   }
   .rainbow-back-message {
     font-family: 'Lora', serif;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     line-height: 1.85;
-    flex: 1;
   }
   .rainbow-back-en {
     font-family: 'Lora', serif;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-style: italic;
     line-height: 1.7;
-    opacity: 0.72;
+    opacity: 0.68;
   }
   .rainbow-back-question {
     font-family: 'Lora', serif;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-style: italic;
     line-height: 1.7;
-    opacity: 0.65;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255,255,255,0.25);
+    opacity: 0.62;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(255,255,255,0.2);
     width: 100%;
-  }
-  .rainbow-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 380px;
-    margin: 0.85rem auto 0;
   }
   .rainbow-date-hint {
     font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     color: var(--muted);
     letter-spacing: 0.06em;
+    text-align: center;
+    margin-top: 0.75rem;
   }
-  .rainbow-redraw-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 0.25rem 0.75rem;
+  .rainbow-done-note {
     font-family: 'DM Mono', monospace;
     font-size: 0.6rem;
+    color: var(--muted);
     letter-spacing: 0.08em;
-    cursor: pointer;
-    color: var(--muted);
-    transition: all 0.2s;
-  }
-  .rainbow-redraw-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .rainbow-loading {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    padding: 2rem 0;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
   }
 
   /* ── export module ── */
@@ -2900,7 +2919,7 @@
   }
 
   // ════════════════════════════════════════
-  //  RAINBOW CARD — flip version
+  //  RAINBOW CARD — pick & flip version
   // ════════════════════════════════════════
   const RAINBOW_KEY = 'daily_rainbow_card';
 
@@ -2970,52 +2989,77 @@
     ],
   };
 
-  function rainbowPickToday() {
+  // Pick random content for a given color using date + color as seed
+  function rainbowPickContent(colorId) {
+    const pool = RAINBOW_POOL[colorId];
     const dateNum = parseInt(todayStr.replace(/-/g, ''));
-    const weekNum = Math.floor(dateNum / 7);
-    const colorIdx = (dateNum + weekNum * 3) % RAINBOW_COLORS.length;
-    const color = RAINBOW_COLORS[colorIdx];
-    const pool = RAINBOW_POOL[color.id];
-    const contentIdx = dateNum % pool.length;
-    return { color, content: pool[contentIdx] };
+    const idx = (dateNum + colorId.length) % pool.length;
+    return pool[idx];
   }
 
-  function renderRainbowCard(cardData, flipped) {
-    const { color, content } = cardData;
+  function renderRainbowDeck(pickedId, flipped) {
     const area = document.getElementById('rainbowCardArea');
-    area.innerHTML = `
-      <div class="rainbow-wrap" onclick="rainbowFlip()" title="點擊翻牌">
-        <div class="rainbow-flipper${flipped ? ' flipped' : ''}" id="rainbowFlipper">
-          <div class="rainbow-face rainbow-front">
-            <div class="rainbow-front-color-bar" style="background:${color.bg}"></div>
-            <div class="rainbow-front-inner">
-              <div class="rainbow-front-orb" style="background:${color.bg}"></div>
-              <div class="rainbow-front-name">${color.zh} · ${color.theme}</div>
-              <div class="rainbow-front-hint">tap to reveal</div>
-            </div>
+    const hasPicked = !!pickedId;
+    const pickedColor = hasPicked ? RAINBOW_COLORS.find(c => c.id === pickedId) : null;
+    const pickedContent = hasPicked ? rainbowPickContent(pickedId) : null;
+
+    let html = '';
+
+    if (!hasPicked) {
+      html += `<div class="rainbow-pick-label">選一張，今天只能選一次</div>`;
+      html += `<div class="rainbow-deck">`;
+      RAINBOW_COLORS.forEach(c => {
+        html += `<div class="rainbow-deck-card" onclick="rainbowPick('${c.id}')" title="${c.zh}・${c.theme}">
+          <div class="rainbow-deck-card-back">✦</div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      // Show deck with picked card greyed, plus the reveal card
+      html += `<div class="rainbow-deck" style="margin-bottom:1.5rem">`;
+      RAINBOW_COLORS.forEach(c => {
+        const isPicked = c.id === pickedId;
+        html += `<div class="rainbow-deck-card${isPicked ? '' : ' picked'}" style="${isPicked ? 'border-color:' + c.bg + ';box-shadow:0 0 0 2px ' + c.bg + '40' : ''}">
+          <div class="rainbow-deck-card-back" style="${isPicked ? 'background:linear-gradient(135deg,' + c.bg + ' 0%,' + c.bg + 'cc 100%)' : ''}">✦</div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      html += `<div class="rainbow-result-wrap" onclick="rainbowRevealFlip()" style="cursor:pointer">
+        <div class="rainbow-result-flipper${flipped ? ' flipped' : ''}" id="rainbowFlipper">
+          <div class="rainbow-result-face rainbow-result-front">
+            <div class="rainbow-result-front-orb" style="background:${pickedColor.bg}"></div>
+            <div class="rainbow-result-front-name">${pickedColor.zh} · ${pickedColor.theme}</div>
+            <div class="rainbow-result-front-hint">tap to reveal</div>
           </div>
-          <div class="rainbow-face rainbow-back" style="background:${color.bg};color:${color.text}">
-            <div class="rainbow-back-theme">${color.en} · ${color.enTheme}</div>
-            <div class="rainbow-back-message">${escHtml(content.zh)}</div>
-            <div class="rainbow-back-en">${escHtml(content.en)}</div>
-            <div class="rainbow-back-question">${escHtml(content.q)}</div>
+          <div class="rainbow-result-face rainbow-result-back" style="background:${pickedColor.bg};color:${pickedColor.text}">
+            <div class="rainbow-back-theme">${pickedColor.en} · ${pickedColor.enTheme}</div>
+            <div class="rainbow-back-message">${escHtml(pickedContent.zh)}</div>
+            <div class="rainbow-back-en">${escHtml(pickedContent.en)}</div>
+            <div class="rainbow-back-question">${escHtml(pickedContent.q)}</div>
           </div>
         </div>
       </div>
-      <div class="rainbow-footer">
-        <span class="rainbow-date-hint">${todayStr} · 今日彩虹卡</span>
-        <button class="rainbow-redraw-btn" onclick="event.stopPropagation();forceRedrawRainbow()">明日再抽</button>
-      </div>
-    `;
+      <div class="rainbow-done-note">今日已選，明天再來 ✦</div>`;
+    }
+
+    html += `<div class="rainbow-date-hint" style="margin-top:0.75rem">${todayStr}</div>`;
+    area.innerHTML = html;
   }
 
-  function rainbowFlip() {
+  function rainbowPick(colorId) {
+    const state = { date: todayStr, pickedId: colorId, flipped: false };
+    localStorage.setItem(RAINBOW_KEY, JSON.stringify(state));
+    renderRainbowDeck(colorId, false);
+  }
+
+  function rainbowRevealFlip() {
     const flipper = document.getElementById('rainbowFlipper');
     if (!flipper) return;
     flipper.classList.toggle('flipped');
     try {
-      const cached = JSON.parse(localStorage.getItem(RAINBOW_KEY));
-      if (cached) { cached.flipped = flipper.classList.contains('flipped'); localStorage.setItem(RAINBOW_KEY, JSON.stringify(cached)); }
+      const state = JSON.parse(localStorage.getItem(RAINBOW_KEY));
+      if (state) { state.flipped = flipper.classList.contains('flipped'); localStorage.setItem(RAINBOW_KEY, JSON.stringify(state)); }
     } catch(e) {}
   }
 
@@ -3023,18 +3067,11 @@
     try {
       const cached = localStorage.getItem(RAINBOW_KEY);
       if (cached) {
-        const { date, cardData, flipped } = JSON.parse(cached);
-        if (date === todayStr) { renderRainbowCard(cardData, flipped || false); return; }
+        const { date, pickedId, flipped } = JSON.parse(cached);
+        if (date === todayStr) { renderRainbowDeck(pickedId || null, flipped || false); return; }
       }
     } catch(e) {}
-    const cardData = rainbowPickToday();
-    localStorage.setItem(RAINBOW_KEY, JSON.stringify({ date: todayStr, cardData, flipped: false }));
-    renderRainbowCard(cardData, false);
-  }
-
-  function forceRedrawRainbow() {
-    localStorage.removeItem(RAINBOW_KEY);
-    loadRainbowCard();
+    renderRainbowDeck(null, false);
   }
 
 
