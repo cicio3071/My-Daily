@@ -478,29 +478,89 @@
     background: var(--bg); border: 1px solid var(--border);
     border-radius: 10px; padding: 0.1rem 0.5rem; font-size: 0.58rem;
   }
-  .todo-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+  .todo-list { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
   .todo-item {
-    display: flex; align-items: center; gap: 0.65rem;
-    padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 0.65rem;
+    padding: 0.55rem 0.65rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.2s;
   }
-  .todo-item:last-child { border-bottom: none; }
-  .todo-check {
-    width: 17px; height: 17px; border: 1px solid var(--border);
-    border-radius: 3px; cursor: pointer; flex-shrink: 0;
+  .todo-item:hover { border-color: var(--accent-light); }
+
+  /* status dot */
+  .todo-status {
+    width: 13px; height: 13px; border-radius: 50%;
+    cursor: pointer; flex-shrink: 0; margin-top: 0.32rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 1.5px solid transparent;
+  }
+  .todo-status:hover { transform: scale(1.25); }
+  .todo-status[data-status="pending"]  { background: #e8924a; border-color: #d4783a; }
+  .todo-status[data-status="active"]   { background: #4a85c9; border-color: #3570b0; }
+  .todo-status[data-status="waiting"]  { background: #c9a84a; border-color: #b09030; }
+  .todo-status[data-status="done-soft"]{ background: #5fad74; border-color: #4a9460; }
+
+  /* status legend */
+  .todo-legend {
+    display: flex; gap: 0.85rem; flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+  }
+  .todo-legend-item {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-family: 'DM Mono', monospace; font-size: 0.58rem;
+    color: var(--muted); letter-spacing: 0.04em;
+  }
+  .todo-legend-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* editable text */
+  .todo-text-wrap { flex: 1; min-width: 0; }
+  .todo-text {
+    font-size: 0.95rem; color: var(--ink); line-height: 1.5;
+    word-break: break-word; cursor: text;
+    outline: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+    display: block; width: 100%;
+  }
+  .todo-text:focus { border-bottom-color: var(--accent-light); color: var(--ink); }
+  .todo-text[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder); color: var(--border); font-style: italic;
+  }
+  .todo-item.done-item .todo-text { color: var(--muted); text-decoration: line-through; }
+
+  /* complete button */
+  .todo-complete {
+    background: none; border: 1px solid var(--border);
+    border-radius: 3px; width: 22px; height: 22px;
+    cursor: pointer; flex-shrink: 0; margin-top: 0.15rem;
     display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; color: var(--border);
     transition: all 0.2s;
   }
-  .todo-check:hover { border-color: var(--accent); }
-  .todo-check.checked { background: var(--accent); border-color: var(--accent); }
-  .todo-check.checked::after { content: '✓'; color: white; font-size: 0.65rem; }
-  .todo-text { flex: 1; font-size: 1rem; color: var(--ink); line-height: 1.5; }
+  .todo-complete:hover { border-color: #5fad74; color: #5fad74; }
+  .todo-complete.checked { background: #5fad74; border-color: #5fad74; color: white; }
+
   .todo-delete {
     background: none; border: none; color: var(--border);
-    cursor: pointer; font-size: 0.9rem; padding: 0 0.2rem;
-    transition: color 0.2s; flex-shrink: 0;
+    cursor: pointer; font-size: 0.9rem; padding: 0 0.15rem;
+    transition: color 0.2s; flex-shrink: 0; margin-top: 0.1rem;
   }
   .todo-delete:hover { color: #b94a2c; }
-  .done-item .todo-text { color: var(--muted); text-decoration: line-through; }
+
+  /* show more */
+  .todo-show-more {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    color: var(--muted); letter-spacing: 0.06em;
+    background: none; border: none; cursor: pointer;
+    padding: 0.5rem 0; text-align: left;
+    transition: color 0.2s;
+  }
+  .todo-show-more:hover { color: var(--accent); }
+
   .todo-empty { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--border); padding: 0.75rem 0; }
 
   /* pomodoro */
@@ -2179,6 +2239,12 @@
       <div class="todo-grid">
         <div class="panel">
           <div class="todo-panel-label">pending <span class="todo-count" id="pendingCount">0</span></div>
+          <div class="todo-legend">
+            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#e8924a"></div>待處理</div>
+            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#4a85c9"></div>進行中</div>
+            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#c9a84a"></div>等待中</div>
+            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#5fad74"></div>已溝通</div>
+          </div>
           <div class="todo-add">
             <input class="todo-input" id="todoInput" placeholder="新增待辦…" maxlength="80" />
             <button class="todo-add-btn" onclick="addTodo()">+</button>
@@ -3099,15 +3165,15 @@
 
   // ── Todo ──
   const TODO_KEY = 'daily_todos';
+  const TODO_STATUS_CYCLE = ['pending', 'active', 'waiting', 'done-soft'];
+  const TODO_PENDING_LIMIT = 5;
+  const TODO_DONE_LIMIT = 5;
 
   function loadTodos() {
     try { return JSON.parse(localStorage.getItem(TODO_KEY)) || []; }
     catch { return []; }
   }
-
-  function saveTodos(todos) {
-    localStorage.setItem(TODO_KEY, JSON.stringify(todos));
-  }
+  function saveTodos(todos) { localStorage.setItem(TODO_KEY, JSON.stringify(todos)); }
 
   function renderTodos() {
     const todos = loadTodos();
@@ -3119,43 +3185,96 @@
 
     const pl = document.getElementById('pendingList');
     const dl = document.getElementById('doneList');
+    const plShowAll = pl.dataset.showAll === 'true';
+    const dlShowAll = dl.dataset.showAll === 'true';
 
-    pl.innerHTML = pending.length ? '' : '<li class="todo-empty">nothing here yet</li>';
-    dl.innerHTML = done.length ? '' : '<li class="todo-empty">no completed items</li>';
+    pl.innerHTML = '';
+    dl.innerHTML = '';
 
-    pending.forEach(t => {
-      const li = document.createElement('li');
-      li.className = 'todo-item';
-      li.innerHTML = `
-        <div class="todo-check" onclick="toggleTodo('${t.id}')"></div>
-        <span class="todo-text">${escHtml(t.text)}</span>
-        <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="刪除">×</button>
-      `;
-      pl.appendChild(li);
-    });
+    if (!pending.length) {
+      pl.innerHTML = '<li class="todo-empty">nothing here yet</li>';
+    } else {
+      const toShow = plShowAll ? pending : pending.slice(0, TODO_PENDING_LIMIT);
+      toShow.forEach(t => pl.appendChild(makeTodoItem(t, false)));
+      if (pending.length > TODO_PENDING_LIMIT) {
+        const btn = document.createElement('button');
+        btn.className = 'todo-show-more';
+        btn.textContent = plShowAll ? '收起 ↑' : `展開全部 ${pending.length} 項 ↓`;
+        btn.onclick = () => { pl.dataset.showAll = plShowAll ? 'false' : 'true'; renderTodos(); };
+        pl.appendChild(btn);
+      }
+    }
 
-    const DONE_LIMIT = 5;
-    const doneShowAll = dl.dataset.showAll === 'true';
-    const doneToShow = doneShowAll ? done : done.slice(0, DONE_LIMIT);
-    doneToShow.forEach(t => {
-      const li = document.createElement('li');
-      li.className = 'todo-item done-item';
-      li.innerHTML = `
-        <div class="todo-check checked" onclick="toggleTodo('${t.id}')"></div>
-        <span class="todo-text">${escHtml(t.text)}</span>
-        <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="刪除">×</button>
-      `;
-      dl.appendChild(li);
-    });
-    if (done.length > DONE_LIMIT) {
-      const btn = document.createElement('button');
-      btn.className = 'list-show-more';
-      btn.textContent = doneShowAll ? '收起 ↑' : `顯示全部 ${done.length} 筆 ↓`;
-      btn.onclick = () => { dl.dataset.showAll = doneShowAll ? 'false' : 'true'; renderTodos(); };
-      dl.appendChild(btn);
+    if (!done.length) {
+      dl.innerHTML = '<li class="todo-empty">no completed items</li>';
+    } else {
+      const toShow = dlShowAll ? done : done.slice(0, TODO_DONE_LIMIT);
+      toShow.forEach(t => dl.appendChild(makeTodoItem(t, true)));
+      if (done.length > TODO_DONE_LIMIT) {
+        const btn = document.createElement('button');
+        btn.className = 'todo-show-more';
+        btn.textContent = dlShowAll ? '收起 ↑' : `展開全部 ${done.length} 項 ↓`;
+        btn.onclick = () => { dl.dataset.showAll = dlShowAll ? 'false' : 'true'; renderTodos(); };
+        dl.appendChild(btn);
+      }
     }
 
     document.getElementById('clearBtn').style.display = done.length ? 'block' : 'none';
+  }
+
+  function makeTodoItem(t, isDone) {
+    const li = document.createElement('li');
+    li.className = 'todo-item' + (isDone ? ' done-item' : '');
+
+    const status = t.status || 'pending';
+
+    li.innerHTML = `
+      <div class="todo-status" data-status="${isDone ? 'done-soft' : status}"
+        title="點擊切換狀態"
+        ${isDone ? '' : `onclick="todoNextStatus('${t.id}')"`}
+        style="${isDone ? 'cursor:default;opacity:0.5' : ''}"></div>
+      <div class="todo-text-wrap">
+        <div class="todo-text"
+          contenteditable="${isDone ? 'false' : 'true'}"
+          data-id="${t.id}"
+          onblur="todoSaveText(this)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        >${escHtml(t.text)}</div>
+      </div>
+      <button class="todo-complete ${isDone ? 'checked' : ''}"
+        onclick="todoComplete('${t.id}')"
+        title="${isDone ? '取消完成' : '標記完成'}">✓</button>
+      <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="刪除">×</button>
+    `;
+    return li;
+  }
+
+  function todoNextStatus(id) {
+    const todos = loadTodos();
+    const t = todos.find(t => t.id === id);
+    if (!t) return;
+    const cur = t.status || 'pending';
+    const idx = TODO_STATUS_CYCLE.indexOf(cur);
+    t.status = TODO_STATUS_CYCLE[(idx + 1) % TODO_STATUS_CYCLE.length];
+    saveTodos(todos);
+    renderTodos();
+  }
+
+  function todoSaveText(el) {
+    const id = el.dataset.id;
+    const text = el.textContent.trim();
+    if (!text) { renderTodos(); return; }
+    const todos = loadTodos();
+    const t = todos.find(t => t.id === id);
+    if (t && t.text !== text) { t.text = text; saveTodos(todos); }
+  }
+
+  function todoComplete(id) {
+    const todos = loadTodos();
+    const t = todos.find(t => t.id === id);
+    if (t) { t.done = !t.done; if (!t.done) t.status = 'pending'; }
+    saveTodos(todos);
+    renderTodos();
   }
 
   function addTodo() {
@@ -3163,23 +3282,22 @@
     const text = input.value.trim();
     if (!text) return;
     const todos = loadTodos();
-    todos.unshift({ id: Date.now().toString(), text, done: false });
+    todos.unshift({ id: Date.now().toString(), text, done: false, status: 'pending' });
     saveTodos(todos);
     input.value = '';
     renderTodos();
   }
 
-  function toggleTodo(id) {
-    const todos = loadTodos();
-    const t = todos.find(t => t.id === id);
-    if (t) t.done = !t.done;
-    saveTodos(todos);
-    renderTodos();
-  }
+  function toggleTodo(id) { todoComplete(id); }
 
   function deleteTodo(id) {
     const todos = loadTodos().filter(t => t.id !== id);
     saveTodos(todos);
+    renderTodos();
+  }
+
+  function clearDone() {
+    saveTodos(loadTodos().filter(t => !t.done));
     renderTodos();
   }
 
