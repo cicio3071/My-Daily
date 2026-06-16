@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cicio's Daily</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&family=Klee+One:wght@400;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -672,7 +672,51 @@
   .mur-post { padding: 0.9rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; align-items: flex-start; }
   .mur-post:first-child { border-top: 1px solid var(--border); }
   .mur-post-time { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; padding-top: 0.15rem; min-width: 68px; }
-  .mur-post-text { flex: 1; font-size: 0.88rem; line-height: 1.75; color: var(--ink-soft); white-space: pre-wrap; word-break: break-word; }
+  .mur-post-text {
+    flex: 1; font-size: 0.88rem; line-height: 1.75; color: var(--ink-soft);
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .mur-post-text:hover { color: var(--ink); }
+  .mur-post-text.short { cursor: default; }
+  .mur-post-text.short:hover { color: var(--ink-soft); }
+
+  /* murmur full-text modal */
+  .mur-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 150; backdrop-filter: blur(3px);
+  }
+  .mur-modal-overlay.visible { display: flex; }
+  .mur-modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1.75rem;
+    width: 90%; max-width: 460px; max-height: 70vh;
+    display: flex; flex-direction: column;
+  }
+  .mur-modal-time {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    color: var(--muted); letter-spacing: 0.06em; margin-bottom: 1rem;
+  }
+  .mur-modal-text {
+    font-size: 0.95rem; line-height: 1.85; color: var(--ink);
+    white-space: pre-wrap; word-break: break-word;
+    overflow-y: auto; flex: 1; margin-bottom: 1.25rem;
+  }
+  .mur-modal-close {
+    align-self: flex-end;
+    background: none; border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.4rem 1.1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.08em; color: var(--muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mur-modal-close:hover { border-color: var(--accent); color: var(--accent); }
   .mur-post-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; padding: 0 0.2rem; transition: color 0.2s; flex-shrink: 0; }
   .mur-post-del:hover { color: #b94a2c; }
   .mur-empty { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--border); padding: 1.5rem 0; text-align: center; }
@@ -709,6 +753,67 @@
   .mood-nav-btn:hover { color: var(--accent); }
   .mood-nav-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); min-width: 70px; text-align: center; }
   .mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; max-width: 360px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+
+  /* ── mood monthly receipt ── */
+  .mood-receipt {
+    margin-top: 1.5rem;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg);
+    max-width: 360px;
+  }
+  .mood-receipt-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 0.65rem;
+  }
+  .mood-receipt-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    padding: 0.3rem 0;
+  }
+  .mood-receipt-row-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .mood-receipt-emoji { font-size: 0.95rem; }
+  .mood-receipt-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--border);
+    margin: 0 0.5rem;
+    transform: translateY(-3px);
+  }
+  .mood-receipt-count { color: var(--accent); font-weight: 500; }
+  .mood-receipt-total {
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .mood-receipt-empty {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--border);
+    text-align: center;
+    padding: 0.5rem 0;
+  }
   .mood-cal-day-name { font-family: 'DM Mono', monospace; font-size: 0.52rem; color: var(--muted); text-align: center; padding: 0.35rem 0; background: var(--surface); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
   .mood-cal-day-name:last-child { border-right: none; }
   .mood-cal-cell { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg); transition: background 0.15s; }
@@ -1475,6 +1580,136 @@
     letter-spacing: 0.06em;
   }
 
+  /* ── Diary letter-paper modal ── */
+  .diary-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 160; backdrop-filter: blur(4px);
+    padding: 1.5rem;
+  }
+  .diary-modal-overlay.visible { display: flex; }
+  .diary-letter {
+    background: #fdf8ee;
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    width: 100%;
+    max-width: 480px;
+    height: 600px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  [data-theme="dark"] .diary-letter {
+    background: #1c2438;
+  }
+  .diary-letter::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 100%;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      rgba(139,111,71,0.12) 31px,
+      rgba(139,111,71,0.12) 32px
+    );
+    pointer-events: none;
+  }
+  [data-theme="dark"] .diary-letter::before {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      rgba(122,160,208,0.1) 31px,
+      rgba(122,160,208,0.1) 32px
+    );
+  }
+  .diary-letter-header {
+    position: relative;
+    z-index: 1;
+    padding: 1.75rem 2rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .diary-letter-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: #5c3d20;
+  }
+  [data-theme="dark"] .diary-letter-date { color: #c8d8f0; }
+  .diary-letter-weekday {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: #a08060;
+    letter-spacing: 0.1em;
+    margin-top: 0.2rem;
+  }
+  [data-theme="dark"] .diary-letter-weekday { color: #7aA0d0; }
+  .diary-letter-mood {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: #a08060;
+    letter-spacing: 0.06em;
+    text-align: right;
+  }
+  [data-theme="dark"] .diary-letter-mood { color: #7aA0d0; }
+  .diary-letter-mood-emoji { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; text-align: right; }
+  .diary-letter-close {
+    position: absolute;
+    top: 1.25rem; right: 1.25rem;
+    background: none; border: none;
+    font-size: 1.3rem; color: #a08060;
+    cursor: pointer; line-height: 1;
+    z-index: 2;
+    transition: color 0.2s;
+  }
+  [data-theme="dark"] .diary-letter-close { color: #7aA0d0; }
+  .diary-letter-close:hover { color: #5c3d20; }
+  [data-theme="dark"] .diary-letter-close:hover { color: #c8d8f0; }
+  .diary-letter-body {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 2rem 1.5rem;
+  }
+  .diary-letter-text {
+    font-family: 'Klee One', serif;
+    font-size: 1.05rem;
+    line-height: 32px;
+    color: #4a3318;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  [data-theme="dark"] .diary-letter-text { color: #d8e8f8; }
+  .diary-letter-footer {
+    position: relative;
+    z-index: 1;
+    padding: 1rem 2rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+  .diary-letter-edit-btn {
+    background: none;
+    border: 1px solid #c9aa82;
+    border-radius: 20px;
+    padding: 0.4rem 1.1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: #8b6e52;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  [data-theme="dark"] .diary-letter-edit-btn { border-color: #4a6fa8; color: #7aA0d0; }
+  .diary-letter-edit-btn:hover { background: #c9aa8220; }
+  [data-theme="dark"] .diary-letter-edit-btn:hover { background: #4a6fa820; }
+
   /* ── Prompt Builder ── */
   .pb-section {
     background: var(--surface);
@@ -2160,7 +2395,6 @@
   <button class="tab-btn active" onclick="switchTab('today', this)">今日</button>
   <button class="tab-btn" onclick="switchTab('life', this)">生活</button>
   <button class="tab-btn" onclick="switchTab('record', this)">記錄</button>
-  <button class="tab-btn" onclick="switchTab('chat', this)">探討</button>
   <button class="tab-btn" onclick="switchTab('diary', this)">日記</button>
   <button class="tab-btn" onclick="switchTab('more', this)">更多</button>
 </nav>
@@ -2329,6 +2563,7 @@
           </div>
         </div>
         <div class="mood-calendar" id="moodCalendar"></div>
+        <div class="mood-receipt" id="moodReceipt"></div>
       </div>
     </div>
 
@@ -2455,62 +2690,6 @@
 
     </div>
 
-  </div>
-
-
-  <!-- ═══ TAB: 探討 ═══ -->
-  <div class="tab-panel" id="tab-chat">
-    <div class="chat-wrap">
-      <div class="chat-header">
-        <div>
-          <div class="chat-model" id="chatModelLabel">gemini-2.5-flash · 每次開啟為新對話</div>
-        </div>
-        <div class="chat-stats">
-          <span>本次 <span class="chat-stat-val" id="chatMsgCount">0</span> 則</span>
-          <span>≈ <span class="chat-stat-val" id="chatTokenEst">0</span> tokens</span>
-        </div>
-        <div style="display:flex;gap:0.5rem">
-          <button class="chat-new-btn" onclick="newChatSession()">新對話</button>
-        </div>
-      </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="chat-empty" id="chatEmpty">
-          <div class="chat-empty-icon">🔭</div>
-          <div class="chat-empty-text">有什麼想探討的？</div>
-        </div>
-      </div>
-      <div class="chat-input-area">
-        <textarea class="chat-input" id="chatInput" placeholder="提出一個問題、一個議題、或任何好奇的事…" rows="1"></textarea>
-        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">↑</button>
-      </div>
-    </div>
-    <div class="chat-usage-panel">
-      <div class="chat-usage-item">
-        <div class="chat-usage-label">今日對話次數</div>
-        <div class="chat-usage-val" id="chatDailyCount">0 次</div>
-      </div>
-      <div class="chat-usage-item">
-        <div class="chat-usage-label">今日估算 tokens</div>
-        <div class="chat-usage-val" id="chatDailyTokens">0</div>
-      </div>
-      <div class="chat-usage-item">
-        <div class="chat-usage-label">使用模型</div>
-        <div class="chat-usage-val">gemini-2.5-flash</div>
-      </div>
-    </div>
-
-    <!-- 活動記憶 — always visible -->
-    <div class="xinkui-memory-area visible" id="xinkuiMemoryArea" style="display:block">
-      <div class="memory-label">
-        活動記憶
-        <span class="memory-hint">給 Gemini 的背景脈絡，每則建議 50 字以內，最多 5 則</span>
-      </div>
-      <div class="memory-add-row">
-        <input type="text" class="memory-input" id="memoryInput" placeholder="新增一件讓 Gemini 記得的背景…" maxlength="100" />
-        <button class="memory-add-btn" onclick="addMemory()">新增</button>
-      </div>
-      <div class="memory-list" id="memoryList"></div>
-    </div>
   </div>
 
 
@@ -2813,6 +2992,35 @@
     </div>
   </div>
 
+
+<!-- Diary Letter Modal -->
+<div class="diary-modal-overlay" id="diaryModalOverlay" onclick="if(event.target===this)closeDiaryLetter()">
+  <div class="diary-letter">
+    <button class="diary-letter-close" onclick="closeDiaryLetter()">×</button>
+    <div class="diary-letter-header">
+      <div>
+        <div class="diary-letter-date" id="diaryLetterDate"></div>
+        <div class="diary-letter-weekday" id="diaryLetterWeekday"></div>
+      </div>
+      <div class="diary-letter-mood" id="diaryLetterMood"></div>
+    </div>
+    <div class="diary-letter-body">
+      <div class="diary-letter-text" id="diaryLetterText"></div>
+    </div>
+    <div class="diary-letter-footer">
+      <button class="diary-letter-edit-btn" id="diaryLetterEditBtn" onclick="diaryLetterToEdit()">✎ 編輯</button>
+    </div>
+  </div>
+</div>
+
+<!-- Murmur Full Text Modal -->
+<div class="mur-modal-overlay" id="murModalOverlay" onclick="if(event.target===this)closeMurModal()">
+  <div class="mur-modal-box">
+    <div class="mur-modal-time" id="murModalTime"></div>
+    <div class="mur-modal-text" id="murModalText"></div>
+    <button class="mur-modal-close" onclick="closeMurModal()">關閉</button>
+  </div>
+</div>
 
 <!-- Clip Edit Modal -->
 <div class="clip-edit-modal" id="clipEditModal">
@@ -3843,11 +4051,12 @@ ${eventList}`
       const d = new Date(m.ts);
       const timeStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
         String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      const isLong = m.text.length > 60 || m.text.split('\n').length > 2;
       const div = document.createElement('div');
       div.className = 'mur-post';
       div.innerHTML = `
         <div class="mur-post-time">${timeStr}</div>
-        <div class="mur-post-text">${escHtml(m.text)}</div>
+        <div class="mur-post-text${isLong ? '' : ' short'}" ${isLong ? `onclick="openMurModal('${m.id}')"` : ''}>${escHtml(m.text)}</div>
         <button class="mur-post-del" onclick="deleteMurmur('${m.id}')">×</button>
       `;
       postsEl.appendChild(div);
@@ -3865,6 +4074,22 @@ ${eventList}`
       }
       postsEl.appendChild(btn);
     }
+  }
+
+  function openMurModal(id) {
+    const all = loadMurmurs();
+    const m = all.find(x => x.id === id);
+    if (!m) return;
+    const d = new Date(m.ts);
+    const timeStr = d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+      String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('murModalTime').textContent = timeStr;
+    document.getElementById('murModalText').textContent = m.text;
+    document.getElementById('murModalOverlay').classList.add('visible');
+  }
+
+  function closeMurModal() {
+    document.getElementById('murModalOverlay').classList.remove('visible');
   }
 
   function murPrev() {
@@ -4292,6 +4517,62 @@ ${eventList}`
       }
       cal.appendChild(el);
     }
+
+    renderMoodReceipt(moods);
+  }
+
+  function renderMoodReceipt(moods) {
+    const el = document.getElementById('moodReceipt');
+    const daysInMonth = new Date(moodViewYear, moodViewMonth + 1, 0).getDate();
+
+    // tally moods for this month
+    const tally = {};
+    let total = 0;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${moodViewYear}-${String(moodViewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const mood = moods[dateStr];
+      if (mood) {
+        tally[mood] = (tally[mood] || 0) + 1;
+        total++;
+      }
+    }
+
+    if (!total) {
+      el.innerHTML = `
+        <div class="mood-receipt-title">本月小結</div>
+        <div class="mood-receipt-empty">尚無紀錄</div>
+      `;
+      return;
+    }
+
+    // sort by count descending, preserve MOOD_OPTIONS order as tiebreaker
+    const entries = MOOD_OPTIONS
+      .filter(m => tally[m])
+      .map(m => ({ mood: m, count: tally[m] }))
+      .sort((a, b) => b.count - a.count);
+
+    let html = `<div class="mood-receipt-title">本月小結</div>`;
+    entries.forEach(({ mood, count }) => {
+      const [emoji, ...labelParts] = mood.split(' ');
+      const label = labelParts.join(' ');
+      html += `
+        <div class="mood-receipt-row">
+          <div class="mood-receipt-row-left">
+            <span class="mood-receipt-emoji">${emoji}</span>
+            <span>${label}</span>
+          </div>
+          <span class="mood-receipt-dots"></span>
+          <span class="mood-receipt-count">${count} 天</span>
+        </div>
+      `;
+    });
+    html += `
+      <div class="mood-receipt-total">
+        <span>已記錄</span>
+        <span>${total} / ${daysInMonth} 天</span>
+      </div>
+    `;
+    el.innerHTML = html;
   }
 
   function moodPrev() {
@@ -4405,216 +4686,6 @@ ${eventList}`
     const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.trim() && b.getAttribute('onclick').includes("'" + lastTab + "'"));
     if (btn) switchTab(lastTab, btn);
   }
-
-
-  // ── Chat ──
-  const CHAT_USAGE_KEY = 'daily_chat_usage';
-  const CHAT_SYSTEM_DEFAULT = `你是一個博學、思路清晰的討論夥伴，擅長分析與探討各種議題——歷史、科學、哲學、文化、時事、語言、藝術皆可。
-
-規則：
-- 有深度，能把複雜的事說得清楚，也能把簡單的事挖得更深
-- 有自己的觀點，敢說「我認為」，不只是列出各方說法
-- 不說「很好的問題」「當然」「絕對」這類空話
-- 回應有層次，但不冗長，說到點上就停
-- 不主動追問太多問題，最多一次問一個
-- 語氣自然直接，像一個真正懂這個領域的朋友在說話
-- 用繁體中文回應`;
-
-  const MEMORY_KEY = 'daily_xinkui_memory';
-
-  function loadXinkuiMemory() {
-    try { return JSON.parse(localStorage.getItem(MEMORY_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveXinkuiMemory(m) { localStorage.setItem(MEMORY_KEY, JSON.stringify(m)); }
-
-  function buildChatSystem() {
-    const memories = loadXinkuiMemory();
-    if (!memories.length) return CHAT_SYSTEM_DEFAULT;
-    return CHAT_SYSTEM_DEFAULT + '\n\n【背景脈絡】\n' + memories.map(m => '- ' + m.text).join('\n');
-  }
-
-  let CHAT_SYSTEM = CHAT_SYSTEM_DEFAULT;
-
-  let chatHistory = [];
-  let chatSessionMsgs = 0;
-  let chatSessionTokens = 0;
-
-  function loadChatUsage() {
-    try {
-      const d = JSON.parse(localStorage.getItem(CHAT_USAGE_KEY)) || {};
-      if (d.date === todayStr) return d;
-      return { date: todayStr, count: 0, tokens: 0 };
-    } catch { return { date: todayStr, count: 0, tokens: 0 }; }
-  }
-
-  function saveChatUsage(count, tokens) {
-    const d = loadChatUsage();
-    d.count += count;
-    d.tokens += tokens;
-    d.date = todayStr;
-    localStorage.setItem(CHAT_USAGE_KEY, JSON.stringify(d));
-    renderChatUsage();
-  }
-
-  function renderChatUsage() {
-    const d = loadChatUsage();
-    document.getElementById('chatDailyCount').textContent = d.count + ' 次';
-    document.getElementById('chatDailyTokens').textContent = d.tokens.toLocaleString();
-  }
-
-  function estimateTokens(text) {
-    // rough estimate: 1 token ≈ 1.5 Chinese chars or 4 English chars
-    const chinese = (text.match(/[\u4e00-\u9fff]/g) || []).length;
-    const other = text.length - chinese;
-    return Math.ceil(chinese / 1.5 + other / 4);
-  }
-
-  function updateSessionStats() {
-    document.getElementById('chatMsgCount').textContent = chatSessionMsgs;
-    document.getElementById('chatTokenEst').textContent = chatSessionTokens.toLocaleString();
-  }
-
-  function newChatSession() {
-    chatHistory = [];
-    chatSessionMsgs = 0;
-    chatSessionTokens = 0;
-    updateSessionStats();
-    const el = document.getElementById('chatMessages');
-    el.innerHTML = `<div class="chat-empty" id="chatEmpty">
-      <div class="chat-empty-icon">🔭</div>
-      <div class="chat-empty-text">有什麼想探討的？</div>
-    </div>`;
-  }
-
-  function copyMsg(btn) {
-    const wrap = btn.closest('.chat-bubble-wrap');
-    const text = wrap.dataset.text || '';
-    navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = '✓';
-      setTimeout(() => btn.textContent = '⎘', 1200);
-    });
-  }
-
-  function deleteMsg(btn) {
-    const wrap = btn.closest('.chat-bubble-wrap');
-    const allWraps = [...document.querySelectorAll('.chat-bubble-wrap')];
-    const idx = allWraps.indexOf(wrap);
-    // remove from chatHistory (each bubble = one history entry, user+ai pairs)
-    // user bubbles are even indices in history (0,2,4...), ai are odd
-    const historyIdx = Math.floor(idx / 1);
-    if (historyIdx < chatHistory.length) {
-      chatHistory.splice(historyIdx, 1);
-    }
-    wrap.remove();
-  }
-
-  async function sendChat() {
-    const key = localStorage.getItem(STORAGE_KEY);
-    if (!key) { showModal(); return; }
-
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const btn = document.getElementById('chatSendBtn');
-    btn.disabled = true;
-    input.value = '';
-    input.style.height = 'auto';
-
-    // hide empty state
-    const emptyEl = document.getElementById('chatEmpty');
-    if (emptyEl) emptyEl.remove();
-
-    // add user bubble
-    const messagesEl = document.getElementById('chatMessages');
-    const msgId = Date.now().toString();
-    const userBubble = document.createElement('div');
-    userBubble.className = 'chat-bubble-wrap user';
-    userBubble.dataset.msgId = msgId;
-    userBubble.dataset.text = text;
-    userBubble.innerHTML = `
-      <div class="chat-msg-actions">
-        <button class="chat-msg-btn" onclick="copyMsg(this)" title="複製">⎘</button>
-        <button class="chat-msg-btn del" onclick="deleteMsg(this)" title="刪除">×</button>
-      </div>
-      <div class="chat-bubble">${escHtml(text)}</div>
-    `;
-    messagesEl.appendChild(userBubble);
-
-    // add thinking
-    const thinkingWrap = document.createElement('div');
-    thinkingWrap.className = 'chat-bubble-wrap ai';
-    thinkingWrap.innerHTML = `<div class="chat-thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-    messagesEl.appendChild(thinkingWrap);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-
-    // update history
-    chatHistory.push({ role: 'user', parts: [{ text }] });
-
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: buildChatSystem() }] },
-            contents: chatHistory,
-            generationConfig: { temperature: 1.0, maxOutputTokens: 1000 }
-          })
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'API error');
-
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '…';
-      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
-      // save session for cross-device transfer
-      localStorage.setItem(CHAT_SESSION_KEY, JSON.stringify({ history: chatHistory }));
-
-      // replace thinking with reply
-      thinkingWrap.dataset.text = reply;
-      thinkingWrap.innerHTML = `
-        <div class="chat-msg-actions">
-          <button class="chat-msg-btn" onclick="copyMsg(this)" title="複製">⎘</button>
-          <button class="chat-msg-btn del" onclick="deleteMsg(this)" title="刪除">×</button>
-        </div>
-        <div class="chat-bubble">${escHtml(reply)}</div>
-      `;
-
-      // update stats
-      const tokens = estimateTokens(text) + estimateTokens(reply);
-      chatSessionMsgs++;
-      chatSessionTokens += tokens;
-      updateSessionStats();
-      saveChatUsage(1, tokens);
-
-    } catch(err) {
-      thinkingWrap.innerHTML = `<div class="chat-bubble" style="color:var(--muted);font-size:0.82rem">${err.message}</div>`;
-    }
-
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    btn.disabled = false;
-    input.focus();
-  }
-
-  // chat input events
-  document.getElementById('chatInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-      e.preventDefault();
-      sendChat();
-    }
-  });
-
-  document.getElementById('chatInput').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
-
-  renderChatUsage();
-
 
 
   // ── Pet Canvas Drawing ──
@@ -4943,58 +5014,7 @@ ${eventList}`
   const CLIP_KEY = 'daily_clips';
   const NOTES_KEY = 'daily_notes';
   const PB_CHARS_KEY = 'daily_pb_chars';
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, CHAT_USAGE_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, MEMORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY, RAINBOW_KEY];
-  const CHAT_SESSION_KEY = 'daily_chat_session';
-
-  // ── Xinkui Memory ──
-  function addMemory() {
-    const input = document.getElementById('memoryInput');
-    const text = input.value.trim();
-    if (!text) return;
-    const memories = loadXinkuiMemory();
-    if (memories.length >= 5) { alert('最多5則，請先刪除舊的'); return; }
-    memories.unshift({ id: Date.now().toString(), text });
-    saveXinkuiMemory(memories);
-    input.value = '';
-    renderMemoryList();
-  }
-
-  function deleteMemory(id) {
-    saveXinkuiMemory(loadXinkuiMemory().filter(m => m.id !== id));
-    renderMemoryList();
-  }
-
-  function renderMemoryList() {
-    const memories = loadXinkuiMemory();
-    const el = document.getElementById('memoryList');
-    if (!memories.length) {
-      el.innerHTML = '<div class="memory-empty">尚無活動記憶</div>';
-      return;
-    }
-    el.innerHTML = '';
-    memories.forEach(m => {
-      const div = document.createElement('div');
-      div.className = 'memory-item';
-      const charCount = m.text.length;
-      div.innerHTML = `
-        <div class="memory-item-text">${escHtml(m.text)}</div>
-        <div class="memory-item-count">${charCount}字</div>
-        <button class="memory-del" onclick="deleteMemory('${m.id}')">×</button>
-      `;
-      el.appendChild(div);
-    });
-  }
-
-  // enter key for memory input
-  const memInputEl = document.getElementById('memoryInput');
-  if (memInputEl) {
-    memInputEl.addEventListener('keydown', e => {
-      if (e.key === 'Enter') addMemory();
-    });
-  }
-
-  // render memory on load
-  renderMemoryList();
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY, RAINBOW_KEY];
 
   function exportJSON() {
     const data = {};
@@ -5610,7 +5630,7 @@ ${eventList}`
         </div>
         <div class="diary-day-content" id="diaryContent-${dateStr}">
           ${hasEntry
-            ? `<div class="diary-day-preview" onclick="diaryOpenEdit('${dateStr}')">${escHtml(preview)}</div>`
+            ? `<div class="diary-day-preview" onclick="openDiaryLetter('${dateStr}')">${escHtml(preview)}</div>`
             : (isFuture
               ? '<span class="diary-day-empty future">—</span>'
               : `<button class="diary-write-btn" onclick="diaryOpenEdit('${dateStr}')">+ 寫今天</button>`)
@@ -5668,6 +5688,66 @@ ${eventList}`
 
   function diaryCloseEdit(dateStr) {
     diaryRenderMonth(dateStr.slice(0, 7), diaryGetEntries());
+  }
+
+  // ── Diary letter-paper viewer modal ──
+  let diaryLetterCurrentDate = null;
+
+  function openDiaryLetter(dateStr) {
+    const entries = diaryGetEntries();
+    const text = entries[dateStr];
+    if (!text) return;
+
+    diaryLetterCurrentDate = dateStr;
+
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const weekday = ['日','一','二','三','四','五','六'][new Date(y, m - 1, d).getDay()];
+
+    document.getElementById('diaryLetterDate').textContent = `${y} 年 ${m} 月 ${d} 日`;
+    document.getElementById('diaryLetterWeekday').textContent = `週${weekday}`;
+    document.getElementById('diaryLetterText').textContent = text;
+
+    // pull mood from MOOD_KEY if exists for this date
+    const moodEl = document.getElementById('diaryLetterMood');
+    try {
+      const moods = JSON.parse(localStorage.getItem(MOOD_KEY) || '{}');
+      const mood = moods[dateStr];
+      if (mood) {
+        const [emoji, ...labelParts] = mood.split(' ');
+        moodEl.innerHTML = `<span class="diary-letter-mood-emoji">${emoji}</span>${labelParts.join(' ')}`;
+        moodEl.style.display = 'block';
+      } else {
+        moodEl.innerHTML = '';
+        moodEl.style.display = 'none';
+      }
+    } catch(e) {
+      moodEl.innerHTML = '';
+      moodEl.style.display = 'none';
+    }
+
+    document.getElementById('diaryModalOverlay').classList.add('visible');
+  }
+
+  function closeDiaryLetter() {
+    document.getElementById('diaryModalOverlay').classList.remove('visible');
+    diaryLetterCurrentDate = null;
+  }
+
+  function diaryLetterToEdit() {
+    if (!diaryLetterCurrentDate) return;
+    const dateStr = diaryLetterCurrentDate;
+    closeDiaryLetter();
+    // ensure the month is expanded and rendered before opening inline edit
+    const ym = dateStr.slice(0, 7);
+    const body = document.getElementById('diaryBody-' + ym);
+    if (body && body.style.display === 'none') {
+      diaryToggleMonth(ym);
+    }
+    setTimeout(() => {
+      diaryOpenEdit(dateStr);
+      const row = document.getElementById('diaryContent-' + dateStr);
+      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   }
 
   function diaryExportMonth() {
