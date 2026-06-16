@@ -73,11 +73,13 @@
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0;
     background: var(--bg);
     z-index: 50;
     transition: background 0.3s;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 
   .site-title {
@@ -133,9 +135,12 @@
     overflow-x: auto;
     scrollbar-width: none;
     transition: background 0.3s;
-    position: sticky;
-    top: 56px;
+    position: fixed;
+    top: var(--header-h, 64px);
+    left: 0; right: 0;
     z-index: 40;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   .tab-nav::-webkit-scrollbar { display: none; }
 
@@ -174,6 +179,8 @@
       justify-content: space-around;
       z-index: 100;
       background: var(--bg);
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
     .tab-btn {
       flex: 1;
@@ -187,14 +194,14 @@
   /* ── main ── */
   main {
     flex: 1;
-    padding: 2.5rem 2rem 2rem;
+    padding: calc(var(--header-h, 64px) + var(--tabnav-h, 45px) + 1.5rem) 2rem 2rem;
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
   }
 
   @media (max-width: 600px) {
-    main { padding: 1.25rem 1rem 6.5rem; }
+    main { padding: calc(var(--header-h, 56px) + 1.25rem) 1rem 6.5rem; }
   }
 
   /* ── tab panels ── */
@@ -3059,6 +3066,34 @@
 
 <script>
 
+  // ── Dynamic top-bar offset (eliminates magic-number layout bugs) ──
+  // Measures actual rendered header/tab-nav heights and sets CSS variables,
+  // so fixed positioning stays accurate across all screen sizes, font scaling,
+  // zoom levels, and content changes (e.g. sync indicator appearing).
+  function adjustTopOffsets() {
+    const header = document.querySelector('header');
+    const tabNav = document.querySelector('.tab-nav');
+    if (!header || !tabNav) return;
+
+    const headerH = header.offsetHeight;
+    document.documentElement.style.setProperty('--header-h', headerH + 'px');
+
+    const isMobile = window.innerWidth <= 600;
+    if (!isMobile) {
+      // tab-nav sits below header on desktop/tablet
+      document.documentElement.style.setProperty('--tabnav-h', tabNav.offsetHeight + 'px');
+    } else {
+      // tab-nav is at the bottom on mobile, doesn't affect top offset
+      document.documentElement.style.setProperty('--tabnav-h', '0px');
+    }
+  }
+
+  window.addEventListener('load', adjustTopOffsets);
+  window.addEventListener('resize', adjustTopOffsets);
+  window.addEventListener('orientationchange', () => setTimeout(adjustTopOffsets, 100));
+  // run once immediately in case DOM is already ready
+  adjustTopOffsets();
+
   const STORAGE_KEY = 'daily_gemini_key';
   const CARD_KEY = 'daily_card';
 
@@ -5095,6 +5130,8 @@ ${eventList}`
       connected.style.display = 'none';
       if (indicator) indicator.style.display = 'none';
     }
+    // header content changed (sync indicator appeared/disappeared) — recalc offsets
+    if (typeof adjustTopOffsets === 'function') setTimeout(adjustTopOffsets, 0);
   }
 
   function gistSaveToken() {
