@@ -61,7 +61,7 @@
       radial-gradient(ellipse 60% 50% at 90% 80%, var(--deco) 0%, transparent 60%);
   }
 
-  main, header {
+  main {
     position: relative;
     z-index: 1;
   }
@@ -78,8 +78,6 @@
     background: var(--bg);
     z-index: 50;
     transition: background 0.3s;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
   }
 
   .site-title {
@@ -139,8 +137,6 @@
     top: var(--header-h, 64px);
     left: 0; right: 0;
     z-index: 40;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
   }
   .tab-nav::-webkit-scrollbar { display: none; }
 
@@ -179,8 +175,6 @@
       justify-content: space-around;
       z-index: 100;
       background: var(--bg);
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
     }
     .tab-btn {
       flex: 1;
