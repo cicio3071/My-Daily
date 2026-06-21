@@ -1109,156 +1109,6 @@
   .chat-usage-val { font-family: 'DM Mono', monospace; font-size: 0.88rem; color: var(--ink-soft); }
 
 
-  /* ── beagle pet ── */
-  .pet-container {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    user-select: none;
-  }
-
-  @media (max-width: 600px) {
-    .pet-container { bottom: 5.5rem; right: 0.75rem; transform: scale(0.8); transform-origin: bottom right; }
-  }
-
-  /* speech bubble */
-  .pet-bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px 10px 10px 2px;
-    padding: 0.4rem 0.75rem;
-    font-family: 'Lora', serif;
-    font-size: 0.78rem;
-    color: var(--ink);
-    white-space: nowrap;
-    box-shadow: 0 2px 8px var(--shadow);
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-    max-width: 140px;
-    white-space: normal;
-    text-align: center;
-  }
-  .pet-bubble.visible { opacity: 1; transform: translateY(0); }
-
-  /* zzz */
-  .pet-zzz {
-    position: absolute;
-    top: -18px;
-    right: -8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    opacity: 0;
-    animation: zzzFloat 2s ease-in-out infinite;
-    pointer-events: none;
-  }
-  @keyframes zzzFloat {
-    0% { opacity: 0; transform: translateY(0); }
-    30% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-12px); }
-  }
-
-  /* dog wrapper */
-  .pet-dog-wrap {
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  .pet-dog-wrap:active { transform: scale(0.92); }
-
-  /* CSS beagle pixel art */
-  .pet-dog { position: relative; width: 64px; height: 64px; }
-
-  /* action buttons */
-  .pet-actions {
-    display: flex;
-    gap: 0.4rem;
-  }
-
-  .pet-action-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 4px var(--shadow);
-  }
-  .pet-action-btn:hover { border-color: var(--accent); transform: scale(1.1); }
-  .pet-action-btn:active { transform: scale(0.95); }
-
-  /* animations */
-  @keyframes dogWalk {
-    0%,100% { transform: translateX(0) scaleX(1); }
-    25% { transform: translateX(6px) scaleX(1); }
-    50% { transform: translateX(6px) scaleX(-1); }
-    75% { transform: translateX(0) scaleX(-1); }
-  }
-  @keyframes dogJump {
-    0%,100% { transform: translateY(0); }
-    30% { transform: translateY(-12px); }
-    60% { transform: translateY(-6px); }
-  }
-  @keyframes dogSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes dogEat {
-    0%,100% { transform: translateY(0); }
-    25% { transform: translateY(3px); }
-    50% { transform: translateY(0); }
-    75% { transform: translateY(3px); }
-  }
-  @keyframes dogWag {
-    0%,100% { transform: rotate(0deg); }
-    25% { transform: rotate(-15deg); }
-    75% { transform: rotate(15deg); }
-  }
-  @keyframes toyBounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .pet-dog-wrap.walking { animation: dogWalk 3s ease-in-out infinite; }
-  .pet-dog-wrap.jumping { animation: dogJump 0.5s ease-out 2; }
-  .pet-dog-wrap.spinning { animation: dogSpin 0.4s linear 2; }
-  .pet-dog-wrap.eating { animation: dogEat 0.3s ease-in-out 4; }
-
-  .pet-toy {
-    position: absolute;
-    font-size: 1.2rem;
-    bottom: 0;
-    right: -28px;
-    animation: toyBounce 0.6s ease-in-out infinite;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-  }
-  .pet-toy.visible { opacity: 1; }
-
-  .pet-food {
-    position: absolute;
-    font-size: 1.1rem;
-    bottom: 0;
-    left: -24px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-  }
-  .pet-food.visible { opacity: 1; }
-
 
   /* ── chat message actions ── */
   .chat-bubble-wrap {
@@ -2557,7 +2407,11 @@
       <div class="module-label">mood · 心情紀錄</div>
       <div class="panel">
         <div class="mood-options" id="moodOptions"></div>
-        <button class="btn-primary" onclick="saveMood()" style="margin-bottom:0">記錄今日心情</button>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.85rem">
+          <label style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;white-space:nowrap">補登日期</label>
+          <input type="date" id="moodDateInput" style="flex:1;font-size:0.82rem;padding:0.4rem 0.6rem">
+        </div>
+        <button class="btn-primary" onclick="saveMood()" style="margin-bottom:0">記錄心情</button>
         <div class="mood-history-header">
           <div class="mood-nav">
             <button class="mood-nav-btn" onclick="moodPrev()">‹</button>
@@ -2655,7 +2509,7 @@
       <div class="export-panel" style="margin-top:1.25rem">
         <span class="export-icon">☁️</span>
         <div class="export-title">GitHub Gist 雲端同步</div>
-        <div class="export-desc">設定後自動在開啟／關閉頁面時同步，手機與電腦共用同一份資料。資料只存在你自己的 GitHub 帳號，私人 Gist，只有你看得到。</div>
+        <div class="export-desc">資料存在你自己的 GitHub 帳號，私人 Gist，只有你看得到。<strong>同步只在你按下按鈕時發生</strong>：換裝置前，先在原裝置按「立即同步」推上雲端；換到新裝置後，按「從雲端還原」拉下最新資料。</div>
 
         <div id="gistSetupArea">
           <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem">
@@ -2741,9 +2595,9 @@
       <div class="pb-section">
         <div class="pb-section-title">
           角色錨定
-          <button class="pb-collapse-btn" onclick="pbToggleChars(this)">收起 ↑</button>
+          <button class="pb-collapse-btn" onclick="pbToggleChars(this)">展開 ↓</button>
         </div>
-        <div id="pbCharsBody">
+        <div id="pbCharsBody" style="display:none">
           <div class="pb-grid2">
             <div class="pb-field"><label class="pb-label">角色一　姓名</label><input type="text" id="pb-c1name" placeholder="姓名" oninput="pbRender()"></div>
             <div class="pb-field"><label class="pb-label">性別</label><input type="text" id="pb-c1gender" placeholder="性別" oninput="pbRender()"></div>
@@ -2781,8 +2635,8 @@
 
       <!-- 畫面風格 -->
       <div class="pb-section">
-        <div class="pb-section-title">畫面風格 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
-        <div class="pb-collapsible">
+        <div class="pb-section-title">畫面風格 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">展開 ↓</button></div>
+        <div class="pb-collapsible" style="display:none">
           <div class="pb-field">
             <label class="pb-label">氛圍模板 <span style="font-size:0.58rem;color:var(--accent-light)">快速套用</span></label>
             <div class="pb-tpl-row" id="pbTplRow">
@@ -2848,8 +2702,8 @@
 
       <!-- 構圖 -->
       <div class="pb-section">
-        <div class="pb-section-title">構圖 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
-        <div class="pb-collapsible">
+        <div class="pb-section-title">構圖 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">展開 ↓</button></div>
+        <div class="pb-collapsible" style="display:none">
           <div class="pb-grid2">
             <div class="pb-field">
               <label class="pb-label">鏡頭距離</label>
@@ -2904,8 +2758,8 @@
 
       <!-- 人物細節 -->
       <div class="pb-section">
-        <div class="pb-section-title">人物細節 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">收起 ↑</button></div>
-        <div class="pb-collapsible">
+        <div class="pb-section-title">人物細節 <button class="pb-collapse-btn" onclick="pbToggleSection(this)">展開 ↓</button></div>
+        <div class="pb-collapsible" style="display:none">
           <div class="pb-field">
             <label class="pb-label">角色一　服裝與動作</label>
             <textarea id="pb-c1action" placeholder="" maxlength="200" rows="2" oninput="pbCountChars(this,'pb-c1a-count',200);pbRender()"></textarea>
@@ -2979,21 +2833,6 @@
   </div>
 
 </main>
-
-  <!-- Pet -->
-  <div class="pet-container" id="petContainer">
-    <div class="pet-bubble" id="petBubble"></div>
-    <div class="pet-dog-wrap walking" id="petDogWrap" onclick="petClick()" style="line-height:0">
-      <div class="pet-zzz" id="petZzz" style="display:none">zzz</div>
-      <div class="pet-food" id="petFood">🦴</div>
-      <div class="pet-toy" id="petToy">🎾</div>
-      <canvas id="petCanvas" width="80" height="80" style="cursor:pointer;display:block"></canvas>
-    </div>
-    <div class="pet-actions">
-      <button class="pet-action-btn" onclick="petFeed()" title="餵食">🦴</button>
-      <button class="pet-action-btn" onclick="petPlay()" title="玩耍">🎾</button>
-    </div>
-  </div>
 
 
 <!-- Diary Letter Modal -->
@@ -4488,6 +4327,12 @@ ${eventList}`
       el.appendChild(div);
     });
 
+    const dateInput = document.getElementById('moodDateInput');
+    if (dateInput) {
+      dateInput.value = todayStr;
+      dateInput.max = todayStr; // can't log a mood for the future
+    }
+
     renderMoodCalendar();
   })();
 
@@ -4499,9 +4344,16 @@ ${eventList}`
 
   function saveMood() {
     if (!selectedMoodOption) { alert('請先選擇心情'); return; }
+    const dateInput = document.getElementById('moodDateInput');
+    const targetDate = (dateInput && dateInput.value) ? dateInput.value : todayStr;
     const moods = loadMoods();
-    moods[todayStr] = selectedMoodOption;
+    moods[targetDate] = selectedMoodOption;
     saveMoods(moods);
+    renderMoodCalendar();
+    // jump calendar view to the month of the date just logged, so user sees it
+    const [y, m] = targetDate.split('-').map(Number);
+    moodViewYear = y;
+    moodViewMonth = m - 1;
     renderMoodCalendar();
   }
 
@@ -4717,327 +4569,6 @@ ${eventList}`
     const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.trim() && b.getAttribute('onclick').includes("'" + lastTab + "'"));
     if (btn) switchTab(lastTab, btn);
   }
-
-
-  // ── Pet Canvas Drawing ──
-  const petCanvas = document.getElementById('petCanvas');
-  const petCtx = petCanvas.getContext('2d');
-
-  // pixel size
-  const P = 4;
-
-  // color palette
-  const C = {
-    brown:  '#8B4513',
-    dbrown: '#5C2D0A',
-    lbrown: '#C8864A',
-    cream:  '#F5E6C8',
-    white:  '#FFFAF0',
-    black:  '#1a0a00',
-    nose:   '#2a1a0a',
-    pink:   '#e8806a',
-    eye:    '#3a2010',
-    shine:  'rgba(255,255,255,0.6)',
-    tail:   '#C8864A',
-  };
-
-  function px(ctx, x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * P, y * P, w * P, h * P);
-  }
-
-  let dogFrame = 0;
-  let dogAnim = 'walk'; // walk, sit, jump, spin, eat, sleep
-  let dogDir = 1; // 1=right, -1=left
-  let dogX = 0;
-  let legPhase = 0;
-  let tailWag = 0;
-  let spinAngle = 0;
-  let jumpY = 0;
-  let eatBob = 0;
-  let sleepBreath = 0;
-
-  function drawBeagle(ctx, anim, frame, dir) {
-    ctx.clearRect(0, 0, 80, 80);
-    ctx.save();
-
-    const cx = 40;
-    const cy = 40;
-
-    if (anim === 'spin') {
-      ctx.translate(cx, cy);
-      ctx.rotate(spinAngle);
-      ctx.translate(-cx, -cy);
-    }
-
-    if (anim === 'jump') {
-      ctx.translate(0, -Math.abs(Math.sin(jumpY)) * 14);
-    }
-
-    if (dir === -1) {
-      ctx.translate(80, 0);
-      ctx.scale(-1, 1);
-    }
-
-    const legOffset1 = anim === 'walk' ? Math.sin(legPhase) * 1.5 : 0;
-    const legOffset2 = anim === 'walk' ? Math.sin(legPhase + Math.PI) * 1.5 : 0;
-    const tailOffset = Math.sin(tailWag) * 1.5;
-    const bob = anim === 'eat' ? Math.abs(Math.sin(eatBob)) * 1 : 0;
-    const breathY = anim === 'sleep' ? Math.sin(sleepBreath) * 0.5 : 0;
-
-    const ox = 2; // x offset
-    const oy = 3 + breathY + bob; // y offset
-
-    if (anim === 'sleep') {
-      // sleeping pose - lying down
-      // body horizontal
-      px(ctx, ox+1, oy+8, 10, 4, C.cream);
-      px(ctx, ox+2, oy+8, 8, 2, C.brown);
-      // head to side
-      px(ctx, ox, oy+7, 5, 4, C.cream);
-      px(ctx, ox, oy+7, 5, 2, C.lbrown);
-      // ear flat
-      px(ctx, ox-1, oy+8, 3, 3, C.dbrown);
-      // eye closed
-      px(ctx, ox+1, oy+8, 2, 1, C.black);
-      // legs
-      px(ctx, ox+3, oy+11, 2, 2, C.cream);
-      px(ctx, ox+8, oy+11, 2, 2, C.cream);
-      // tail curled
-      px(ctx, ox+11, oy+9, 2, 2, C.tail);
-      px(ctx, ox+12, oy+7, 1, 2, C.tail);
-      ctx.restore();
-      return;
-    }
-
-    // BODY
-    px(ctx, ox+2, oy+6, 9, 5, C.cream);
-    px(ctx, ox+2, oy+6, 9, 2, C.brown);  // saddle
-    px(ctx, ox+3, oy+5, 7, 2, C.brown);  // upper saddle
-    // belly
-    px(ctx, ox+3, oy+8, 7, 3, C.white);
-
-    // TAIL
-    px(ctx, ox+11, oy+5+tailOffset, 2, 3, C.tail);
-    px(ctx, ox+12, oy+4+tailOffset, 1, 2, C.tail);
-
-    // LEGS
-    // front legs
-    px(ctx, ox+3, oy+10, 2, 3+legOffset1, C.cream);
-    px(ctx, ox+5, oy+10, 2, 3+legOffset2, C.cream);
-    // back legs
-    px(ctx, ox+8, oy+10, 2, 3+legOffset2, C.cream);
-    px(ctx, ox+10, oy+10, 2, 3+legOffset1, C.cream);
-    // paws
-    px(ctx, ox+3, oy+12+legOffset1, 2, 1, C.lbrown);
-    px(ctx, ox+5, oy+12+legOffset2, 2, 1, C.lbrown);
-    px(ctx, ox+8, oy+12+legOffset2, 2, 1, C.lbrown);
-    px(ctx, ox+10, oy+12+legOffset1, 2, 1, C.lbrown);
-
-    // HEAD
-    px(ctx, ox+2, oy+1, 7, 5, C.cream);
-    px(ctx, ox+2, oy+1, 7, 2, C.lbrown);  // head top
-    px(ctx, ox+3, oy+0, 5, 2, C.brown);   // crown
-
-    // SNOUT
-    px(ctx, ox+3, oy+4, 5, 3, C.cream);
-    // nose
-    px(ctx, ox+4, oy+4, 3, 2, C.nose);
-    px(ctx, ox+5, oy+4, 1, 1, C.shine);
-    // mouth
-    px(ctx, ox+4, oy+6, 1, 1, C.pink);
-    px(ctx, ox+6, oy+6, 1, 1, C.pink);
-    // tongue (eating)
-    if (anim === 'eat') px(ctx, ox+5, oy+6, 1, 2, C.pink);
-
-    // EYES
-    px(ctx, ox+3, oy+2, 2, 2, C.eye);
-    px(ctx, ox+7, oy+2, 2, 2, C.eye);
-    px(ctx, ox+3, oy+2, 1, 1, C.shine);
-    px(ctx, ox+7, oy+2, 1, 1, C.shine);
-
-    // EARS (floppy)
-    px(ctx, ox+0, oy+1, 3, 6, C.dbrown);
-    px(ctx, ox+0, oy+4, 2, 4, C.brown);
-    px(ctx, ox+9, oy+1, 3, 6, C.dbrown);
-    px(ctx, ox+10, oy+4, 2, 4, C.brown);
-
-    ctx.restore();
-  }
-
-  function petAnimLoop() {
-    dogFrame++;
-    legPhase += 0.25;
-    tailWag += 0.18;
-    spinAngle += 0.25;
-    jumpY += 0.2;
-    eatBob += 0.3;
-    sleepBreath += 0.05;
-
-    drawBeagle(petCtx, dogAnim, dogFrame, dogDir);
-    requestAnimationFrame(petAnimLoop);
-  }
-
-  petAnimLoop();
-
-  // override petSetAnim to also update dogAnim
-  const _origSetAnim = petSetAnim;
-  // patch state tracking
-  function setPetDogAnim(anim) {
-    dogAnim = anim === 'sitting' ? 'sit' :
-              anim === 'jumping' ? 'jump' :
-              anim === 'spinning' ? 'spin' :
-              anim === 'eating' ? 'eat' :
-              anim === 'sleeping' ? 'sleep' : 'walk';
-    // flip direction randomly when walking
-    if (dogAnim === 'walk' && Math.random() > 0.5) dogDir *= -1;
-  }
-
-  // patch petSetAnim
-  const origPetSetAnim = petSetAnim;
-  petSetAnim = function(anim, duration) {
-    origPetSetAnim(anim, duration);
-    setPetDogAnim(anim);
-  };
-
-  // init
-  setPetDogAnim('walking');
-
-
-  // ── Pet ──
-  const PET_PHRASES = [
-    '汪！', '摸摸我～', '你來了！', '今天也要加油！',
-    '陪我玩嘛', '汪汪！', '我在這裡！', '好無聊喔',
-    '要出去玩嗎？', '汪！汪！'
-  ];
-  const PET_SLEEP_PHRASES = ['zzz...', '讓我再睡一下', '好睏喔'];
-
-  let petState = 'walking'; // walking, sitting, sleeping, jumping, spinning, eating, playing
-  let petLastInteract = Date.now();
-  let petLastFed = 0;
-  let petBubbleTimeout = null;
-  let petStateTimeout = null;
-  let petToyTimeout = null;
-  let petClickCount = 0;
-  let petClickReset = null;
-
-  function petShowBubble(text, duration = 2000) {
-    const bubble = document.getElementById('petBubble');
-    bubble.textContent = text;
-    bubble.classList.add('visible');
-    clearTimeout(petBubbleTimeout);
-    petBubbleTimeout = setTimeout(() => bubble.classList.remove('visible'), duration);
-  }
-
-  function petSetAnim(anim, duration = null) {
-    const wrap = document.getElementById('petDogWrap');
-    wrap.className = 'pet-dog-wrap ' + anim;
-    petState = anim;
-    clearTimeout(petStateTimeout);
-    if (duration) {
-      petStateTimeout = setTimeout(() => petSetAnim('walking'), duration);
-    }
-  }
-
-  function petClick() {
-    petLastInteract = Date.now();
-    const zzz = document.getElementById('petZzz');
-    zzz.style.display = 'none';
-
-    petClickCount++;
-    clearTimeout(petClickReset);
-    petClickReset = setTimeout(() => { petClickCount = 0; }, 600);
-
-    if (petClickCount >= 3) {
-      // excited spin
-      petSetAnim('spinning', 1000);
-      petShowBubble('汪汪汪！！', 2000);
-      petClickCount = 0;
-      return;
-    }
-
-    if (petState === 'sleeping') {
-      petSetAnim('jumping', 800);
-      petShowBubble(PET_SLEEP_PHRASES[Math.floor(Math.random() * PET_SLEEP_PHRASES.length)]);
-      return;
-    }
-
-    petSetAnim('jumping', 800);
-    petShowBubble(PET_PHRASES[Math.floor(Math.random() * PET_PHRASES.length)]);
-  }
-
-  function petFeed() {
-    petLastInteract = Date.now();
-    const now = Date.now();
-    const food = document.getElementById('petFood');
-    const zzz = document.getElementById('petZzz');
-    zzz.style.display = 'none';
-
-    if (now - petLastFed < 30000) {
-      // fed recently
-      petShowBubble('我吃飽了啦～', 2500);
-      petSetAnim('sitting', 1500);
-      return;
-    }
-
-    petLastFed = now;
-    food.classList.add('visible');
-    petSetAnim('eating', 2000);
-    petShowBubble('好吃！！', 2000);
-
-    setTimeout(() => {
-      food.classList.remove('visible');
-      petSetAnim('sitting', 1000);
-      setTimeout(() => petShowBubble('謝謝你！', 1500), 1200);
-    }, 2200);
-  }
-
-  function petPlay() {
-    petLastInteract = Date.now();
-    const toy = document.getElementById('petToy');
-    const zzz = document.getElementById('petZzz');
-    zzz.style.display = 'none';
-
-    if (petToyTimeout) {
-      clearTimeout(petToyTimeout);
-      toy.classList.remove('visible');
-    }
-
-    toy.classList.add('visible');
-    petSetAnim('spinning', 1200);
-    petShowBubble('球球！！', 2000);
-
-    petToyTimeout = setTimeout(() => {
-      toy.classList.remove('visible');
-      petSetAnim('sitting', 1000);
-      setTimeout(() => petShowBubble('好累喔...', 1500), 1200);
-    }, 3500);
-  }
-
-  // idle behavior
-  setInterval(() => {
-    const idle = Date.now() - petLastInteract;
-    const zzz = document.getElementById('petZzz');
-
-    if (petState === 'walking' || petState === 'sitting') {
-      if (idle > 30000) {
-        // sleep after 30s idle
-        petSetAnim('sitting');
-        zzz.style.display = 'block';
-        petState = 'sleeping';
-      } else if (idle > 8000 && petState === 'walking') {
-        // sit after 8s
-        petSetAnim('sitting', 5000);
-      }
-    }
-  }, 3000);
-
-  // random occasional bark
-  setInterval(() => {
-    if (petState === 'walking' && Math.random() < 0.15) {
-      petShowBubble(PET_PHRASES[Math.floor(Math.random() * PET_PHRASES.length)], 1800);
-    }
-  }, 8000);
 
 
   // ── Export / Import ──
@@ -5272,92 +4803,10 @@ ${eventList}`
     catch(err) { gistSetStatus('✗ ' + err.message, 'error'); }
   }
 
-  async function gistAutoSyncOnLoad() {
-    const token = gistGetToken();
-    const gistId = gistGetId();
-    if (!token || !gistId) return;
-
-    gistSetStatus('檢查更新…', 'syncing');
-    try {
-      const res = await fetch('https://api.github.com/gists/' + gistId, {
-        headers: gistH(token)
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const gist = await res.json();
-
-      const cloudUpdated = new Date(gist.updated_at).getTime();
-      const localSynced = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
-
-      if (cloudUpdated > localSynced + 5000) {
-        gistSetStatus('發現較新的雲端資料，下載中…', 'syncing');
-        const fileContent = gist.files[GIST_FILENAME]?.content;
-        if (fileContent) {
-          const data = JSON.parse(fileContent);
-          Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
-          localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
-          gistUpdateUI();
-          gistSetStatus('✓ 已從雲端更新', 'ok');
-          setTimeout(() => { gistSetStatus('', 'ok'); location.reload(); }, 1200);
-          return;
-        }
-      }
-
-      gistSetStatus('✓ 已是最新', 'ok');
-      setTimeout(() => gistSetStatus('', 'ok'), 2500);
-    } catch(err) {
-      // retry once after 3 seconds
-      setTimeout(async () => {
-        try {
-          const r2 = await fetch('https://api.github.com/gists/' + gistId, { headers: gistH(token) });
-          if (!r2.ok) throw new Error('HTTP ' + r2.status);
-          const g2 = await r2.json();
-          const cloudUpdated2 = new Date(g2.updated_at).getTime();
-          const localSynced2 = new Date(localStorage.getItem(GIST_SYNC_KEY) || 0).getTime();
-          if (cloudUpdated2 > localSynced2 + 5000) {
-            const fc = g2.files[GIST_FILENAME]?.content;
-            if (fc) {
-              const d2 = JSON.parse(fc);
-              Object.keys(d2).forEach(k => localStorage.setItem(k, d2[k]));
-              localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
-              gistUpdateUI();
-              gistSetStatus('✓ 已從雲端更新', 'ok');
-              setTimeout(() => { gistSetStatus('', 'ok'); location.reload(); }, 1200);
-              return;
-            }
-          }
-          gistSetStatus('✓ 已是最新', 'ok');
-          setTimeout(() => gistSetStatus('', 'ok'), 2500);
-        } catch(e2) {
-          gistSetStatus('✗ 同步失敗：' + e2.message, 'error');
-          setTimeout(() => gistSetStatus('', ''), 5000);
-        }
-      }, 3000);
-    }
-  }
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && gistGetToken()) {
-      gistPushToCloud().catch(() => {});
-    }
-  });
-
-  // Auto-push on data change (debounced 5s)
-  let gistPushTimer = null;
-  const _origSetItem = localStorage.setItem.bind(localStorage);
-  localStorage.setItem = function(key, value) {
-    _origSetItem(key, value);
-    // Only trigger sync for data keys, not gist meta keys
-    if (gistGetToken() && EXPORT_KEYS && EXPORT_KEYS.includes(key)) {
-      clearTimeout(gistPushTimer);
-      gistPushTimer = setTimeout(() => {
-        gistPushToCloud().catch(() => {});
-      }, 5000);
-    }
-  };
-
-  // Init Gist UI
+  // Init Gist UI (no auto-sync — sync only happens when user explicitly
+  // clicks "立即同步" or "從雲端還原". This prevents stale local data from
+  // silently overwriting newer cloud data when switching devices.)
   gistUpdateUI();
-  setTimeout(gistAutoSyncOnLoad, 2000);
 
 
 
