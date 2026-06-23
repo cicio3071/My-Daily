@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='2' width='22' height='28' rx='3' fill='%23c9aa82'/><rect x='4' y='2' width='22' height='28' rx='3' fill='none' stroke='%238b6e52' stroke-width='1.2'/><rect x='7' y='6' width='14' height='2' rx='1' fill='%23faf6f0' opacity='.7'/><rect x='7' y='10' width='14' height='2' rx='1' fill='%23faf6f0' opacity='.5'/><rect x='7' y='14' width='9' height='2' rx='1' fill='%23faf6f0' opacity='.5'/><text x='16' y='26' font-family='Georgia,serif' font-size='11' font-weight='bold' fill='%235c3d20' text-anchor='middle'>C</text><rect x='2' y='4' width='4' height='24' rx='2' fill='%238b6e52'/></svg>">
 <title>Cicio's Daily</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap');
@@ -258,6 +259,24 @@
   }
   input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   input::placeholder, textarea::placeholder { color: var(--muted); font-size: 0.9rem; }
+
+  /* date input — hide ugly browser chrome, match our theme */
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.4;
+    filter: var(--date-icon-filter, none);
+    cursor: pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 0.8; }
+  [data-theme="dark"] { --date-icon-filter: invert(1); }
 
   /* ── shared button ── */
   .btn-primary {
@@ -2176,6 +2195,74 @@
     font-style: italic;
   }
 
+  /* ── Sync reminder popup ── */
+  .sync-reminder {
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 8px 32px var(--shadow);
+    z-index: 200;
+    width: 260px;
+    display: none;
+    flex-direction: column;
+    gap: 0.65rem;
+    animation: slideUp 0.25s ease;
+  }
+  .sync-reminder.visible { display: flex; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .sync-reminder-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .sync-reminder-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .sync-reminder-btns {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .sync-reminder-ok {
+    flex: 1;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .sync-reminder-ok:hover { background: var(--accent); }
+  .sync-reminder-skip {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sync-reminder-skip:hover { border-color: var(--accent); color: var(--accent); }
+
   /* ── export module ── */
   .export-section { margin-top: 3rem; }
 
@@ -2283,35 +2370,6 @@
         <div class="rainbow-loading">
           <div class="dot"></div><div class="dot"></div><div class="dot"></div>
           <span>loading</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="module-section">
-      <div class="module-label">on this day · 歷史上的今天</div>
-      <div class="panel" id="historyPanel">
-        <div class="loading-row" id="historyLoading">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          <span style="margin-left:0.4rem">loading</span>
-        </div>
-        <div id="historyItems" style="display:none"></div>
-      </div>
-    </div>
-
-    <div class="module-section">
-      <div class="module-label">recommend · 今日推薦</div>
-      <div class="rec-grid">
-        <div class="panel">
-          <div class="panel-sub">book · 今日書單</div>
-          <div class="genre-tags" id="genreTags"></div>
-          <button class="btn-primary" id="bookBtn" onclick="getBookRec()">幫我推一本</button>
-          <div class="rec-result" id="bookResult"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-sub">film · 今日片單</div>
-          <div class="mood-grid" id="moodBtns"></div>
-          <button class="btn-primary" id="movieBtn" onclick="getMovieRec()">幫我推一部</button>
-          <div class="rec-result" id="movieResult"></div>
         </div>
       </div>
     </div>
@@ -2834,6 +2892,16 @@
 
 </main>
 
+
+<!-- Sync Reminder -->
+<div class="sync-reminder" id="syncReminder">
+  <div class="sync-reminder-title">☁ 記得同步</div>
+  <div class="sync-reminder-time" id="syncReminderTime"></div>
+  <div class="sync-reminder-btns">
+    <button class="sync-reminder-ok" onclick="syncReminderDoSync()">立即同步</button>
+    <button class="sync-reminder-skip" onclick="syncReminderDismiss()">稍後</button>
+  </div>
+</div>
 
 <!-- Diary Letter Modal -->
 <div class="diary-modal-overlay" id="diaryModalOverlay" onclick="if(event.target===this)closeDiaryLetter()">
@@ -3609,244 +3677,6 @@
   renderCalendar();
 
 
-  // ── History ──
-  const HISTORY_KEY = 'daily_history';
-
-  async function loadHistory() {
-    const cached = localStorage.getItem(HISTORY_KEY);
-    if (cached) {
-      try {
-        const { date, items } = JSON.parse(cached);
-        if (date === todayStr) { renderHistory(items); return; }
-      } catch(e) {}
-    }
-
-    try {
-      // fetch from Wikipedia API
-      const month = now.getMonth() + 1;
-      const day = now.getDate();
-      const wikiRes = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${month}/${day}`,
-        { headers: { 'Accept': 'application/json' } }
-      );
-      if (!wikiRes.ok) throw new Error('Wikipedia API failed');
-      const wikiData = await wikiRes.json();
-
-      // pick ~15 random events to send to Gemini for selection
-      const events = wikiData.events || [];
-      const sample = events.sort(() => Math.random() - 0.5).slice(0, 15);
-      const eventList = sample.map(e => `${e.year}: ${e.text}`).join('\n');
-
-      const key = localStorage.getItem(STORAGE_KEY);
-      if (!key) { renderHistoryError('需要 API key'); return; }
-
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `以下是維基百科記載的歷史上今天（${month}月${day}日）發生的真實事件，請從中挑選2個你覺得有趣的——可以是重大歷史事件，也可以是冷門但有趣的小事，兩者各挑一個最好。
-
-用繁體中文簡短描述各一句（20-40字），保留年份。
-
-只回傳 JSON，不要有任何其他文字或 markdown：
-[{"year":"1969","text":"描述一"},{"year":"1234","text":"描述二"}]
-
-事件清單：
-${eventList}`
-              }]
-            }]
-          })
-        }
-      );
-
-      const geminiData = await geminiRes.json();
-      if (!geminiRes.ok) throw new Error(geminiData.error?.message || 'Gemini failed');
-
-      const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const clean = raw.replace(/\`\`\`json|\`\`\`/g, '').trim();
-      const items = JSON.parse(clean);
-
-      localStorage.setItem(HISTORY_KEY, JSON.stringify({ date: todayStr, items }));
-      renderHistory(items);
-
-    } catch(err) {
-      renderHistoryError(err.message);
-    }
-  }
-
-  function renderHistory(items) {
-    document.getElementById('historyLoading').style.display = 'none';
-    const el = document.getElementById('historyItems');
-    el.style.display = 'flex';
-    el.innerHTML = '<div class="history-items-wrap">' + items.map(item => `
-      <div class="history-item">
-        <div class="history-year">${item.year}</div>
-        <div class="history-text">${item.text}</div>
-      </div>
-    `).join('') + '</div>';
-  }
-
-  function renderHistoryError(msg) {
-    document.getElementById('historyLoading').style.display = 'none';
-    const el = document.getElementById('historyItems');
-    el.style.display = 'flex';
-    el.innerHTML = `<div class="history-error">無法載入歷史資料：${msg}</div>`;
-  }
-
-  loadHistory();
-
-
-  // ── Recommendations ──
-  const BOOK_GENRES = ['文學','小說','散文','哲學','歷史','人文科學','詩集','心理學','天文'];
-  const MOODS = ['平靜','感傷','想笑','想哭','燒腦','溫暖','疲憊','躁動','聖誕節','萬聖節','情人節','新年'];
-
-  let selectedGenres = [];
-  let selectedMood = null;
-
-  // render genre tags
-  (function initGenres() {
-    const el = document.getElementById('genreTags');
-    BOOK_GENRES.forEach(g => {
-      const tag = document.createElement('span');
-      tag.className = 'genre-tag';
-      tag.textContent = g;
-      tag.onclick = () => {
-        if (selectedGenres.includes(g)) {
-          selectedGenres = selectedGenres.filter(x => x !== g);
-          tag.classList.remove('selected');
-        } else {
-          selectedGenres.push(g);
-          tag.classList.add('selected');
-        }
-      };
-      el.appendChild(tag);
-    });
-  })();
-
-  // render mood buttons
-  (function initMoods() {
-    const el = document.getElementById('moodBtns');
-    MOODS.forEach(m => {
-      const btn = document.createElement('span');
-      btn.className = 'mood-btn';
-      btn.textContent = m;
-      btn.onclick = () => {
-        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedMood = m;
-      };
-      el.appendChild(btn);
-    });
-  })();
-
-  async function getBookRec() {
-    const key = localStorage.getItem(STORAGE_KEY);
-    if (!key) { showModal(); return; }
-    const genres = selectedGenres.length ? selectedGenres : BOOK_GENRES;
-    const btn = document.getElementById('bookBtn');
-    const result = document.getElementById('bookResult');
-
-    btn.disabled = true;
-    result.className = 'rec-result visible';
-    result.innerHTML = '<div class="rec-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.25rem">finding a book</span></div>';
-
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `請從以下類別中隨機推薦一本書：${genres.join('、')}。
-
-要求：
-- 真實存在的書，不要捏造
-- 可以是中文或外文著作（外文請附中文譯名）
-- 簡短說明為什麼值得讀（30-50字）
-- 帶點個人觀點，不要只是書介
-
-只回傳 JSON，不要有任何其他文字或 markdown：
-{"title":"書名","author":"作者","genre":"類別","desc":"推薦理由"}`
-              }]
-            }],
-            generationConfig: { temperature: 1.3 }
-          })
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message);
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const book = JSON.parse(clean);
-      result.innerHTML = `
-        <div class="rec-title">${book.title}</div>
-        <div class="rec-meta">${book.author} &nbsp;·&nbsp; ${book.genre}</div>
-        <div class="rec-desc">${book.desc}</div>
-      `;
-    } catch(err) {
-      result.innerHTML = `<div class="rec-desc" style="color:var(--muted)">推薦失敗，再試一次？</div>`;
-    }
-    btn.disabled = false;
-  }
-
-  async function getMovieRec() {
-    const key = localStorage.getItem(STORAGE_KEY);
-    if (!key) { showModal(); return; }
-    if (!selectedMood) { alert('請先選擇今天的心情'); return; }
-    const btn = document.getElementById('movieBtn');
-    const result = document.getElementById('movieResult');
-
-    btn.disabled = true;
-    result.className = 'rec-result visible';
-    result.innerHTML = '<div class="rec-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.25rem">finding a film</span></div>';
-
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `我現在的心情是「${selectedMood}」，請推薦一部適合的電影。
-
-要求：
-- 真實存在的電影
-- 可以是任何國家、任何年代
-- 簡短說明為什麼適合這個心情（30-50字）
-- 不要只推爆款，偶爾可以推冷門好片
-
-只回傳 JSON，不要有任何其他文字或 markdown：
-{"title":"電影名稱","year":"年份","director":"導演","desc":"推薦理由"}`
-              }]
-            }],
-            generationConfig: { temperature: 1.3 }
-          })
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message);
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const movie = JSON.parse(clean);
-      result.innerHTML = `
-        <div class="rec-title">${movie.title}</div>
-        <div class="rec-meta">${movie.year} &nbsp;·&nbsp; ${movie.director}</div>
-        <div class="rec-desc">${movie.desc}</div>
-      `;
-    } catch(err) {
-      result.innerHTML = `<div class="rec-desc" style="color:var(--muted)">推薦失敗，再試一次？</div>`;
-    }
-    btn.disabled = false;
-  }
-
 
   // ── Murmur ──
   const MUR_KEY = 'daily_murmurs';
@@ -4148,7 +3978,19 @@ ${eventList}`
   }
 
   function renderCountdowns() {
-    const items = loadCountdowns();
+    let items = loadCountdowns();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    // Auto-remove items that are more than 1 day past
+    const before = items.length;
+    items = items.filter(item => {
+      const target = new Date(item.date);
+      target.setHours(0,0,0,0);
+      return Math.round((target - today) / 86400000) >= -1;
+    });
+    if (items.length !== before) saveCountdowns(items);
+
     const el = document.getElementById('countdownList');
     if (!items.length) {
       el.innerHTML = '<div class="countdown-empty">尚無倒數項目</div>';
@@ -4157,8 +3999,6 @@ ${eventList}`
     el.innerHTML = '';
     const showAll = el.dataset.showAll === 'true';
     const LIMIT = 4;
-    const today = new Date();
-    today.setHours(0,0,0,0);
     const toShow = showAll ? items : items.slice(0, LIMIT);
     toShow.forEach(item => {
       const target = new Date(item.date);
@@ -4173,7 +4013,7 @@ ${eventList}`
       } else if (diff > 0) {
         daysHtml = `<div class="countdown-days">${diff}<span>days to go</span></div>`;
       } else {
-        daysHtml = `<div class="countdown-days past-label">${Math.abs(diff)} days ago</div>`;
+        daysHtml = `<div class="countdown-days past-label">昨天</div>`;
       }
       div.innerHTML = `
         <div class="countdown-info">
@@ -4576,7 +4416,7 @@ ${eventList}`
   const CLIP_KEY = 'daily_clips';
   const NOTES_KEY = 'daily_notes';
   const PB_CHARS_KEY = 'daily_pb_chars';
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, HISTORY_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY, RAINBOW_KEY];
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, CLIP_KEY, NOTES_KEY, PB_CHARS_KEY, RAINBOW_KEY];
 
   function exportJSON() {
     const data = {};
@@ -4808,6 +4648,38 @@ ${eventList}`
   // silently overwriting newer cloud data when switching devices.)
   gistUpdateUI();
 
+  // ── Sync reminder (shown ~30s after page load if token is set and last sync > 30min ago) ──
+  function syncReminderCheck() {
+    if (!gistGetToken()) return;
+    const last = localStorage.getItem(GIST_SYNC_KEY);
+    const el = document.getElementById('syncReminder');
+    if (!el) return;
+    if (!last) {
+      document.getElementById('syncReminderTime').textContent = '尚未同步過';
+      el.classList.add('visible');
+      return;
+    }
+    const mins = Math.floor((Date.now() - new Date(last).getTime()) / 60000);
+    if (mins >= 30) {
+      const timeStr = mins < 60
+        ? mins + ' 分鐘前'
+        : Math.floor(mins / 60) + ' 小時前';
+      document.getElementById('syncReminderTime').textContent = '上次同步：' + timeStr;
+      el.classList.add('visible');
+    }
+  }
+
+  function syncReminderDismiss() {
+    document.getElementById('syncReminder').classList.remove('visible');
+  }
+
+  async function syncReminderDoSync() {
+    syncReminderDismiss();
+    await gistManualSync();
+  }
+
+  setTimeout(syncReminderCheck, 30000); // show after 30s
+
 
 
   // populate month selector
@@ -5032,13 +4904,16 @@ ${eventList}`
   }
 
   // Render the whole diary tab
+  let diaryShowAllMonths = false;
+  const DIARY_RECENT_MONTHS = 3;
+
   function diaryRender() {
     const container = document.getElementById('diaryMonthList');
     container.innerHTML = '';
     const entries = diaryGetEntries();
     const months = diaryGetMonths();
 
-    // Populate export month selector
+    // Populate export month selector (always all months)
     const expSel = document.getElementById('diaryExportMonth');
     expSel.innerHTML = '';
     months.forEach(ym => {
@@ -5048,17 +4923,17 @@ ${eventList}`
       expSel.appendChild(opt);
     });
 
-    months.forEach(ym => {
-      const days = diaryDaysInMonth(ym);
+    const recentMonths = months.slice(0, DIARY_RECENT_MONTHS);
+    const olderMonths = months.slice(DIARY_RECENT_MONTHS);
+    const toShow = diaryShowAllMonths ? months : recentMonths;
+
+    toShow.forEach(ym => {
       const isCurrentMonth = ym === todayStr.slice(0, 7);
       const entryCount = Object.keys(entries).filter(d => d.startsWith(ym)).length;
-
-      // Month header card
       const monthDiv = document.createElement('div');
       monthDiv.className = 'diary-month-block';
       monthDiv.dataset.ym = ym;
-
-      const isOpen = isCurrentMonth; // current month open by default
+      const isOpen = isCurrentMonth;
 
       monthDiv.innerHTML = `
         <div class="diary-month-header" onclick="diaryToggleMonth('${ym}')">
@@ -5072,9 +4947,23 @@ ${eventList}`
         </div>
       `;
       container.appendChild(monthDiv);
-
       if (isOpen) diaryRenderMonth(ym, entries);
     });
+
+    // Show older months toggle
+    if (olderMonths.length > 0) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'todo-show-more';
+      toggleBtn.style.marginTop = '0.5rem';
+      toggleBtn.textContent = diaryShowAllMonths
+        ? '收起舊日記 ↑'
+        : `顯示更早的 ${olderMonths.length} 個月 ↓`;
+      toggleBtn.onclick = () => {
+        diaryShowAllMonths = !diaryShowAllMonths;
+        diaryRender();
+      };
+      container.appendChild(toggleBtn);
+    }
   }
 
   function diaryToggleMonth(ym) {
