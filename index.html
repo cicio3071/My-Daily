@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-theme="light">
+<html lang="zh-TW" data-theme="amber">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,32 +11,42 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── themes ── */
-  :root, [data-theme="light"] {
-    --bg: #faf6f0;
-    --surface: #fdfaf5;
-    --ink: #3a2c1a;
-    --ink-soft: #6b5540;
-    --muted: #a89070;
-    --border: #e4d8c8;
-    --accent: #c9aa82;
-    --accent-light: #e0cdb0;
-    --shadow: rgba(80,50,20,0.07);
-    --input-bg: #fdf9f3;
-    --deco: rgba(201,170,130,0.18);
+  /* ══ Themes ══ */
+  :root, [data-theme="amber"] {
+    --bg: #faf6f0; --surface: #fdfaf5; --ink: #3a2c1a; --ink-soft: #6b5540;
+    --muted: #a89070; --border: #e4d8c8; --accent: #c9aa82; --accent-light: #e0cdb0;
+    --shadow: rgba(80,50,20,0.07); --input-bg: #fdf9f3; --deco: rgba(201,170,130,0.18);
+    --date-icon-filter: none;
   }
-
-  [data-theme="dark"] {
-    --bg: #141c2e;
-    --surface: #1a2438;
-    --ink: #d8e8f8;
-    --ink-soft: #a8c0d8;
-    --muted: #6888a8;
-    --border: #2a3a58;
-    --accent: #7aA0d0;
-    --accent-light: #4a6fa8;
-    --shadow: rgba(0,0,0,0.5);
-    --input-bg: #111828;
-    --deco: rgba(74,111,168,0.15);
+  [data-theme="rose"] {
+    --bg: #fdf5f2; --surface: #fdf8f6; --ink: #3a1e18; --ink-soft: #7a4a3e;
+    --muted: #b07060; --border: #ecd4cc; --accent: #d4826a; --accent-light: #eabaae;
+    --shadow: rgba(80,30,20,0.07); --input-bg: #fdf0ec; --deco: rgba(212,130,106,0.15);
+    --date-icon-filter: none;
+  }
+  [data-theme="moss"] {
+    --bg: #f4f7f2; --surface: #f8faf6; --ink: #1e2e18; --ink-soft: #4a6a3e;
+    --muted: #6a8a60; --border: #ccdfc4; --accent: #7aaa62; --accent-light: #b4d4a4;
+    --shadow: rgba(20,50,15,0.07); --input-bg: #f0f5ee; --deco: rgba(122,170,98,0.15);
+    --date-icon-filter: none;
+  }
+  [data-theme="slate"] {
+    --bg: #f2f4f7; --surface: #f7f8fb; --ink: #1e2430; --ink-soft: #4a5870;
+    --muted: #708090; --border: #c8d4e4; --accent: #7090b4; --accent-light: #b0c4d8;
+    --shadow: rgba(20,30,50,0.07); --input-bg: #edf0f6; --deco: rgba(112,144,180,0.15);
+    --date-icon-filter: none;
+  }
+  [data-theme="lavender"] {
+    --bg: #f5f2fa; --surface: #f9f7fd; --ink: #2a1e3a; --ink-soft: #5a4878;
+    --muted: #8070a0; --border: #d8cce8; --accent: #9878c8; --accent-light: #ccc0e4;
+    --shadow: rgba(40,20,70,0.07); --input-bg: #f2eef8; --deco: rgba(152,120,200,0.15);
+    --date-icon-filter: none;
+  }
+  [data-theme="ink"] {
+    --bg: #f6f4f0; --surface: #faf8f4; --ink: #1a1a14; --ink-soft: #4a4838;
+    --muted: #808070; --border: #d8d4c8; --accent: #4a4a38; --accent-light: #a0a08c;
+    --shadow: rgba(20,20,10,0.08); --input-bg: #f2f0e8; --deco: rgba(74,74,56,0.12);
+    --date-icon-filter: none;
   }
 
   body {
@@ -110,19 +120,23 @@
 
   @media (max-width: 600px) { .date-display { display: none; } }
 
-  .theme-btn {
+  .theme-select {
     background: none;
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 0.3rem 0.75rem;
+    padding: 0.3rem 0.85rem;
     font-family: 'DM Mono', monospace;
     font-size: 0.62rem;
     letter-spacing: 0.06em;
     color: var(--muted);
     cursor: pointer;
     transition: all 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
-  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-select:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-select:focus { border-color: var(--accent); color: var(--ink); }
 
   /* ── tab nav ── */
   .tab-nav {
@@ -276,7 +290,6 @@
     cursor: pointer;
   }
   input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 0.8; }
-  [data-theme="dark"] { --date-icon-filter: invert(1); }
 
   /* ── shared button ── */
   .btn-primary {
@@ -1459,128 +1472,76 @@
   }
   .diary-modal-overlay.visible { display: flex; }
   .diary-letter {
-    background: #fdf8ee;
+    background: var(--surface);
     border-radius: 4px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    width: 100%;
-    max-width: 480px;
-    height: 600px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-  [data-theme="dark"] .diary-letter {
-    background: #1c2438;
+    box-shadow: 0 20px 60px var(--shadow);
+    width: 100%; max-width: 480px;
+    height: 600px; max-height: 85vh;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
   }
   .diary-letter::before {
     content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 100%;
+    position: absolute; top: 0; left: 0; right: 0; height: 100%;
     background-image: repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 31px,
-      rgba(139,111,71,0.12) 31px,
-      rgba(139,111,71,0.12) 32px
+      to bottom, transparent, transparent 31px,
+      var(--border) 31px, var(--border) 32px
     );
-    pointer-events: none;
-  }
-  [data-theme="dark"] .diary-letter::before {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 31px,
-      rgba(122,160,208,0.1) 31px,
-      rgba(122,160,208,0.1) 32px
-    );
+    pointer-events: none; opacity: 0.5;
   }
   .diary-letter-header {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     padding: 1.75rem 2rem 1rem;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-shrink: 0;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; flex-shrink: 0;
   }
   .diary-letter-date {
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    color: #5c3d20;
+    font-size: 1.3rem; color: var(--ink);
   }
-  [data-theme="dark"] .diary-letter-date { color: #c8d8f0; }
   .diary-letter-weekday {
     font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: #a08060;
-    letter-spacing: 0.1em;
-    margin-top: 0.2rem;
+    font-size: 0.65rem; color: var(--accent);
+    letter-spacing: 0.1em; margin-top: 0.2rem;
   }
-  [data-theme="dark"] .diary-letter-weekday { color: #7aA0d0; }
   .diary-letter-mood {
     font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: #a08060;
-    letter-spacing: 0.06em;
-    text-align: right;
+    font-size: 0.65rem; color: var(--muted);
+    letter-spacing: 0.06em; text-align: right;
   }
-  [data-theme="dark"] .diary-letter-mood { color: #7aA0d0; }
   .diary-letter-mood-emoji { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; text-align: right; }
   .diary-letter-close {
-    position: absolute;
-    top: 1.25rem; right: 1.25rem;
+    position: absolute; top: 1.25rem; right: 1.25rem;
     background: none; border: none;
-    font-size: 1.3rem; color: #a08060;
-    cursor: pointer; line-height: 1;
-    z-index: 2;
-    transition: color 0.2s;
+    font-size: 1.3rem; color: var(--muted);
+    cursor: pointer; line-height: 1; z-index: 2; transition: color 0.2s;
   }
-  [data-theme="dark"] .diary-letter-close { color: #7aA0d0; }
-  .diary-letter-close:hover { color: #5c3d20; }
-  [data-theme="dark"] .diary-letter-close:hover { color: #c8d8f0; }
+  .diary-letter-close:hover { color: var(--ink); }
   .diary-letter-body {
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    overflow-y: auto;
+    position: relative; z-index: 1;
+    flex: 1; overflow-y: auto;
     padding: 0.5rem 2rem 1.5rem;
   }
   .diary-letter-text {
     font-family: 'Noto Sans TC', sans-serif;
-    font-weight: 400;
-    font-size: 1.02rem;
-    line-height: 32px;
-    color: #4a3318;
-    white-space: pre-wrap;
-    word-break: break-word;
+    font-weight: 400; font-size: 1.02rem;
+    line-height: 32px; color: var(--ink);
+    white-space: pre-wrap; word-break: break-word;
     letter-spacing: 0.015em;
   }
-  [data-theme="dark"] .diary-letter-text { color: #d8e8f8; }
   .diary-letter-footer {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     padding: 1rem 2rem 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-    flex-shrink: 0;
+    display: flex; justify-content: flex-end; flex-shrink: 0;
   }
   .diary-letter-edit-btn {
-    background: none;
-    border: 1px solid #c9aa82;
-    border-radius: 20px;
-    padding: 0.4rem 1.1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    color: #8b6e52;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: none; border: 1px solid var(--accent);
+    border-radius: 20px; padding: 0.4rem 1.1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.08em; color: var(--accent);
+    cursor: pointer; transition: all 0.2s;
   }
-  [data-theme="dark"] .diary-letter-edit-btn { border-color: #4a6fa8; color: #7aA0d0; }
-  .diary-letter-edit-btn:hover { background: #c9aa8220; }
-  [data-theme="dark"] .diary-letter-edit-btn:hover { background: #4a6fa820; }
+  .diary-letter-edit-btn:hover { background: var(--deco); }
 
   /* ── Prompt Builder ── */
   .pb-section {
@@ -2379,7 +2340,14 @@
       <span class="sync-dot" id="syncDot"></span>
       <span class="sync-label" id="syncLabel">sync</span>
     </div>
-    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 dark</button>
+    <select class="theme-select" id="themeSelect" onchange="setTheme(this.value)">
+      <option value="amber">琥珀暖奶</option>
+      <option value="rose">煙燻玫瑰</option>
+      <option value="moss">苔蘚原野</option>
+      <option value="slate">霧霾藍灰</option>
+      <option value="lavender">淡紫煙雨</option>
+      <option value="ink">墨色紙本</option>
+    </select>
     <button class="settings-link" onclick="resetKey()">api key</button>
   </div>
 </header>
@@ -2463,6 +2431,13 @@
             <button class="pomo-dur-btn active" onclick="setPomoMinutes(15, this)">15 min</button>
             <button class="pomo-dur-btn" onclick="setPomoMinutes(25, this)">25 min</button>
             <button class="pomo-dur-btn" onclick="setPomoMinutes(30, this)">30 min</button>
+            <button class="pomo-dur-btn" id="pomoCustomBtn" onclick="pomoShowCustom(this)">自訂</button>
+            <div id="pomoCustomWrap" style="display:none;align-items:center;gap:0.4rem">
+              <input type="number" id="pomoCustomInput" min="1" max="120" placeholder="分鐘"
+                style="width:68px;font-size:0.78rem;padding:0.3rem 0.5rem;text-align:center"
+                onkeydown="if(event.key==='Enter')pomoApplyCustom()">
+              <button class="pomo-dur-btn" onclick="pomoApplyCustom()" style="padding:0.3rem 0.65rem">確定</button>
+            </div>
           </div>
           <div class="pomo-timer" id="pomoTimer">15:00</div>
           <div class="pomo-status" id="pomoStatus">ready</div>
@@ -3419,7 +3394,7 @@
 
     const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
     const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr;
     const pred = computePredictions();
     const cycles = loadCycles();
 
@@ -3635,16 +3610,27 @@
 
   // ── Pomodoro ──
   const POMO_KEY = 'daily_pomo';
+  const POMO_STATE_KEY = 'daily_pomo_state';
   let pomoInterval = null;
   let pomoWorkMinutes = 15;
-  let pomoSeconds = 15 * 60;
   let pomoIsRunning = false;
   let pomoIsWork = true;
+
+  // Timestamp-based state — survives tab switching and browser throttling
+  let pomoStartTime = null;      // Date.now() when timer started/resumed
+  let pomoRemainingAtStart = 0;  // seconds remaining when started/resumed
+
+  function pomoGetRemaining() {
+    if (!pomoIsRunning || pomoStartTime === null) return pomoRemainingAtStart;
+    const elapsed = Math.floor((Date.now() - pomoStartTime) / 1000);
+    return Math.max(0, pomoRemainingAtStart - elapsed);
+  }
 
   function setPomoMinutes(mins, btn) {
     if (pomoIsRunning) return;
     pomoWorkMinutes = mins;
-    pomoSeconds = mins * 60;
+    pomoRemainingAtStart = mins * 60;
+    pomoStartTime = null;
     pomoIsWork = true;
     pomoUpdateDisplay();
     document.querySelectorAll('.pomo-dur-btn').forEach(b => b.classList.remove('active'));
@@ -3652,6 +3638,39 @@
     document.getElementById('pomoStatus').textContent = 'ready';
     document.getElementById('pomoStatus').className = 'pomo-status';
     document.getElementById('pomoStartBtn').textContent = '開始';
+    document.getElementById('pomoCustomWrap').style.display = 'none';
+    pomoSaveState();
+  }
+
+  function pomoShowCustom(btn) {
+    if (pomoIsRunning) return;
+    const wrap = document.getElementById('pomoCustomWrap');
+    const isOpen = wrap.style.display !== 'none';
+    wrap.style.display = isOpen ? 'none' : 'flex';
+    if (!isOpen) {
+      document.getElementById('pomoCustomInput').focus();
+      document.querySelectorAll('.pomo-dur-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function pomoApplyCustom() {
+    const val = parseInt(document.getElementById('pomoCustomInput').value);
+    if (!val || val < 1 || val > 120) return;
+    const btn = document.getElementById('pomoCustomBtn');
+    btn.textContent = val + ' min';
+    pomoWorkMinutes = val;
+    pomoRemainingAtStart = val * 60;
+    pomoStartTime = null;
+    pomoIsWork = true;
+    pomoUpdateDisplay();
+    document.querySelectorAll('.pomo-dur-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pomoStatus').textContent = 'ready';
+    document.getElementById('pomoStatus').className = 'pomo-status';
+    document.getElementById('pomoStartBtn').textContent = '開始';
+    document.getElementById('pomoCustomWrap').style.display = 'none';
+    pomoSaveState();
   }
 
   function loadPomoCount() {
@@ -3666,6 +3685,29 @@
     localStorage.setItem(POMO_KEY, JSON.stringify({ date: todayStr, count: n }));
   }
 
+  function pomoSaveState() {
+    localStorage.setItem(POMO_STATE_KEY, JSON.stringify({
+      isRunning: pomoIsRunning,
+      isWork: pomoIsWork,
+      startTime: pomoStartTime,
+      remainingAtStart: pomoRemainingAtStart,
+      workMinutes: pomoWorkMinutes,
+    }));
+  }
+
+  function pomoLoadState() {
+    try {
+      const s = JSON.parse(localStorage.getItem(POMO_STATE_KEY));
+      if (!s) return false;
+      pomoWorkMinutes = s.workMinutes || 15;
+      pomoIsWork = s.isWork !== undefined ? s.isWork : true;
+      pomoRemainingAtStart = s.remainingAtStart || pomoWorkMinutes * 60;
+      pomoStartTime = s.startTime || null;
+      pomoIsRunning = s.isRunning || false;
+      return true;
+    } catch { return false; }
+  }
+
   function renderPomoCount() {
     const n = loadPomoCount();
     document.getElementById('pomoCount').textContent = '今日 ' + n + ' 個番茄';
@@ -3676,72 +3718,110 @@
   }
 
   function pomoUpdateDisplay() {
-    const m = Math.floor(pomoSeconds / 60);
-    const s = pomoSeconds % 60;
+    const secs = pomoGetRemaining();
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
     document.getElementById('pomoTimer').textContent =
       String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
   }
 
+  function pomoTick() {
+    const remaining = pomoGetRemaining();
+    pomoUpdateDisplay();
+
+    if (remaining <= 0) {
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoIsRunning = false;
+      pomoStartTime = null;
+
+      if (pomoIsWork) {
+        const n = loadPomoCount() + 1;
+        savePomoCount(n);
+        renderPomoCount();
+        showPomoAlert('🍅', '工作結束！',
+          '完成第 ' + n + ' 個番茄，請起身休息一下，喝點水，動動身體。', '開始休息');
+        pomoIsWork = false;
+        pomoRemainingAtStart = 5 * 60;
+      } else {
+        showPomoAlert('✨', '休息結束！', '可以繼續下一個番茄了，加油！', '繼續工作');
+        pomoIsWork = true;
+        pomoRemainingAtStart = pomoWorkMinutes * 60;
+      }
+      pomoUpdateDisplay();
+      document.getElementById('pomoStartBtn').textContent = '開始';
+      document.getElementById('pomoStatus').textContent = pomoIsWork ? 'ready' : 'rest done';
+      document.getElementById('pomoStatus').className = 'pomo-status';
+      pomoSaveState();
+    }
+  }
+
   function pomoStart() {
     if (pomoIsRunning) {
-      // pause
+      // pause — snapshot remaining time
+      pomoRemainingAtStart = pomoGetRemaining();
+      pomoStartTime = null;
       clearInterval(pomoInterval);
+      pomoInterval = null;
       pomoIsRunning = false;
       document.getElementById('pomoStartBtn').textContent = '繼續';
       document.getElementById('pomoStatus').textContent = 'paused';
       document.getElementById('pomoStatus').className = 'pomo-status';
     } else {
+      // start / resume — record the moment we start
+      pomoStartTime = Date.now();
       pomoIsRunning = true;
       document.getElementById('pomoStartBtn').textContent = '暫停';
       document.getElementById('pomoStatus').textContent = pomoIsWork ? 'working' : 'resting';
       document.getElementById('pomoStatus').className = 'pomo-status ' + (pomoIsWork ? 'work' : 'rest');
-      pomoInterval = setInterval(() => {
-        pomoSeconds--;
-        pomoUpdateDisplay();
-        if (pomoSeconds <= 0) {
-          clearInterval(pomoInterval);
-          pomoIsRunning = false;
-          if (pomoIsWork) {
-            // work done
-            const n = loadPomoCount() + 1;
-            savePomoCount(n);
-            renderPomoCount();
-            showPomoAlert(
-              '🍅', '工作結束！',
-              '完成第 ' + n + ' 個番茄，請起身休息一下，喝點水，動動身體。',
-              '開始休息'
-            );
-            pomoIsWork = false;
-            pomoSeconds = 5 * 60;
-          } else {
-            // rest done
-            showPomoAlert(
-              '✨', '休息結束！',
-              '可以繼續下一個番茄了，加油！',
-              '繼續工作'
-            );
-            pomoIsWork = true;
-            pomoSeconds = 25 * 60;
-          }
-          pomoUpdateDisplay();
-          document.getElementById('pomoStartBtn').textContent = '開始';
-          document.getElementById('pomoStatus').textContent = pomoIsWork ? 'ready' : 'rest done';
-          document.getElementById('pomoStatus').className = 'pomo-status';
-        }
-      }, 1000);
+      pomoInterval = setInterval(pomoTick, 500); // 500ms for smooth display
     }
+    pomoSaveState();
   }
 
   function pomoReset() {
     clearInterval(pomoInterval);
+    pomoInterval = null;
     pomoIsRunning = false;
     pomoIsWork = true;
-    pomoSeconds = pomoWorkMinutes * 60;
+    pomoStartTime = null;
+    pomoRemainingAtStart = pomoWorkMinutes * 60;
     pomoUpdateDisplay();
     document.getElementById('pomoStartBtn').textContent = '開始';
     document.getElementById('pomoStatus').textContent = 'ready';
     document.getElementById('pomoStatus').className = 'pomo-status';
+    pomoSaveState();
   }
+
+  // Resume timer if it was running when page was last closed/refreshed
+  (function pomoInit() {
+    if (pomoLoadState()) {
+      pomoUpdateDisplay();
+      if (pomoIsRunning) {
+        // Was running — check if already expired
+        const remaining = pomoGetRemaining();
+        if (remaining <= 0) {
+          // Expired while away — handle completion
+          pomoTick();
+        } else {
+          // Still has time — resume display and tick
+          document.getElementById('pomoStartBtn').textContent = '暫停';
+          document.getElementById('pomoStatus').textContent = pomoIsWork ? 'working' : 'resting';
+          document.getElementById('pomoStatus').className = 'pomo-status ' + (pomoIsWork ? 'work' : 'rest');
+          pomoInterval = setInterval(pomoTick, 500);
+        }
+      } else {
+        document.getElementById('pomoStartBtn').textContent =
+          pomoRemainingAtStart < pomoWorkMinutes * 60 ? '繼續' : '開始';
+        document.getElementById('pomoStatus').textContent =
+          pomoRemainingAtStart < pomoWorkMinutes * 60 ? 'paused' : 'ready';
+      }
+    } else {
+      pomoRemainingAtStart = pomoWorkMinutes * 60;
+      pomoUpdateDisplay();
+    }
+    renderPomoCount();
+  })();
 
   function showPomoAlert(emoji, title, msg, btnText) {
     document.getElementById('pomoAlertEmoji').textContent = emoji;
@@ -3763,9 +3843,6 @@
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
   }
-
-  renderPomoCount();
-  pomoUpdateDisplay();
 
   // ── Countdown ──
   const CD_KEY = 'daily_countdowns';
@@ -4198,17 +4275,16 @@
 
 
   // ── Theme ──
-  function initTheme() {
-    const saved = localStorage.getItem('daily_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀️ light' : '🌙 dark';
+  function setTheme(name) {
+    document.documentElement.setAttribute('data-theme', name);
+    localStorage.setItem('daily_theme', name);
+    const sel = document.getElementById('themeSelect');
+    if (sel) sel.value = name;
   }
-  function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('daily_theme', next);
-    document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️ light' : '🌙 dark';
+
+  function initTheme() {
+    const saved = localStorage.getItem('daily_theme') || 'amber';
+    setTheme(saved);
   }
   initTheme();
 
