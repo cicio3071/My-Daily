@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='2' width='22' height='28' rx='3' fill='%23c9aa82'/><rect x='4' y='2' width='22' height='28' rx='3' fill='none' stroke='%238b6e52' stroke-width='1.2'/><rect x='7' y='6' width='14' height='2' rx='1' fill='%23faf6f0' opacity='.7'/><rect x='7' y='10' width='14' height='2' rx='1' fill='%23faf6f0' opacity='.5'/><rect x='7' y='14' width='9' height='2' rx='1' fill='%23faf6f0' opacity='.5'/><text x='16' y='26' font-family='Georgia,serif' font-size='11' font-weight='bold' fill='%235c3d20' text-anchor='middle'>C</text><rect x='2' y='4' width='4' height='24' rx='2' fill='%238b6e52'/></svg>">
 <title>Cicio's Daily</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -52,11 +52,13 @@
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     transition: background 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   /* ── background decorative curves ── */
@@ -264,7 +266,7 @@
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 0.6rem 0.85rem;
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 1rem;
     color: var(--ink);
     outline: none;
@@ -688,7 +690,7 @@
   .mur-textarea {
     flex: 1; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: 3px; padding: 0.65rem 0.85rem;
-    font-family: 'Lora', serif; font-size: 0.9rem;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 0.9rem;
     color: var(--ink); outline: none; transition: border-color 0.2s;
     resize: none; line-height: 1.7; min-height: 60px; max-height: 160px; overflow-y: auto;
   }
@@ -1080,7 +1082,7 @@
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     padding: 0.65rem 0.9rem !important;
-    font-family: 'Lora', serif !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
     font-size: 0.95rem !important;
     color: var(--ink) !important;
     outline: none !important;
@@ -1436,7 +1438,7 @@
   .diary-inline-textarea {
     width: 100%;
     resize: vertical;
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.95rem;
     line-height: 1.9;
     color: var(--ink);
@@ -1904,7 +1906,7 @@
     transform: translateY(-2px);
   }
   .note-card-title {
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.95rem;
     color: var(--ink);
     line-height: 1.4;
@@ -1977,7 +1979,7 @@
     flex-shrink: 0; gap: 1rem;
   }
   .note-reader-title-input {
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 1.1rem;
     color: var(--ink);
     background: none; border: none; outline: none;
@@ -2212,19 +2214,19 @@
     opacity: 0.7;
   }
   .rainbow-back-message {
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.92rem;
     line-height: 1.85;
   }
   .rainbow-back-en {
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.78rem;
     font-style: italic;
     line-height: 1.7;
     opacity: 0.68;
   }
   .rainbow-back-question {
-    font-family: 'Lora', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 0.78rem;
     font-style: italic;
     line-height: 1.7;
@@ -4754,7 +4756,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@300;400&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #f7f4ef; color: #1c1a17; font-family: 'Lora', serif; padding: 3rem 2rem; }
+  body { background: #f7f4ef; color: #1c1a17; font-family: 'Noto Sans TC', sans-serif; padding: 3rem 2rem; }
   .wrap { max-width: 680px; margin: 0 auto; }
   .header { margin-bottom: 3rem; border-bottom: 1px solid #e0dbd3; padding-bottom: 2rem; }
   .header-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a09890; margin-bottom: 0.75rem; }
