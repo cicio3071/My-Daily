@@ -2608,20 +2608,7 @@
     <!-- Export Section -->
     <div class="export-section">
       <div class="module-label">export · 匯出備份</div>
-      <div class="export-grid" style="grid-template-columns:1fr 1fr">
-
-        <!-- JSON backup -->
-        <div class="export-panel">
-          <span class="export-icon">💾</span>
-          <div class="export-title">資料備份</div>
-          <div class="export-desc">匯出所有紀錄為 JSON 檔案，換載具時匯入還原。</div>
-          <button class="btn-primary" onclick="exportJSON()" style="margin-bottom:0.75rem">匯出 JSON</button>
-          <label style="display:block">
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
-            <button class="btn-ghost" style="width:100%" onclick="document.getElementById('importFile').click()">匯入 JSON</button>
-          </label>
-          <div class="export-status" id="jsonStatus"></div>
-        </div>
+      <div class="export-grid" style="grid-template-columns:1fr">
 
         <!-- Monthly report -->
         <div class="export-panel">
@@ -4358,39 +4345,6 @@
   const PB_CHARS_KEY = 'daily_pb_chars';
   const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY];
 
-  function exportJSON() {
-    const data = {};
-    EXPORT_KEYS.forEach(k => {
-      const v = localStorage.getItem(k);
-      if (v) data[k] = v;
-    });
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'daily-backup-' + todayStr + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    document.getElementById('jsonStatus').textContent = '✓ 匯出成功';
-    setTimeout(() => document.getElementById('jsonStatus').textContent = '', 3000);
-  }
-
-  function importJSON(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const data = JSON.parse(e.target.result);
-        Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
-        document.getElementById('jsonStatus').textContent = '✓ 匯入成功，重新整理頁面套用';
-        setTimeout(() => location.reload(), 1500);
-      } catch {
-        document.getElementById('jsonStatus').textContent = '✗ 檔案格式錯誤';
-      }
-    };
-    reader.readAsText(file);
-  }
 
   // ════════════════════════════════════════
   //  GITHUB GIST SYNC
