@@ -1463,6 +1463,48 @@
     letter-spacing: 0.06em;
   }
 
+  /* ── diary lookback ── */
+  .lookback-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  @media (max-width: 600px) { .lookback-grid { grid-template-columns: 1fr; } }
+  .lookback-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.15s;
+  }
+  .lookback-card:hover { border-color: var(--accent-light); box-shadow: 0 2px 12px var(--shadow); }
+  .lookback-card.empty { cursor: default; opacity: 0.45; pointer-events: none; }
+  .lookback-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 0.35rem;
+  }
+  .lookback-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem; color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+  .lookback-preview {
+    font-size: 0.8rem; color: var(--muted);
+    line-height: 1.55;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .lookback-empty-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; color: var(--border);
+  }
+
   /* ── Diary letter-paper modal ── */
   .diary-modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.55);
@@ -2640,6 +2682,9 @@
   <div class="tab-panel" id="tab-diary">
     <div class="module-section">
       <div class="module-label">diary · 日記</div>
+
+      <!-- 回顧今天 -->
+      <div id="diaryLookback" style="margin-bottom:1.5rem"></div>
 
       <!-- Month list -->
       <div id="diaryMonthList"></div>
@@ -4603,39 +4648,65 @@
     btn.disabled = true;
     status.textContent = '生成中…';
 
-    // collect data for the month
     const prefix = year + '-' + String(month).padStart(2, '0');
 
-    // murmurs
-    const murmurs = (JSON.parse(localStorage.getItem(MUR_KEY) || '[]'))
-      .filter(m => m.ts.startsWith(prefix))
-      .map(m => new Date(m.ts).getDate() + '日：' + m.text);
+    // ── 日記（主角）──
+    const diaryEntries = diaryGetEntries();
+    const diaryThisMonth = Object.entries(diaryEntries)
+      .filter(([d]) => d.startsWith(prefix))
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([d, text]) => {
+        const day = d.split('-')[2];
+        return day + '日：' + text.trim();
+      });
 
-    // moods
+    // ── 心情（輔助）──
     const moodsObj = JSON.parse(localStorage.getItem(MOOD_KEY) || '{}');
     const moods = Object.entries(moodsObj)
       .filter(([d]) => d.startsWith(prefix))
+      .sort(([a],[b]) => a.localeCompare(b))
       .map(([d, v]) => d.split('-')[2] + '日 ' + v);
 
-    // readings
+    // ── 閱讀（輔助）──
     const readings = (JSON.parse(localStorage.getItem(READING_KEY) || '[]'))
-      .filter(r => r.date.startsWith(prefix))
+      .filter(r => r.date && r.date.startsWith(prefix))
       .map(r => r.type + '・' + r.title + (r.review ? '：' + r.review : ''));
 
-    // todos completed
-    const todos = JSON.parse(localStorage.getItem(TODO_KEY) || '[]');
-    const doneTodos = todos.filter(t => t.done).map(t => t.text);
-
-    // pomo count
-    const pomoData = JSON.parse(localStorage.getItem(POMO_KEY) || '{}');
+    // ── 碎碎念（背景參考，只取關鍵片段）──
+    const murmurs = (JSON.parse(localStorage.getItem(MUR_KEY) || '[]'))
+      .filter(m => m.ts && m.ts.startsWith(prefix))
+      .map(m => m.text.trim())
+      .filter(t => t.length > 10);
 
     const summary = {
       month: monthLabel,
-      murmurs: murmurs.length ? murmurs : ['（無紀錄）'],
-      moods: moods.length ? moods : ['（無紀錄）'],
-      readings: readings.length ? readings : ['（無紀錄）'],
-      doneTodos: doneTodos.length ? doneTodos : ['（無紀錄）'],
+      diary: diaryThisMonth,
+      moods,
+      readings,
+      murmurs,
     };
+
+    const hasDiary = diaryThisMonth.length > 0;
+
+    const prompt = `以下是我 ${monthLabel} 的生活紀錄。請幫我整理成一份有深度、溫柔的月份回顧，用繁體中文寫，語氣像朋友寫給自己的信，帶一點文學感但不做作。
+
+${hasDiary ? `【日記（這是最重要的素材，請深度參考）】\n${diaryThisMonth.join('\n\n')}` : '（本月無日記紀錄）'}
+
+【心情紀錄（輔助參考）】
+${moods.length ? moods.join('、') : '（無紀錄）'}
+
+${readings.length ? `【閱讀（輔助參考）】\n${readings.join('\n')}` : ''}
+
+${murmurs.length ? `【碎碎念摘要（情緒背景，輕描即可）】\n${murmurs.slice(0, 5).join(' / ')}` : ''}
+
+請整理成以下結構，只回傳純文字，不要 markdown 符號：
+
+1. 開場（這個月的整體基調，2-3句，從日記的整體感受出發）
+2. 日記回顧（這個月你寫下了什麼，有什麼反覆出現的主題或情緒，選2-3個有意思的時刻細說）
+3. 心情與狀態（結合心情紀錄和日記，整體的身心狀態）
+${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4. 給下個月的自己一句話'}
+
+語氣要真實，不要過度正向，誠實面對這個月的起伏。`;
 
     try {
       const res = await fetch(
@@ -4644,12 +4715,8 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: '以下是我 ' + monthLabel + ' 的生活紀錄，請幫我整理成一份溫柔、有質感的月份回顧，用繁體中文寫，語氣像朋友寫給自己的信，不要太正式，可以有一點文學感。\n\n碎碎念：\n' + summary.murmurs.join('\n') + '\n\n心情紀錄：\n' + summary.moods.join('\n') + '\n\n閱讀紀錄：\n' + summary.readings.join('\n') + '\n\n完成的待辦：\n' + summary.doneTodos.join('\n') + '\n\n請整理成：\n1. 開場（這個月的整體感受，2-3句）\n2. 心情回顧（根據心情紀錄）\n3. 閱讀與收穫\n4. 值得記住的事（從碎碎念裡挑有意思的）\n5. 給下個月的自己一句話\n\n只回傳純文字，不要 markdown 符號。'
-              }]
-            }],
-            generationConfig: { temperature: 0.9 }
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.9, maxOutputTokens: 2000 }
           })
         }
       );
@@ -4658,7 +4725,6 @@
       if (!res.ok) throw new Error(data.error?.message);
       const reportText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-      // generate HTML report
       const html = generateReportHTML(monthLabel, reportText, summary);
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -5053,11 +5119,56 @@
 
   diaryRender();
 
+  // ── Diary Lookback (last month & last year's today) ──
+  function diaryRenderLookback() {
+    const entries = diaryGetEntries();
+    const container = document.getElementById('diaryLookback');
+    if (!container) return;
 
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
 
-  // ════════════════════════════════════════
-  //  NOTES — card grid + reader modal
-  // ════════════════════════════════════════
+    const lm = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    const lmStr = lm.getFullYear() + '-' + pad(lm.getMonth()+1) + '-' + pad(lm.getDate());
+    const lmText = entries[lmStr];
+
+    const ly = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const lyStr = ly.getFullYear() + '-' + pad(ly.getMonth()+1) + '-' + pad(ly.getDate());
+    const lyText = entries[lyStr];
+
+    if (!lmText && !lyText) { container.innerHTML = ''; return; }
+
+    const weekdays = ['日','一','二','三','四','五','六'];
+
+    function makeCard(dateStr, text, label) {
+      const [y,m,d] = dateStr.split('-').map(Number);
+      const wd = weekdays[new Date(y,m-1,d).getDay()];
+      const dateLabel = y + ' 年 ' + m + ' 月 ' + d + ' 日　週' + wd;
+      if (!text) {
+        return `<div class="lookback-card empty">
+          <div class="lookback-label">${label}</div>
+          <div class="lookback-date">${dateLabel}</div>
+          <div class="lookback-empty-text">那天沒有寫日記</div>
+        </div>`;
+      }
+      const preview = text.slice(0, 60).replace(/\n/g, ' ') + (text.length > 60 ? '…' : '');
+      return `<div class="lookback-card" onclick="openDiaryLetter('${dateStr}')">
+        <div class="lookback-label">${label}</div>
+        <div class="lookback-date">${dateLabel}</div>
+        <div class="lookback-preview">${escHtml(preview)}</div>
+      </div>`;
+    }
+
+    container.innerHTML = `
+      <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem">回顧今天</div>
+      <div class="lookback-grid">
+        ${makeCard(lmStr, lmText, '上個月的今天')}
+        ${makeCard(lyStr, lyText, '去年的今天')}
+      </div>
+    `;
+  }
+
+  diaryRenderLookback();
   function notesLoad() {
     try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || []; }
     catch { return []; }
