@@ -2321,7 +2321,131 @@
   }
   .sync-reminder-skip:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* ── export module ── */
+  /* ── Workout ── */
+  .workout-today-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .workout-today-info { flex: 1; min-width: 0; }
+  .workout-today-day {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .workout-today-content {
+    font-size: 1rem; color: var(--ink);
+    line-height: 1.5; margin-bottom: 0.25rem;
+  }
+  .workout-today-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .workout-check-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .workout-check-btn.done {
+    background: #5fad74; border-color: #5fad74; color: white;
+  }
+  .workout-check-btn:not(.done):hover { border-color: #5fad74; }
+
+  /* schedule editor */
+  .workout-schedule-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .workout-schedule-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.08em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .workout-edit-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.25rem 0.75rem;
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.06em; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .workout-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .workout-schedule-grid {
+    display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .workout-row {
+    display: flex; align-items: flex-start;
+    gap: 0.75rem; padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .workout-row.today-row { background: var(--deco); border-radius: 4px; }
+  .workout-day-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem; color: var(--accent);
+    letter-spacing: 0.06em; flex-shrink: 0;
+    width: 1.5rem; padding-top: 0.15rem;
+  }
+  .workout-row-content { flex: 1; }
+  .workout-row-main { font-size: 0.9rem; color: var(--ink); line-height: 1.4; }
+  .workout-row-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; color: var(--muted);
+    margin-top: 0.15rem;
+  }
+  /* edit mode */
+  .workout-row-edit { display: none; flex-direction: column; gap: 0.35rem; }
+  .workout-row.editing .workout-row-content { display: none; }
+  .workout-row.editing .workout-row-edit { display: flex; }
+  .workout-edit-input {
+    font-size: 0.88rem !important;
+    padding: 0.35rem 0.6rem !important;
+    width: 100%;
+  }
+  .workout-edit-time-input {
+    font-size: 0.78rem !important;
+    padding: 0.3rem 0.6rem !important;
+    width: 100%;
+  }
+
+  /* history heatmap */
+  .workout-history-wrap { margin-top: 1rem; }
+  .workout-history-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .workout-heatmap {
+    display: flex; flex-wrap: wrap; gap: 3px;
+  }
+  .workout-heat-cell {
+    width: 14px; height: 14px; border-radius: 2px;
+    background: var(--border); flex-shrink: 0;
+    cursor: default;
+    transition: transform 0.1s;
+  }
+  .workout-heat-cell.done { background: #5fad74; }
+  .workout-heat-cell.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .workout-heat-cell:hover { transform: scale(1.2); }
+  .workout-stat {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--muted);
+    margin-top: 0.5rem; letter-spacing: 0.04em;
+  }
   .export-section { margin-top: 3rem; }
 
   .export-grid {
@@ -2506,6 +2630,37 @@
           </div>
         </div>
         <div class="countdown-list" id="countdownList"></div>
+      </div>
+    </div>
+
+    <div class="module-section">
+      <div class="module-label">workout · 訓練紀錄</div>
+      <div class="panel">
+
+        <!-- 今日卡片 -->
+        <div class="workout-today-card" id="workoutTodayCard">
+          <div class="workout-today-info">
+            <div class="workout-today-day" id="workoutTodayDay"></div>
+            <div class="workout-today-content" id="workoutTodayContent"></div>
+            <div class="workout-today-time" id="workoutTodayTime"></div>
+          </div>
+          <button class="workout-check-btn" id="workoutCheckBtn" onclick="workoutToggleToday()" title="標記今日完成">✓</button>
+        </div>
+
+        <!-- 週課表 -->
+        <div class="workout-schedule-header">
+          <span class="workout-schedule-label">週課表</span>
+          <button class="workout-edit-btn" id="workoutEditToggle" onclick="workoutToggleEdit()">✎ 編輯</button>
+        </div>
+        <div class="workout-schedule-grid" id="workoutScheduleGrid"></div>
+
+        <!-- 歷史熱力圖 -->
+        <div class="workout-history-wrap">
+          <div class="workout-history-label">近 60 天紀錄</div>
+          <div class="workout-heatmap" id="workoutHeatmap"></div>
+          <div class="workout-stat" id="workoutStat"></div>
+        </div>
+
       </div>
     </div>
 
@@ -5125,6 +5280,142 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
   }
 
   diaryRenderLookback();
+
+  // ════════════════════════════════════════
+  //  WORKOUT MODULE
+  // ════════════════════════════════════════
+  const WORKOUT_SCHEDULE_KEY = 'daily_workout_schedule';
+  const WORKOUT_LOG_KEY = 'daily_workout_log';
+  // add to export after declaration to avoid TDZ error
+  EXPORT_KEYS.push(WORKOUT_SCHEDULE_KEY, WORKOUT_LOG_KEY);
+
+  const WEEKDAYS = ['日','一','二','三','四','五','六'];
+  const DEFAULT_SCHEDULE = [
+    { day: '一', content: '下肢肌力 A（深蹲、臀橋、弓箭步）', time: '晚餐後 20-25 分' },
+    { day: '二', content: '超慢跑 30 分 + 核心（棒式）', time: '晚餐後' },
+    { day: '三', content: '下肢肌力 B（相撲深蹲、單腳臀橋、墊腳尖）', time: '晚餐後 20-25 分' },
+    { day: '四', content: '超慢跑 30 分', time: '晚餐後' },
+    { day: '五', content: '下肢肌力 A（進階：加停頓、單邊）', time: '晚餐後 20-25 分' },
+    { day: '六', content: '超慢跑 30 分（或戶外散步替代）', time: '彈性' },
+    { day: '日', content: '休息、伸展', time: '-' },
+  ];
+
+  let workoutIsEditing = false;
+
+  function loadWorkoutSchedule() {
+    try { return JSON.parse(localStorage.getItem(WORKOUT_SCHEDULE_KEY)) || DEFAULT_SCHEDULE; }
+    catch { return DEFAULT_SCHEDULE; }
+  }
+  function saveWorkoutSchedule(s) { localStorage.setItem(WORKOUT_SCHEDULE_KEY, JSON.stringify(s)); }
+
+  function loadWorkoutLog() {
+    try { return JSON.parse(localStorage.getItem(WORKOUT_LOG_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveWorkoutLog(log) { localStorage.setItem(WORKOUT_LOG_KEY, JSON.stringify(log)); }
+
+  function workoutTodaySchedule() {
+    const schedule = loadWorkoutSchedule();
+    const dow = new Date().getDay();
+    const dayChar = WEEKDAYS[dow];
+    return schedule.find(s => s.day === dayChar) || null;
+  }
+
+  function workoutRenderToday() {
+    const s = workoutTodaySchedule();
+    const dow = new Date().getDay();
+    const log = loadWorkoutLog();
+    const done = !!log[todayStr];
+    document.getElementById('workoutTodayDay').textContent = '週' + WEEKDAYS[dow] + '　' + todayStr;
+    document.getElementById('workoutTodayContent').textContent = s ? s.content : '—';
+    document.getElementById('workoutTodayTime').textContent = s ? s.time : '';
+    const btn = document.getElementById('workoutCheckBtn');
+    btn.classList.toggle('done', done);
+    btn.title = done ? '已完成（點擊取消）' : '標記今日完成';
+  }
+
+  function workoutToggleToday() {
+    const log = loadWorkoutLog();
+    if (log[todayStr]) { delete log[todayStr]; } else { log[todayStr] = true; }
+    saveWorkoutLog(log);
+    workoutRenderToday();
+    workoutRenderHeatmap();
+  }
+
+  function workoutRenderSchedule() {
+    const schedule = loadWorkoutSchedule();
+    const grid = document.getElementById('workoutScheduleGrid');
+    const todayChar = WEEKDAYS[new Date().getDay()];
+    grid.innerHTML = '';
+    schedule.forEach((item, i) => {
+      const isToday = item.day === todayChar;
+      const row = document.createElement('div');
+      row.className = 'workout-row' + (isToday ? ' today-row' : '');
+      row.dataset.idx = i;
+      row.innerHTML = `
+        <div class="workout-day-tag">${item.day}</div>
+        <div class="workout-row-content">
+          <div class="workout-row-main">${escHtml(item.content)}</div>
+          ${item.time && item.time !== '-' ? `<div class="workout-row-time">${escHtml(item.time)}</div>` : ''}
+        </div>
+        <div class="workout-row-edit">
+          <input class="workout-edit-input" type="text" value="${escHtml(item.content)}" placeholder="訓練內容">
+          <input class="workout-edit-time-input" type="text" value="${escHtml(item.time)}" placeholder="時間（選填）">
+        </div>
+      `;
+      grid.appendChild(row);
+    });
+  }
+
+  function workoutToggleEdit() {
+    workoutIsEditing = !workoutIsEditing;
+    const btn = document.getElementById('workoutEditToggle');
+    const rows = document.querySelectorAll('.workout-row');
+    if (workoutIsEditing) {
+      btn.textContent = '✓ 儲存';
+      rows.forEach(row => row.classList.add('editing'));
+    } else {
+      const schedule = loadWorkoutSchedule();
+      rows.forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const inputs = row.querySelectorAll('input');
+        if (inputs[0]) schedule[idx].content = inputs[0].value.trim() || schedule[idx].content;
+        if (inputs[1]) schedule[idx].time = inputs[1].value.trim();
+      });
+      saveWorkoutSchedule(schedule);
+      btn.textContent = '✎ 編輯';
+      rows.forEach(row => row.classList.remove('editing'));
+      workoutRenderSchedule();
+      workoutRenderToday();
+    }
+  }
+
+  function workoutRenderHeatmap() {
+    const log = loadWorkoutLog();
+    const heatmap = document.getElementById('workoutHeatmap');
+    const stat = document.getElementById('workoutStat');
+    heatmap.innerHTML = '';
+    let doneCount = 0;
+    for (let i = 59; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const ds = d.getFullYear() + '-' +
+        String(d.getMonth()+1).padStart(2,'0') + '-' +
+        String(d.getDate()).padStart(2,'0');
+      if (log[ds]) doneCount++;
+      const cell = document.createElement('div');
+      cell.className = 'workout-heat-cell' + (log[ds] ? ' done' : '') + (ds === todayStr ? ' today' : '');
+      cell.title = ds + (log[ds] ? ' ✓' : '');
+      heatmap.appendChild(cell);
+    }
+    stat.textContent = '近 60 天完成 ' + doneCount + ' 天';
+  }
+
+  workoutRenderToday();
+  workoutRenderSchedule();
+  workoutRenderHeatmap();
+
+
   function notesLoad() {
     try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || []; }
     catch { return []; }
