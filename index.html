@@ -534,7 +534,6 @@
   .todo-status:hover { transform: scale(1.25); }
   .todo-status[data-status="pending"]  { background: #9a9690; border-color: #7a7670; }
   .todo-status[data-status="active"]   { background: #4a85c9; border-color: #3570b0; }
-  .todo-status[data-status="waiting"]  { background: #c9a84a; border-color: #b09030; }
   .todo-status[data-status="done-soft"]{ background: #5fad74; border-color: #4a9460; }
 
   /* status legend */
@@ -895,6 +894,60 @@
   .cycle-save-btn:hover { background: var(--accent); }
 
   /* reading */
+  /* ── Reading summary toast ── */
+  .reading-toast-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none; align-items: flex-end; justify-content: center;
+    z-index: 160; backdrop-filter: blur(3px);
+    padding: 0 1rem 2rem;
+  }
+  @media (min-width: 601px) {
+    .reading-toast-overlay { align-items: center; padding: 1.5rem; }
+  }
+  .reading-toast-overlay.visible { display: flex; }
+  .reading-toast {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px 14px 8px 8px;
+    width: 100%; max-width: 480px; max-height: 78vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 -8px 40px var(--shadow);
+    animation: toastUp 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @media (min-width: 601px) {
+    .reading-toast { border-radius: 14px; box-shadow: 0 20px 60px var(--shadow); animation: toastFade 0.2s ease; }
+  }
+  @keyframes toastUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes toastFade {
+    from { transform: scale(0.96); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .reading-toast-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 1.25rem 1.5rem 1rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .reading-toast-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ink); }
+  .reading-toast-sub { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.06em; margin-top: 0.2rem; }
+  .reading-toast-close { background: none; border: none; font-size: 1.3rem; color: var(--muted); cursor: pointer; line-height: 1; transition: color 0.15s; }
+  .reading-toast-close:hover { color: var(--ink); }
+  .reading-toast-body { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .reading-toast-group-label {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .reading-toast-group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .reading-toast-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+  .reading-toast-item:last-child { border-bottom: none; }
+  .reading-toast-item-info { flex: 1; }
+  .reading-toast-item-title { font-size: 0.92rem; color: var(--ink); line-height: 1.4; }
+  .reading-toast-item-review { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.5; }
+  .reading-toast-item-date { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--border); white-space: nowrap; padding-top: 0.2rem; }
+  .reading-toast-empty { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--border); text-align: center; padding: 1.5rem 0; }
+
   .reading-form { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
   .reading-form-row { display: flex; gap: 0.5rem; }
   .reading-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 320px; overflow-y: auto; }
@@ -2569,18 +2622,16 @@
   <div class="tab-panel" id="tab-life">
 
     <div class="module-section">
-      <div class="module-label">to-do · 待辦事項</div>
+      <div class="module-label">wishlist · 心願清單</div>
       <div class="todo-grid">
         <div class="panel">
           <div class="todo-panel-label">pending <span class="todo-count" id="pendingCount">0</span></div>
           <div class="todo-legend">
-            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#9a9690"></div>待處理</div>
+            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#9a9690"></div>未開始</div>
             <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#4a85c9"></div>進行中</div>
-            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#c9a84a"></div>等待中</div>
-            <div class="todo-legend-item"><div class="todo-legend-dot" style="background:#5fad74"></div>已溝通</div>
           </div>
           <div class="todo-add">
-            <input class="todo-input" id="todoInput" placeholder="新增待辦…" maxlength="80" />
+            <input class="todo-input" id="todoInput" placeholder="新增一個心願…" maxlength="80" />
             <button class="todo-add-btn" onclick="addTodo()">+</button>
           </div>
           <ul class="todo-list" id="pendingList"></ul>
@@ -2744,16 +2795,21 @@
       <div class="panel">
         <div class="reading-form">
           <div class="reading-form-row">
-            <input type="text" id="readingTitle" placeholder="書名 / 電影 / 影集名稱" style="flex:1" maxlength="60" />
-            <select id="readingType" style="width:80px;flex-shrink:0">
+            <input type="text" id="readingTitle" placeholder="標題名稱" style="flex:1" maxlength="60" />
+            <select id="readingType" style="width:90px;flex-shrink:0">
               <option value="書">書</option>
               <option value="電影">電影</option>
               <option value="影集">影集</option>
+              <option value="動畫">動畫</option>
+              <option value="舞台表演">舞台表演</option>
               <option value="其他">其他</option>
             </select>
           </div>
           <textarea id="readingReview" placeholder="短評（可以不寫）" rows="2" style="resize:none"></textarea>
-          <button class="btn-primary" onclick="addReading()">新增紀錄</button>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn-primary" onclick="addReading()" style="flex:1">新增紀錄</button>
+            <button class="btn-ghost" onclick="showReadingSummary()" style="white-space:nowrap">本月摘要</button>
+          </div>
         </div>
         <div class="reading-list" id="readingList"></div>
       </div>
@@ -2913,6 +2969,20 @@
     <div class="diary-letter-footer">
       <button class="diary-letter-edit-btn" id="diaryLetterEditBtn" onclick="diaryLetterToEdit()">✎ 編輯</button>
     </div>
+  </div>
+</div>
+
+<!-- Reading Summary Toast -->
+<div class="reading-toast-overlay" id="readingToastOverlay" onclick="if(event.target===this)closeReadingSummary()">
+  <div class="reading-toast">
+    <div class="reading-toast-header">
+      <div>
+        <div class="reading-toast-title" id="readingToastTitle"></div>
+        <div class="reading-toast-sub" id="readingToastSub"></div>
+      </div>
+      <button class="reading-toast-close" onclick="closeReadingSummary()">×</button>
+    </div>
+    <div class="reading-toast-body" id="readingToastBody"></div>
   </div>
 </div>
 
@@ -3292,12 +3362,23 @@
 
   // ── Todo ──
   const TODO_KEY = 'daily_todos';
-  const TODO_STATUS_CYCLE = ['pending', 'active', 'waiting', 'done-soft'];
+  const TODO_STATUS_CYCLE = ['pending', 'active'];
   const TODO_PENDING_LIMIT = 5;
   const TODO_DONE_LIMIT = 5;
 
   function loadTodos() {
-    try { return JSON.parse(localStorage.getItem(TODO_KEY)) || []; }
+    try {
+      const list = JSON.parse(localStorage.getItem(TODO_KEY)) || [];
+      // migrate old statuses
+      let changed = false;
+      list.forEach(t => {
+        if (t.status === 'waiting' || t.status === 'done-soft') {
+          t.status = 'pending'; changed = true;
+        }
+      });
+      if (changed) saveTodos(list);
+      return list;
+    }
     catch { return []; }
   }
   function saveTodos(todos) { localStorage.setItem(TODO_KEY, JSON.stringify(todos)); }
@@ -4461,6 +4542,67 @@
 
   renderReadings();
 
+  // ── Reading Summary Toast ──
+  const TYPE_EMOJI = {
+    '書': '📖', '電影': '🎬', '影集': '📺',
+    '動畫': '🎨', '舞台表演': '🎭', '其他': '✦'
+  };
+
+  function showReadingSummary() {
+    const now = new Date();
+    const ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+    const monthLabel = now.getFullYear() + ' 年 ' + (now.getMonth()+1) + ' 月';
+
+    const all = JSON.parse(localStorage.getItem(READING_KEY) || '[]');
+    const thisMonth = all.filter(r => r.date && r.date.startsWith(ym));
+
+    document.getElementById('readingToastTitle').textContent = monthLabel + '的紀錄';
+    document.getElementById('readingToastSub').textContent = thisMonth.length + ' 筆';
+
+    const body = document.getElementById('readingToastBody');
+
+    if (!thisMonth.length) {
+      body.innerHTML = '<div class="reading-toast-empty">本月尚無紀錄</div>';
+    } else {
+      // group by type
+      const types = ['書','電影','影集','動畫','舞台表演','其他'];
+      const grouped = {};
+      thisMonth.forEach(r => {
+        const t = r.type || '其他';
+        if (!grouped[t]) grouped[t] = [];
+        grouped[t].push(r);
+      });
+
+      body.innerHTML = '';
+      types.forEach(type => {
+        const items = grouped[type];
+        if (!items || !items.length) return;
+        const group = document.createElement('div');
+        group.className = 'reading-toast-group';
+        group.innerHTML = `<div class="reading-toast-group-label">${TYPE_EMOJI[type] || '✦'} ${type}</div>`;
+        items.forEach(r => {
+          const day = r.date ? r.date.split('-')[2] + ' 日' : '';
+          const div = document.createElement('div');
+          div.className = 'reading-toast-item';
+          div.innerHTML = `
+            <div class="reading-toast-item-info">
+              <div class="reading-toast-item-title">${escHtml(r.title)}</div>
+              ${r.review ? `<div class="reading-toast-item-review">${escHtml(r.review)}</div>` : ''}
+            </div>
+            <div class="reading-toast-item-date">${day}</div>
+          `;
+          group.appendChild(div);
+        });
+        body.appendChild(group);
+      });
+    }
+
+    document.getElementById('readingToastOverlay').classList.add('visible');
+  }
+
+  function closeReadingSummary() {
+    document.getElementById('readingToastOverlay').classList.remove('visible');
+  }
 
 
   // ── Theme ──
