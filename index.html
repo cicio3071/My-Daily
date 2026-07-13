@@ -955,7 +955,17 @@
   .reading-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.3rem; }
   .reading-item-title { font-size: 1rem; color: var(--ink); line-height: 1.4; flex: 1; }
   .reading-item-meta { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
-  .reading-type-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.15rem 0.45rem; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); text-transform: uppercase; }
+  .reading-type-select {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.06em;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--muted); background: none;
+    cursor: pointer; outline: none;
+    -webkit-appearance: none; appearance: none;
+    transition: border-color 0.15s;
+  }
+  .reading-type-select:hover { border-color: var(--accent); color: var(--accent); }
   .reading-item-del { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.85rem; transition: color 0.2s; padding: 0; }
   .reading-item-del:hover { color: #b94a2c; }
   .reading-item-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 0.4rem; }
@@ -3639,8 +3649,10 @@
       if (d >= s && d <= e) return 'period';
     }
 
-    const toStr = dt => dt.toISOString().split('T')[0];
-    if (toStr(d) === toStr(pred.ovulationDay)) return 'ovulation';
+    const toLocalDate = dt => dt.getFullYear() + '-' +
+      String(dt.getMonth()+1).padStart(2,'0') + '-' +
+      String(dt.getDate()).padStart(2,'0');
+    if (toLocalDate(d) === toLocalDate(pred.ovulationDay)) return 'ovulation';
     if (d >= pred.fertileStart && d <= pred.fertileEnd) return 'fertile';
     if (d >= pred.nextStart && d <= pred.nextPeriodEnd) return 'period';
     if (d >= pred.lutealStart && d <= pred.lutealEnd) return 'luteal';
@@ -4515,14 +4527,18 @@
     const showAll = el.dataset.showAll === 'true';
     const LIMIT = 5;
     const toShow = showAll ? readings : readings.slice(0, LIMIT);
+    const TYPES = ['書','電影','影集','動畫','舞台表演','其他'];
     toShow.forEach(r => {
       const div = document.createElement('div');
       div.className = 'reading-item';
+      const opts = TYPES.map(t =>
+        `<option value="${t}"${r.type===t?' selected':''}>${t}</option>`
+      ).join('');
       div.innerHTML = `
         <div class="reading-item-header">
           <div class="reading-item-title">${escHtml(r.title)}</div>
           <div class="reading-item-meta">
-            <span class="reading-type-badge">${r.type}</span>
+            <select class="reading-type-select" onchange="updateReadingType('${r.id}',this.value)">${opts}</select>
             <button class="reading-item-del" onclick="deleteReading('${r.id}')">×</button>
           </div>
         </div>
@@ -4538,6 +4554,12 @@
       btn.onclick = () => { el.dataset.showAll = showAll ? 'false' : 'true'; renderReadings(); };
       el.appendChild(btn);
     }
+  }
+
+  function updateReadingType(id, newType) {
+    const readings = loadReadings();
+    const r = readings.find(x => x.id === id);
+    if (r) { r.type = newType; saveReadings(readings); }
   }
 
   renderReadings();
@@ -4637,9 +4659,7 @@
 
   // ── Export / Import ──
   const DIARY_KEY = 'daily_diary';
-  const CLIP_KEY = 'daily_clips';
   const NOTES_KEY = 'daily_notes';
-  const PB_CHARS_KEY = 'daily_pb_chars';
   const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY];
 
 
