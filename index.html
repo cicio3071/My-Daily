@@ -2720,6 +2720,11 @@
           <div class="workout-history-label">近 60 天紀錄</div>
           <div class="workout-heatmap" id="workoutHeatmap"></div>
           <div class="workout-stat" id="workoutStat"></div>
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.85rem">
+            <label style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.06em;white-space:nowrap">補登日期</label>
+            <input type="date" id="workoutBackfillDate" style="flex:1;font-size:0.78rem;padding:0.35rem 0.6rem">
+            <button class="workout-edit-btn" onclick="workoutBackfill()" style="white-space:nowrap">切換完成</button>
+          </div>
         </div>
 
       </div>
@@ -5576,9 +5581,23 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
     stat.textContent = '近 60 天完成 ' + doneCount + ' 天';
   }
 
+  function workoutBackfill() {
+    const input = document.getElementById('workoutBackfillDate');
+    const dateStr = input.value;
+    if (!dateStr) return;
+    const log = loadWorkoutLog();
+    if (log[dateStr]) { delete log[dateStr]; } else { log[dateStr] = true; }
+    saveWorkoutLog(log);
+    workoutRenderHeatmap();
+    if (dateStr === todayStr) workoutRenderToday();
+  }
+
   workoutRenderToday();
   workoutRenderSchedule();
   workoutRenderHeatmap();
+  // set backfill date default to today
+  const wbInput = document.getElementById('workoutBackfillDate');
+  if (wbInput) { wbInput.value = todayStr; wbInput.max = todayStr; }
 
 
   function notesLoad() {
