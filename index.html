@@ -2888,6 +2888,17 @@
         <div class="export-status" id="gistStatus"></div>
       </div>
 
+      <!-- 本機備份（精簡版） -->
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-top:1rem;flex-wrap:wrap">
+        <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">本機備份</span>
+        <button class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem" onclick="exportJSON()">↓ 匯出 JSON</button>
+        <label style="cursor:pointer">
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+          <span class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem;display:inline-block">↑ 匯入 JSON</span>
+        </label>
+        <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted)" id="jsonStatus"></span>
+      </div>
+
     </div>
 
   </div>
@@ -4860,6 +4871,35 @@
   async function gistManualSync() {
     try { await gistPushToCloud(); }
     catch(err) { gistSetStatus('✗ ' + err.message, 'error'); }
+  }
+
+  function exportJSON() {
+    const data = {};
+    EXPORT_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v) data[k] = v; });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'daily-backup-' + todayStr + '.json'; a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('jsonStatus').textContent = '✓ 匯出成功';
+    setTimeout(() => document.getElementById('jsonStatus').textContent = '', 3000);
+  }
+
+  function importJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+        document.getElementById('jsonStatus').textContent = '✓ 匯入成功，重新整理中…';
+        setTimeout(() => location.reload(), 1200);
+      } catch {
+        document.getElementById('jsonStatus').textContent = '✗ 格式錯誤';
+      }
+    };
+    reader.readAsText(file);
   }
 
   // Init Gist UI (no auto-sync — sync only happens when user explicitly
