@@ -4831,7 +4831,10 @@
       const res = await fetch('https://api.github.com/gists/' + gistId, {
         headers: gistH(token)
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (res.status === 401) throw new Error('Token 已失效，請重新設定（GitHub → Settings → Developer Settings → Tokens）');
+      if (res.status === 403) throw new Error('Token 無權限或已被撤銷，請重新產生');
+      if (res.status === 404) throw new Error('找不到 Gist，ID 可能有誤或已被刪除');
+      if (!res.ok) throw new Error('GitHub 回應錯誤 HTTP ' + res.status);
       const gist = await res.json();
       const fileContent = gist.files[GIST_FILENAME]?.content;
       if (!fileContent) throw new Error('找不到資料檔案，請先在電腦上推送一次');
