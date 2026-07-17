@@ -2626,6 +2626,62 @@
       </div>
     </div>
 
+    <!-- 工具 -->
+    <div class="module-section">
+      <div class="module-label">tools · 工具</div>
+      <div class="panel">
+
+        <!-- 月份報表 -->
+        <div style="margin-bottom:1.25rem">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem">月份報表</div>
+          <div style="display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap">
+            <select class="export-month-select" id="reportMonth" style="flex:1;min-width:120px"></select>
+            <button class="btn-primary" id="reportBtn" onclick="generateReport()" style="width:auto;padding:0.55rem 1.1rem;white-space:nowrap">生成報表</button>
+          </div>
+          <div class="export-status" id="reportStatus" style="margin-top:0.4rem"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-bottom:1.25rem"></div>
+
+        <!-- Gist 同步 -->
+        <div style="margin-bottom:1rem">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem">雲端同步</div>
+          <div id="gistSetupArea">
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.65rem">尚未設定 GitHub Token</div>
+            <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+              <input type="password" id="gistTokenInput" placeholder="ghp_… GitHub Personal Access Token" style="flex:1;font-size:0.82rem">
+              <button class="btn-ghost" style="white-space:nowrap" onclick="gistSaveToken()">儲存</button>
+            </div>
+            <input type="text" id="gistIdInput" placeholder="Gist ID（換裝置時填入，首次可留空）" style="font-size:0.82rem;font-family:'DM Mono',monospace;margin-bottom:0.4rem">
+            <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--border);line-height:1.6">Token 只需勾選 gist 權限</div>
+          </div>
+          <div id="gistConnectedArea" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem">
+              <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-soft)" id="gistIdDisplay">—</div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted)">上次同步 <span id="gistLastSync">—</span></div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <button class="btn-primary" style="width:auto;padding:0.5rem 1rem" onclick="gistManualSync()">立即同步</button>
+              <button class="btn-ghost" style="padding:0.5rem 1rem" onclick="gistPullFromCloud()">從雲端還原</button>
+              <button class="btn-ghost" style="padding:0.5rem 1rem;color:var(--muted)" onclick="gistDisconnect()">中斷連線</button>
+            </div>
+          </div>
+          <div class="export-status" id="gistStatus" style="margin-top:0.5rem"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:0.85rem;display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap">
+          <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.06em">本機備份</span>
+          <button class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem" onclick="exportJSON()">↓ 匯出</button>
+          <label style="cursor:pointer">
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+            <span class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem;display:inline-block">↑ 匯入</span>
+          </label>
+          <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted)" id="jsonStatus"></span>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
   <!-- ═══ TAB: 生活 ═══ -->
@@ -2730,64 +2786,6 @@
       </div>
     </div>
 
-    <!-- 工具 -->
-    <div class="module-section">
-      <div class="module-label">tools · 工具</div>
-      <div class="panel">
-
-        <!-- 月份報表 -->
-        <div style="margin-bottom:1.25rem">
-          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem">月份報表</div>
-          <div style="display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap">
-            <select class="export-month-select" id="reportMonth" style="flex:1;min-width:120px"></select>
-            <button class="btn-primary" id="reportBtn" onclick="generateReport()" style="width:auto;padding:0.55rem 1.1rem;white-space:nowrap">生成報表</button>
-          </div>
-          <div class="export-status" id="reportStatus" style="margin-top:0.4rem"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);margin-bottom:1.25rem"></div>
-
-        <!-- Gist 同步 -->
-        <div style="margin-bottom:1rem">
-          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem">雲端同步</div>
-
-          <div id="gistSetupArea">
-            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.65rem">尚未設定 GitHub Token</div>
-            <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
-              <input type="password" id="gistTokenInput" placeholder="ghp_… GitHub Personal Access Token" style="flex:1;font-size:0.82rem">
-              <button class="btn-ghost" style="white-space:nowrap" onclick="gistSaveToken()">儲存</button>
-            </div>
-            <input type="text" id="gistIdInput" placeholder="Gist ID（換裝置時填入，首次可留空）" style="font-size:0.82rem;font-family:'DM Mono',monospace;margin-bottom:0.4rem">
-            <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--border);line-height:1.6">Token 只需勾選 gist 權限</div>
-          </div>
-
-          <div id="gistConnectedArea" style="display:none">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem">
-              <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--ink-soft)" id="gistIdDisplay">—</div>
-              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted)">上次同步 <span id="gistLastSync">—</span></div>
-            </div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-              <button class="btn-primary" style="width:auto;padding:0.5rem 1rem" onclick="gistManualSync()">立即同步</button>
-              <button class="btn-ghost" style="padding:0.5rem 1rem" onclick="gistPullFromCloud()">從雲端還原</button>
-              <button class="btn-ghost" style="padding:0.5rem 1rem;color:var(--muted)" onclick="gistDisconnect()">中斷連線</button>
-            </div>
-          </div>
-
-          <div class="export-status" id="gistStatus" style="margin-top:0.5rem"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);padding-top:0.85rem;display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap">
-          <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.06em">本機備份</span>
-          <button class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem" onclick="exportJSON()">↓ 匯出</button>
-          <label style="cursor:pointer">
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
-            <span class="btn-ghost" style="padding:0.3rem 0.85rem;font-size:0.68rem;display:inline-block">↑ 匯入</span>
-          </label>
-          <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted)" id="jsonStatus"></span>
-        </div>
-
-      </div>
-    </div>
 
   </div>
 
