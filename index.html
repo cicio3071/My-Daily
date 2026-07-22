@@ -8,6 +8,24 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap');
 
+  /* Emoji fallback patch：修復 Windows 更新後 emoji 顯示為方框的問題。
+     只針對 emoji 的 unicode 範圍掛載系統 emoji 字型，不影響其他文字。 */
+  @font-face {
+    font-family: 'Noto Sans TC';
+    src: local('Segoe UI Emoji'), local('Noto Color Emoji'), local('Apple Color Emoji');
+    unicode-range: U+1F300-1FAFF, U+2600-27BF, U+2B00-2BFF, U+1F1E6-1F1FF, U+200D, U+FE0F, U+2934-2935, U+3030, U+303D, U+3297, U+3299;
+  }
+  @font-face {
+    font-family: 'DM Mono';
+    src: local('Segoe UI Emoji'), local('Noto Color Emoji'), local('Apple Color Emoji');
+    unicode-range: U+1F300-1FAFF, U+2600-27BF, U+2B00-2BFF, U+1F1E6-1F1FF, U+200D, U+FE0F, U+2934-2935, U+3030, U+303D, U+3297, U+3299;
+  }
+  @font-face {
+    font-family: 'Playfair Display';
+    src: local('Segoe UI Emoji'), local('Noto Color Emoji'), local('Apple Color Emoji');
+    unicode-range: U+1F300-1FAFF, U+2600-27BF, U+2B00-2BFF, U+1F1E6-1F1FF, U+200D, U+FE0F, U+2934-2935, U+3030, U+303D, U+3297, U+3299;
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── themes ── */
