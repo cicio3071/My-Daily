@@ -3118,7 +3118,7 @@
   function saveKey() {
     const key = document.getElementById('keyInput').value.trim();
     if (!key) return;
-    localStorage.setItem(STORAGE_KEY, key);
+    safeLocalSet(STORAGE_KEY, key);
     hideModal();
     loadCard(key);
   }
@@ -3187,7 +3187,7 @@
       const clean = text.replace(/```json|```/g, '').trim();
       const { quote, source } = JSON.parse(clean);
 
-      localStorage.setItem(CARD_KEY, JSON.stringify({ date: todayStr, quote, source }));
+      safeLocalSet(CARD_KEY, JSON.stringify({ date: todayStr, quote, source }));
       renderCard(quote, source);
 
     } catch (err) {
@@ -3344,7 +3344,7 @@
 
   function rainbowPick(colorId) {
     const state = { date: todayStr, pickedId: colorId, flipped: false };
-    localStorage.setItem(RAINBOW_KEY, JSON.stringify(state));
+    safeLocalSet(RAINBOW_KEY, JSON.stringify(state));
     renderRainbowDeck(colorId, false);
   }
 
@@ -3354,7 +3354,7 @@
     flipper.classList.toggle('flipped');
     try {
       const state = JSON.parse(localStorage.getItem(RAINBOW_KEY));
-      if (state) { state.flipped = flipper.classList.contains('flipped'); localStorage.setItem(RAINBOW_KEY, JSON.stringify(state)); }
+      if (state) { state.flipped = flipper.classList.contains('flipped'); safeLocalSet(RAINBOW_KEY, JSON.stringify(state)); }
     } catch(e) {}
   }
 
@@ -3413,7 +3413,7 @@
     }
     catch { return []; }
   }
-  function saveTodos(todos) { localStorage.setItem(TODO_KEY, JSON.stringify(todos)); }
+  function saveTodos(todos) { safeLocalSet(TODO_KEY, JSON.stringify(todos)); }
 
   function renderTodos() {
     const todos = loadTodos();
@@ -3551,6 +3551,26 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // ── 儲存防呆：包裝 localStorage.setItem，失敗時提醒使用者而不是讓畫面卡住 ──
+  function safeLocalSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      showStorageWarning();
+      return false;
+    }
+  }
+  let _storageWarningShown = false;
+  function showStorageWarning() {
+    if (_storageWarningShown) return;
+    _storageWarningShown = true;
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);z-index:99999;background:var(--surface);border:1.5px solid var(--accent);color:var(--ink);padding:0.85rem 1.25rem;border-radius:10px;font-family:"DM Mono",monospace;font-size:0.72rem;box-shadow:0 8px 24px rgba(0,0,0,0.15);max-width:90vw;text-align:center;line-height:1.6;';
+    banner.innerHTML = '⚠️ 資料儲存空間可能已滿，最近的變更沒有存進去。<br>建議到「設定」匯出備份，並清理較舊的資料。<button style="margin-left:0.5rem;border:none;background:none;color:var(--accent);cursor:pointer;text-decoration:underline;font-family:inherit;font-size:inherit" onclick="this.parentElement.remove()">知道了</button>';
+    document.body.appendChild(banner);
+  }
+
   document.getElementById('todoInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') addTodo();
   });
@@ -3572,7 +3592,7 @@
     try { return JSON.parse(localStorage.getItem(CYCLE_KEY)) || []; }
     catch { return []; }
   }
-  function saveCycles(c) { localStorage.setItem(CYCLE_KEY, JSON.stringify(c)); }
+  function saveCycles(c) { safeLocalSet(CYCLE_KEY, JSON.stringify(c)); }
 
   function saveCycle() {
     const start = document.getElementById('cycleStart').value;
@@ -3789,7 +3809,7 @@
     try { return JSON.parse(localStorage.getItem(MUR_KEY)) || []; }
     catch { return []; }
   }
-  function saveMurmurs(m) { localStorage.setItem(MUR_KEY, JSON.stringify(m)); }
+  function saveMurmurs(m) { safeLocalSet(MUR_KEY, JSON.stringify(m)); }
 
   function addMurmur() {
     const input = document.getElementById('murInput');
@@ -3986,11 +4006,11 @@
   }
 
   function savePomoCount(n) {
-    localStorage.setItem(POMO_KEY, JSON.stringify({ date: todayStr, count: n }));
+    safeLocalSet(POMO_KEY, JSON.stringify({ date: todayStr, count: n }));
   }
 
   function pomoSaveState() {
-    localStorage.setItem(POMO_STATE_KEY, JSON.stringify({
+    safeLocalSet(POMO_STATE_KEY, JSON.stringify({
       isRunning: pomoIsRunning,
       isWork: pomoIsWork,
       startTime: pomoStartTime,
@@ -4155,7 +4175,7 @@
     try { return JSON.parse(localStorage.getItem(CD_KEY)) || []; }
     catch { return []; }
   }
-  function saveCountdowns(c) { localStorage.setItem(CD_KEY, JSON.stringify(c)); }
+  function saveCountdowns(c) { safeLocalSet(CD_KEY, JSON.stringify(c)); }
 
   function addCountdown() {
     const name = document.getElementById('cdName').value.trim();
@@ -4291,7 +4311,7 @@
           city, country
         };
 
-        localStorage.setItem(WEATHER_KEY, JSON.stringify(data));
+        safeLocalSet(WEATHER_KEY, JSON.stringify(data));
         renderWeather(data);
       } catch(err) {
         renderWeatherError('無法取得天氣資料');
@@ -4378,7 +4398,7 @@
     try { return JSON.parse(localStorage.getItem(MOOD_KEY)) || {}; }
     catch { return {}; }
   }
-  function saveMoods(m) { localStorage.setItem(MOOD_KEY, JSON.stringify(m)); }
+  function saveMoods(m) { safeLocalSet(MOOD_KEY, JSON.stringify(m)); }
 
   function saveMood() {
     if (!selectedMoodOption) { alert('請先選擇心情'); return; }
@@ -4514,7 +4534,7 @@
     try { return JSON.parse(localStorage.getItem(READING_KEY)) || []; }
     catch { return []; }
   }
-  function saveReadings(r) { localStorage.setItem(READING_KEY, JSON.stringify(r)); }
+  function saveReadings(r) { safeLocalSet(READING_KEY, JSON.stringify(r)); }
 
   function addReading() {
     const title = document.getElementById('readingTitle').value.trim();
@@ -4652,7 +4672,7 @@
   // ── Theme ──
   function setTheme(name) {
     document.documentElement.setAttribute('data-theme', name);
-    localStorage.setItem('daily_theme', name);
+    safeLocalSet('daily_theme', name);
     const sel = document.getElementById('themeSelect');
     if (sel) sel.value = name;
   }
@@ -4669,7 +4689,7 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + id).classList.add('active');
     btn.classList.add('active');
-    localStorage.setItem('daily_tab', id);
+    safeLocalSet('daily_tab', id);
   }
   // restore last tab
   const lastTab = localStorage.getItem('daily_tab');
@@ -4739,14 +4759,14 @@
       gistSetStatus('✗ Token 格式不對，應以 ghp_ 開頭', 'error');
       return;
     }
-    localStorage.setItem(GIST_TOKEN_KEY, val);
+    safeLocalSet(GIST_TOKEN_KEY, val);
     document.getElementById('gistTokenInput').value = '';
 
     // If user provided an existing Gist ID, save it and pull from cloud
     const idInput = document.getElementById('gistIdInput');
     const existingId = idInput ? idInput.value.trim() : '';
     if (existingId) {
-      localStorage.setItem(GIST_ID_KEY, existingId);
+      safeLocalSet(GIST_ID_KEY, existingId);
       if (idInput) idInput.value = '';
       gistUpdateUI();
       gistSetStatus('已設定 Gist ID，從雲端載入資料中…', 'syncing');
@@ -4761,8 +4781,8 @@
           const fileContent = gist.files[GIST_FILENAME]?.content;
           if (!fileContent) throw new Error('找不到資料檔案');
           const data = JSON.parse(fileContent);
-          Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
-          localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+          Object.keys(data).forEach(k => safeLocalSet(k, data[k]));
+          safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
           gistUpdateUI();
           gistSetStatus('✓ 已從雲端載入，重新整理中…', 'ok');
           setTimeout(() => location.reload(), 1500);
@@ -4832,8 +4852,8 @@
     }
 
     const data = await res.json();
-    localStorage.setItem(GIST_ID_KEY, data.id);
-    localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+    safeLocalSet(GIST_ID_KEY, data.id);
+    safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
     gistUpdateUI();
     gistSetStatus('✓ 已同步', 'ok');
     setTimeout(() => gistSetStatus('', 'ok'), 3000);
@@ -4864,9 +4884,9 @@
       const data = JSON.parse(fileContent);
       const keys = Object.keys(data);
       if (!keys.length) throw new Error('雲端資料是空的');
-      keys.forEach(k => localStorage.setItem(k, data[k]));
+      keys.forEach(k => safeLocalSet(k, data[k]));
 
-      localStorage.setItem(GIST_SYNC_KEY, new Date().toISOString());
+      safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
       gistSetStatus('✓ 已還原 ' + keys.length + ' 筆資料，重新整理中…', 'ok');
       setTimeout(() => location.reload(), 1500);
     } catch(err) {
@@ -4898,7 +4918,7 @@
     reader.onload = e => {
       try {
         const data = JSON.parse(e.target.result);
-        Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+        Object.entries(data).forEach(([k, v]) => safeLocalSet(k, v));
         document.getElementById('jsonStatus').textContent = '✓ 匯入成功，重新整理中…';
         setTimeout(() => location.reload(), 1200);
       } catch {
@@ -5156,7 +5176,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
   function diaryGetEntries() {
     try { return JSON.parse(localStorage.getItem(DIARY_KEY) || '{}'); } catch { return {}; }
   }
-  function diarySaveEntries(obj) { localStorage.setItem(DIARY_KEY, JSON.stringify(obj)); }
+  function diarySaveEntries(obj) { safeLocalSet(DIARY_KEY, JSON.stringify(obj)); }
 
   // Returns array of YYYY-MM strings that should be shown.
   // Starts from the month of the earliest entry (or current month) up to current month.
@@ -5522,13 +5542,13 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
     try { return JSON.parse(localStorage.getItem(WORKOUT_SCHEDULE_KEY)) || DEFAULT_SCHEDULE; }
     catch { return DEFAULT_SCHEDULE; }
   }
-  function saveWorkoutSchedule(s) { localStorage.setItem(WORKOUT_SCHEDULE_KEY, JSON.stringify(s)); }
+  function saveWorkoutSchedule(s) { safeLocalSet(WORKOUT_SCHEDULE_KEY, JSON.stringify(s)); }
 
   function loadWorkoutLog() {
     try { return JSON.parse(localStorage.getItem(WORKOUT_LOG_KEY)) || {}; }
     catch { return {}; }
   }
-  function saveWorkoutLog(log) { localStorage.setItem(WORKOUT_LOG_KEY, JSON.stringify(log)); }
+  function saveWorkoutLog(log) { safeLocalSet(WORKOUT_LOG_KEY, JSON.stringify(log)); }
 
   function workoutTodaySchedule() {
     const schedule = loadWorkoutSchedule();
@@ -5650,7 +5670,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
     try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || []; }
     catch { return []; }
   }
-  function notesSave(list) { localStorage.setItem(NOTES_KEY, JSON.stringify(list)); }
+  function notesSave(list) { safeLocalSet(NOTES_KEY, JSON.stringify(list)); }
 
   // minimal markdown renderer (reused from old notesMD)
   function notesMD(text) {
@@ -5667,7 +5687,11 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
     html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+      const trimmed = url.trim();
+      const isSafe = /^(https?:\/\/|mailto:|#)/i.test(trimmed);
+      return isSafe ? `<a href="${trimmed}" target="_blank" rel="noopener noreferrer">${text}</a>` : text;
+    });
     html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
     html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
     html = html.replace(/(<li>[\s\S]*?<\/li>)(?:\n|$)/g, m => '<ul>' + m + '</ul>');
