@@ -4125,8 +4125,26 @@
         // Was running — check if already expired
         const remaining = pomoGetRemaining();
         if (remaining <= 0) {
-          // Expired while away — handle completion
-          pomoTick();
+          // Expired while the tab was closed/backgrounded. We deliberately do NOT
+          // replay the full pomoTick() completion flow (count + alert) here —
+          // if the state-save below doesn't stick for any reason (e.g. flaky
+          // storage in some mobile browsers), re-running the full completion on
+          // every reload would keep double-counting the same finished session.
+          // Instead we quietly reset to the next phase without counting/alerting.
+          pomoIsRunning = false;
+          pomoStartTime = null;
+          if (pomoIsWork) {
+            pomoIsWork = false;
+            pomoRemainingAtStart = 5 * 60;
+          } else {
+            pomoIsWork = true;
+            pomoRemainingAtStart = pomoWorkMinutes * 60;
+          }
+          pomoUpdateDisplay();
+          document.getElementById('pomoStartBtn').textContent = '開始';
+          document.getElementById('pomoStatus').textContent = pomoIsWork ? 'ready' : 'rest done';
+          document.getElementById('pomoStatus').className = 'pomo-status';
+          pomoSaveState();
         } else {
           // Still has time — resume display and tick
           document.getElementById('pomoStartBtn').textContent = '暫停';
