@@ -2667,10 +2667,10 @@
           <div id="gistSetupArea">
             <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.65rem">尚未設定 GitHub Token</div>
             <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
-              <input type="password" id="gistTokenInput" placeholder="ghp_… GitHub Personal Access Token" style="flex:1;font-size:0.82rem">
+              <input type="password" id="gistTokenInput" placeholder="ghp_… GitHub Personal Access Token" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;font-size:0.82rem">
               <button class="btn-ghost" style="white-space:nowrap" onclick="gistSaveToken()">儲存</button>
             </div>
-            <input type="text" id="gistIdInput" placeholder="Gist ID（換裝置時填入，首次可留空）" style="font-size:0.82rem;font-family:'DM Mono',monospace;margin-bottom:0.4rem">
+            <input type="text" id="gistIdInput" placeholder="Gist ID（換裝置時填入，首次可留空）" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="font-size:0.82rem;font-family:'DM Mono',monospace;margin-bottom:0.4rem">
             <div style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--border);line-height:1.6">Token 只需勾選 gist 權限</div>
           </div>
           <div id="gistConnectedArea" style="display:none">
@@ -4754,7 +4754,7 @@
 
   function gistSaveToken() {
     const val = document.getElementById('gistTokenInput').value.trim();
-    if (!val) return;
+    if (!val) { gistSetStatus('✗ 請先貼上 Token', 'error'); return; }
     if (!val.startsWith('ghp_') && !val.startsWith('github_pat_')) {
       gistSetStatus('✗ Token 格式不對，應以 ghp_ 開頭', 'error');
       return;
