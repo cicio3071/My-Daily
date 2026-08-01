@@ -3175,7 +3175,7 @@
 句子長度約 20-80 字，有思考深度，不要心靈雞湯式的勵志語，要有文學或思想厚度。`
               }]
             }],
-            generationConfig: { temperature: 1.4 }
+            generationConfig: { temperature: 1.4, thinkingConfig: { thinkingBudget: 0 } }
           })
         }
       );
@@ -5081,7 +5081,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.9, maxOutputTokens: 8000 }
+            generationConfig: { temperature: 0.9, maxOutputTokens: 8000, thinkingConfig: { thinkingBudget: 0 } }
           })
         }
       );
