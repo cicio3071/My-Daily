@@ -5081,7 +5081,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.9, maxOutputTokens: 2000 }
+            generationConfig: { temperature: 0.9, maxOutputTokens: 8000 }
           })
         }
       );
