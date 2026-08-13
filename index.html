@@ -2234,19 +2234,19 @@
     width: 100%;
     max-width: 360px;
     margin: 0 auto;
-    height: 220px;
   }
   .rainbow-result-flipper {
     position: relative;
     width: 100%;
-    height: 100%;
+    display: grid;
     transform-style: preserve-3d;
     transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
   .rainbow-result-flipper.flipped { transform: rotateY(180deg); }
   .rainbow-result-face {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
+    min-height: 220px;
+    max-height: 480px;
     border-radius: 14px;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
@@ -2286,6 +2286,7 @@
     justify-content: center;
     gap: 0.75rem;
     align-items: flex-start;
+    overflow-y: auto;
   }
   .rainbow-back-theme {
     font-family: 'DM Mono', monospace;
@@ -3395,10 +3396,11 @@
     const color = RAINBOW_COLORS.find(c => c.id === colorId);
     const prompt = `請針對「${color.zh}・${color.theme}」（${color.en}・${color.enTheme}）這個主題，寫一則簡短的反思卡片內容，用繁體中文，語氣沉靜、有厚度，不要心靈雞湯式的口號。
 
-要求：
-- zh：一到兩句話，圍繞這個主題展開的觀察或提醒，40-70字
-- en：zh 的英文翻譯（風格對等，不要逐字直譯）
-- q：一句開放式的反思提問，引導使用者對照自己今天的狀態
+這是一張實體卡片的文字，空間有限，長度限制務必嚴格遵守，寧可短、不要超：
+
+- zh：一句話，最多 45 個中文字（含標點），不要分成兩句
+- en：zh 的英文翻譯（風格對等，不要逐字直譯），最多 25 個英文單字
+- q：一句開放式的反思提問，最多 20 個中文字
 
 只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
 {"zh":"...","en":"...","q":"..."}`;
