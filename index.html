@@ -5111,6 +5111,7 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
   const GIST_ID_KEY    = 'daily_gist_id';
   const GIST_SYNC_KEY  = 'daily_gist_last_sync';
   const GIST_FILENAME  = 'daily-dashboard-data.json';
+  const GIST_REMOTE_STAMP_KEY = 'daily_gist_remote_stamp'; // this device's last-known remote data timestamp, used to detect unseen cloud changes before overwriting
 
   function gistGetToken() { return localStorage.getItem(GIST_TOKEN_KEY) || ''; }
   function gistGetId()    { return localStorage.getItem(GIST_ID_KEY) || ''; }
@@ -5179,9 +5180,12 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
           const gist = await res.json();
           const fileContent = gist.files[GIST_FILENAME]?.content;
           if (!fileContent) throw new Error('找不到資料檔案');
-          const data = JSON.parse(fileContent);
+          const parsed = JSON.parse(fileContent);
+          const hasWrapper = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object';
+          const data = hasWrapper ? parsed.data : parsed;
           Object.keys(data).forEach(k => safeLocalSet(k, data[k]));
           safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
+          if (hasWrapper && parsed.stamp) safeLocalSet(GIST_REMOTE_STAMP_KEY, parsed.stamp);
           gistUpdateUI();
           gistSetStatus('✓ 已從雲端載入，重新整理中…', 'ok');
           setTimeout(() => location.reload(), 1500);
@@ -5205,6 +5209,7 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
     localStorage.removeItem(GIST_TOKEN_KEY);
     localStorage.removeItem(GIST_ID_KEY);
     localStorage.removeItem(GIST_SYNC_KEY);
+    localStorage.removeItem(GIST_REMOTE_STAMP_KEY);
     gistUpdateUI();
     gistSetStatus('', '');
   }
@@ -5224,13 +5229,45 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
   }
 
   // Push local → Gist
-  async function gistPushToCloud() {
+  // Before overwriting, checks whether the cloud has moved since this device
+  // last saw it (i.e. another device pushed something this device hasn't
+  // pulled). If so, warns before overwriting instead of silently clobbering it.
+  async function gistPushToCloud(force) {
     const token = gistGetToken();
     if (!token) throw new Error('未設定 Token');
+    const gistId = gistGetId();
+
+    if (!force && gistId) {
+      gistSetStatus('檢查雲端狀態…', 'syncing');
+      try {
+        const checkRes = await fetch('https://api.github.com/gists/' + gistId, { headers: gistH(token) });
+        if (checkRes.ok) {
+          const checkGist = await checkRes.json();
+          const remoteContent = checkGist.files[GIST_FILENAME]?.content;
+          if (remoteContent) {
+            const parsed = JSON.parse(remoteContent);
+            const remoteStamp = parsed && parsed.stamp;
+            const knownStamp = localStorage.getItem(GIST_REMOTE_STAMP_KEY);
+            if (remoteStamp && knownStamp && remoteStamp !== knownStamp) {
+              gistSetStatus('', 'ok');
+              const proceed = confirm(
+                '偵測到雲端有其他裝置更新過的資料，這台裝置還沒看過那份內容。\n\n' +
+                '如果現在同步，雲端那份資料會被這台裝置目前的內容覆蓋，可能會遺失東西。\n\n' +
+                '建議先按「從雲端還原」看看內容再決定。\n\n' +
+                '要忽略這個提醒，強制用這台裝置的內容覆蓋雲端嗎？'
+              );
+              if (!proceed) { gistSetStatus('已取消，建議先「從雲端還原」', 'error'); return; }
+            }
+          }
+        }
+      } catch (e) { /* pre-check failed (offline etc.) — fall through and push as before */ }
+    }
+
     gistSetStatus('同步中…', 'syncing');
 
-    const content = JSON.stringify(gistCollectData(), null, 2);
-    const gistId = gistGetId();
+    const stamp = new Date().toISOString();
+    const payload = { stamp, data: gistCollectData() };
+    const content = JSON.stringify(payload, null, 2);
     const body = JSON.stringify({
       description: 'Daily Dashboard Data',
       public: false,
@@ -5253,6 +5290,7 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
     const data = await res.json();
     safeLocalSet(GIST_ID_KEY, data.id);
     safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
+    safeLocalSet(GIST_REMOTE_STAMP_KEY, stamp);
     gistUpdateUI();
     gistSetStatus('✓ 已同步', 'ok');
     setTimeout(() => gistSetStatus('', 'ok'), 3000);
@@ -5280,12 +5318,19 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
       const fileContent = gist.files[GIST_FILENAME]?.content;
       if (!fileContent) throw new Error('找不到資料檔案，請先在電腦上推送一次');
 
-      const data = JSON.parse(fileContent);
+      const parsed = JSON.parse(fileContent);
+      // New format wraps real data under `.data` alongside a `.stamp`; older
+      // gists (pushed before this fix) are a flat object of keys — support both.
+      const hasWrapper = parsed && typeof parsed === 'object' && parsed.data && typeof parsed.data === 'object';
+      const data = hasWrapper ? parsed.data : parsed;
+      const remoteStamp = hasWrapper ? parsed.stamp : null;
+
       const keys = Object.keys(data);
       if (!keys.length) throw new Error('雲端資料是空的');
       keys.forEach(k => safeLocalSet(k, data[k]));
 
       safeLocalSet(GIST_SYNC_KEY, new Date().toISOString());
+      if (remoteStamp) safeLocalSet(GIST_REMOTE_STAMP_KEY, remoteStamp);
       gistSetStatus('✓ 已還原 ' + keys.length + ' 筆資料，重新整理中…', 'ok');
       setTimeout(() => location.reload(), 1500);
     } catch(err) {
