@@ -2598,6 +2598,7 @@
       <option value="ink">墨色紙本</option>
     </select>
     <button class="settings-link" onclick="resetKey()">api key</button>
+    <button class="settings-link" onclick="clearAiCache()">清除快取</button>
   </div>
 </header>
 
@@ -2644,6 +2645,34 @@
       </div>
     </div>
 
+    <!-- 歷史小短文 -->
+    <div class="module-section">
+      <div class="module-label">history note · 歷史小短文</div>
+      <div class="panel">
+        <div style="font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:0.9rem">歐洲皇室與王朝相關的冷知識短文，每天更新一則</div>
+        <button class="btn-primary" id="historyBtn" onclick="showHistoryNote()" style="width:100%">看今日歷史短文</button>
+      </div>
+    </div>
+
+    <!-- 音樂推薦 -->
+    <div class="module-section">
+      <div class="module-label">music · 音樂推薦</div>
+      <div class="panel">
+        <div style="font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:0.9rem">選一個情境，推薦外語、古典、民謠、公路旅行風格的音樂（不推流行芭樂或吵雜曲風）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem">
+          <button class="btn-ghost" style="width:auto;padding:0.5rem 0.9rem" onclick="showMusicRec('深夜放鬆')">深夜放鬆</button>
+          <button class="btn-ghost" style="width:auto;padding:0.5rem 0.9rem" onclick="showMusicRec('清晨醒腦')">清晨醒腦</button>
+          <button class="btn-ghost" style="width:auto;padding:0.5rem 0.9rem" onclick="showMusicRec('公路旅行')">公路旅行</button>
+          <button class="btn-ghost" style="width:auto;padding:0.5rem 0.9rem" onclick="showMusicRec('靜心閱讀')">靜心閱讀</button>
+          <button class="btn-ghost" style="width:auto;padding:0.5rem 0.9rem" onclick="showMusicRec('隨機驚喜')">隨機驚喜</button>
+        </div>
+        <div style="display:flex;gap:0.5rem">
+          <input type="text" id="musicCustomInput" placeholder="或輸入自訂情境（可留空）" style="flex:1" maxlength="60" />
+          <button class="btn-primary" style="width:auto;padding:0.55rem 1rem;white-space:nowrap" onclick="showMusicRec(document.getElementById('musicCustomInput').value.trim() || '隨機驚喜')">推薦</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 工具 -->
     <div class="module-section">
       <div class="module-label">tools · 工具</div>
@@ -2657,6 +2686,18 @@
             <button class="btn-primary" id="reportBtn" onclick="generateReport()" style="width:auto;padding:0.55rem 1.1rem;white-space:nowrap">生成報表</button>
           </div>
           <div class="export-status" id="reportStatus" style="margin-top:0.4rem"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);margin-bottom:1.25rem"></div>
+
+        <!-- 本週回顧 -->
+        <div style="margin-bottom:1.25rem">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem">本週回顧</div>
+          <div style="display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap">
+            <button class="btn-primary" id="weeklyReviewBtn" onclick="generateWeeklyReview()" style="width:auto;padding:0.55rem 1.1rem;white-space:nowrap">看本週回顧</button>
+            <span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted)">近 7 天的日記與心情，每週僅生成一次</span>
+          </div>
+          <div class="export-status" id="weeklyReviewStatus" style="margin-top:0.4rem"></div>
         </div>
 
         <div style="border-top:1px solid var(--border);margin-bottom:1.25rem"></div>
@@ -3018,6 +3059,62 @@
   </div>
 </div>
 
+<!-- Weekly Review Toast -->
+<div class="reading-toast-overlay" id="weeklyReviewOverlay" onclick="if(event.target===this)closeWeeklyReview()">
+  <div class="reading-toast">
+    <div class="reading-toast-header">
+      <div>
+        <div class="reading-toast-title" id="weeklyReviewTitle">本週回顧</div>
+        <div class="reading-toast-sub" id="weeklyReviewSub"></div>
+      </div>
+      <button class="reading-toast-close" onclick="closeWeeklyReview()">×</button>
+    </div>
+    <div class="reading-toast-body" id="weeklyReviewBody"></div>
+  </div>
+</div>
+
+<!-- Reading Recommendation Toast -->
+<div class="reading-toast-overlay" id="recOverlay" onclick="if(event.target===this)closeRecModal()">
+  <div class="reading-toast">
+    <div class="reading-toast-header">
+      <div>
+        <div class="reading-toast-title" id="recTitle">同主題推薦</div>
+        <div class="reading-toast-sub" id="recSub"></div>
+      </div>
+      <button class="reading-toast-close" onclick="closeRecModal()">×</button>
+    </div>
+    <div class="reading-toast-body" id="recBody"></div>
+  </div>
+</div>
+
+<!-- History Note Toast -->
+<div class="reading-toast-overlay" id="historyOverlay" onclick="if(event.target===this)closeHistoryNote()">
+  <div class="reading-toast">
+    <div class="reading-toast-header">
+      <div>
+        <div class="reading-toast-title" id="historyTitle">歷史小短文</div>
+        <div class="reading-toast-sub" id="historySub"></div>
+      </div>
+      <button class="reading-toast-close" onclick="closeHistoryNote()">×</button>
+    </div>
+    <div class="reading-toast-body" id="historyBody"></div>
+  </div>
+</div>
+
+<!-- Music Recommendation Toast -->
+<div class="reading-toast-overlay" id="musicOverlay" onclick="if(event.target===this)closeMusicRec()">
+  <div class="reading-toast">
+    <div class="reading-toast-header">
+      <div>
+        <div class="reading-toast-title" id="musicTitle">音樂推薦</div>
+        <div class="reading-toast-sub" id="musicSub"></div>
+      </div>
+      <button class="reading-toast-close" onclick="closeMusicRec()">×</button>
+    </div>
+    <div class="reading-toast-body" id="musicBody"></div>
+  </div>
+</div>
+
 <!-- Murmur Full Text Modal -->
 <div class="mur-modal-overlay" id="murModalOverlay" onclick="if(event.target===this)closeMurModal()">
   <div class="mur-modal-box">
@@ -3175,7 +3272,7 @@
 句子長度約 20-80 字，有思考深度，不要心靈雞湯式的勵志語，要有文學或思想厚度。`
               }]
             }],
-            generationConfig: { temperature: 1.4, thinkingConfig: { thinkingBudget: 0 } }
+            generationConfig: { temperature: 1.4, maxOutputTokens: 300, thinkingConfig: { thinkingBudget: 0 } }
           })
         }
       );
@@ -3231,72 +3328,11 @@
     { id: 'gold',   zh: '金', en: 'GOLD',   theme: '豐盛',   bg: '#9a7d0a', text: '#fffef0', enTheme: 'ABUNDANCE' },
   ];
 
-  const RAINBOW_POOL = {
-    red: [
-      { zh: '熱情是生命的引擎，不是裝飾品。今天，允許自己被某件事深深燃燒。', en: 'Passion is the engine of life, not its ornament. Let something burn in you today.', q: '此刻有什麼，讓你願意不計代價地投入？' },
-      { zh: '你感受到的渴望，不是偶然的。那是你最深處在呼喚某個方向。', en: 'The longing you feel is not accidental. It is your depths calling you toward something.', q: '你內心最想追求的事，你給它多少空間？' },
-      { zh: '每一次全力以赴，都是一種向自己證明存在的方式。', en: 'Every act of wholehearted effort is a way of proving to yourself that you are alive.', q: '上一次你真正全力投入一件事，是什麼時候？' },
-    ],
-    orange: [
-      { zh: '創造力不是靈感降臨，而是你開始動手的那一刻。', en: 'Creativity is not inspiration arriving — it is the moment you begin.', q: '如果今天只能做一件創意小事，你選什麼？' },
-      { zh: '打破一個習慣，就是為新的可能性打開一扇門。今天，試著走另一條路。', en: 'Breaking one habit opens a door to new possibility. Take a different road today.', q: '有什麼固定的方式，你想用不同的眼光重新看？' },
-      { zh: '每個人都有獨特的語言，用自己的方式說話才是最大的創作。', en: 'Everyone has a singular voice. Speaking in your own way is the greatest act of creation.', q: '你的表達方式裡，最屬於你自己的是哪一部分？' },
-    ],
-    yellow: [
-      { zh: '喜悅不需要理由，只需要你注意它的存在。', en: 'Joy needs no reason. It only needs you to notice it.', q: '今天，有什麼微小的事讓你不自覺地笑了？' },
-      { zh: '輕盈是一種選擇。讓自己放下一件今天不需要扛的事。', en: 'Lightness is a choice. Let go of one thing you do not need to carry today.', q: '有什麼你一直扛著，其實可以暫時放下的？' },
-      { zh: '此刻的陽光、此刻的呼吸、此刻的你——已經足夠了。', en: 'The sun right now, your breath right now, you right now — this is already enough.', q: '如果此刻就是完整的，你會怎麼度過今天？' },
-    ],
-    green: [
-      { zh: '成長不是變成另一個人，而是更完整地成為自己。', en: 'Growth is not becoming someone else. It is becoming more fully yourself.', q: '最近你在哪個方面，感覺自己更靠近真實的自己了？' },
-      { zh: '每一個你走過的困難，都在悄悄擴大你能承受的邊界。', en: 'Every difficulty you have walked through quietly expands the edges of what you can hold.', q: '回頭看，有哪個困難讓你變得更強大了？' },
-      { zh: '根系越深，才能長得越高。今天，去滋養你的根。', en: 'The deeper the roots, the higher the reach. Today, nourish your foundation.', q: '你的根是什麼？是什麼讓你在動盪中仍然穩定？' },
-    ],
-    blue: [
-      { zh: '平靜不是沒有波瀾，而是在波瀾中保有中心。', en: 'Serenity is not the absence of waves. It is keeping your center amid them.', q: '當外界喧嚷時，什麼能讓你快速找回自己的中心？' },
-      { zh: '給自己一段不需要做任何事的時間，就是在補充存在的能量。', en: 'Giving yourself time to do nothing is how you replenish the energy of being.', q: '你上一次真正什麼都不做，只是存在，是什麼時候？' },
-      { zh: '海浪來了又去，但大海還是大海。你的情緒也是如此。', en: 'Waves come and go, but the ocean remains the ocean. So too with your emotions.', q: '此刻有什麼情緒，你可以觀察它，而不是被它帶走？' },
-    ],
-    indigo: [
-      { zh: '你第一個浮現的直覺，往往比第一百個理由更接近真相。', en: 'Your first intuition is often closer to truth than your hundredth reason.', q: '有什麼事，你其實心裡早就知道答案了？' },
-      { zh: '身體是最誠實的嚮導。今天，停下來聽聽它說什麼。', en: 'The body is the most honest guide. Today, stop and listen to what it says.', q: '你的身體現在有什麼感覺或信號，你一直忽略的？' },
-      { zh: '在安靜裡，你會聽見那個一直都在但常常被淹沒的聲音。', en: 'In stillness, you hear the voice that has always been there but is often drowned out.', q: '如果你靜下來五分鐘，你覺得會聽見什麼？' },
-    ],
-    violet: [
-      { zh: '有些事超出理解的範圍，卻依然真實。今天，對神秘保持開放。', en: 'Some things exceed understanding yet remain real. Stay open to mystery today.', q: '你相信什麼，雖然無法解釋或證明？' },
-      { zh: '每個人都攜帶著某種光，只是有時候自己看不見。', en: 'Everyone carries a kind of light. Sometimes we just cannot see our own.', q: '別人曾說過什麼話，讓你感覺被真正看見？' },
-      { zh: '與其問「為什麼」，不如問「這讓我學到什麼」。', en: 'Instead of asking why, ask what this is teaching you.', q: '最近發生的一件事，如果是一個禮物，它想給你什麼？' },
-    ],
-    pink: [
-      { zh: '對自己說一句你會對好朋友說的話。你也值得這樣的溫柔。', en: 'Say to yourself what you would say to a dear friend. You deserve that tenderness too.', q: '如果你的好朋友正在經歷你現在的處境，你會對他說什麼？' },
-      { zh: '慈愛不是軟弱，是一種需要練習的力量。從自己開始。', en: 'Compassion is not weakness. It is a strength that requires practice. Begin with yourself.', q: '最近有沒有哪個地方，你對自己太苛刻了？' },
-      { zh: '你不需要先變完美，才值得被愛。現在的你，已經足夠了。', en: 'You do not need to be perfect before you deserve love. You are enough right now.', q: '你目前最接受不了自己哪一面？它是否也是你的一部分？' },
-    ],
-    white: [
-      { zh: '清明是放下先入為主後，才能真正看見的東西。', en: 'Clarity is what you see after you release your assumptions.', q: '有什麼事，如果你不帶評判地重新看，會看見不同的東西？' },
-      { zh: '簡單往往是去蕪存菁後的結果，而不是起點。今天，簡化一件事。', en: 'Simplicity is often the result of stripping away, not the starting point. Simplify one thing today.', q: '你的生活裡，有什麼是你可以放下而不會失去什麼的？' },
-      { zh: '空白不是缺少，而是讓新事物得以進入的空間。', en: 'Emptiness is not absence. It is the space that allows something new to enter.', q: '如果你清空一些東西，什麼可能因此出現？' },
-    ],
-    gold: [
-      { zh: '豐盛不只是擁有更多，也是充分感受你已經有的。', en: 'Abundance is not only having more. It is fully receiving what you already have.', q: '此刻，你生命裡有哪三件事值得感謝？' },
-      { zh: '你付出的每一份真誠，都會以某種形式回到你身邊。', en: 'Every act of genuine giving returns to you in some form.', q: '最近你給了什麼，不求回報？那感覺怎麼樣？' },
-      { zh: '成就感不一定來自大事，有時一杯好茶也是一種豐盛。', en: 'Fulfillment does not always come from grand things. Sometimes a good cup of tea is its own abundance.', q: '今天，什麼小事可以讓你感到真正的滿足？' },
-    ],
-  };
 
-  // Pick random content for a given color using date + color as seed
-  function rainbowPickContent(colorId) {
-    const pool = RAINBOW_POOL[colorId];
-    const dateNum = parseInt(todayStr.replace(/-/g, ''));
-    const idx = (dateNum + colorId.length) % pool.length;
-    return pool[idx];
-  }
-
-  function renderRainbowDeck(pickedId, flipped) {
+  function renderRainbowDeck(pickedId, flipped, content) {
     const area = document.getElementById('rainbowCardArea');
     const hasPicked = !!pickedId;
     const pickedColor = hasPicked ? RAINBOW_COLORS.find(c => c.id === pickedId) : null;
-    const pickedContent = hasPicked ? rainbowPickContent(pickedId) : null;
 
     let html = '';
 
@@ -3309,43 +3345,101 @@
         </div>`;
       });
       html += `</div>`;
-    } else {
-      // Show deck with picked card greyed, plus the reveal card
-      html += `<div class="rainbow-deck" style="margin-bottom:1.5rem">`;
-      RAINBOW_COLORS.forEach(c => {
-        const isPicked = c.id === pickedId;
-        html += `<div class="rainbow-deck-card${isPicked ? '' : ' picked'}" style="${isPicked ? 'border-color:' + c.bg + ';box-shadow:0 0 0 2px ' + c.bg + '40' : ''}">
-          <div class="rainbow-deck-card-back" style="${isPicked ? 'background:linear-gradient(135deg,' + c.bg + ' 0%,' + c.bg + 'cc 100%)' : ''}">✦</div>
-        </div>`;
-      });
-      html += `</div>`;
+      area.innerHTML = html;
+      return;
+    }
 
-      html += `<div class="rainbow-result-wrap" onclick="rainbowRevealFlip()" style="cursor:pointer">
-        <div class="rainbow-result-flipper${flipped ? ' flipped' : ''}" id="rainbowFlipper">
-          <div class="rainbow-result-face rainbow-result-front">
-            <div class="rainbow-result-front-orb" style="background:${pickedColor.bg}"></div>
-            <div class="rainbow-result-front-name">${pickedColor.zh} · ${pickedColor.theme}</div>
-            <div class="rainbow-result-front-hint">tap to reveal</div>
-          </div>
-          <div class="rainbow-result-face rainbow-result-back" style="background:${pickedColor.bg};color:${pickedColor.text}">
-            <div class="rainbow-back-theme">${pickedColor.en} · ${pickedColor.enTheme}</div>
-            <div class="rainbow-back-message">${escHtml(pickedContent.zh)}</div>
-            <div class="rainbow-back-en">${escHtml(pickedContent.en)}</div>
-            <div class="rainbow-back-question">${escHtml(pickedContent.q)}</div>
-          </div>
+    // Show deck with picked card greyed, plus the reveal card
+    html += `<div class="rainbow-deck" style="margin-bottom:1.5rem">`;
+    RAINBOW_COLORS.forEach(c => {
+      const isPicked = c.id === pickedId;
+      html += `<div class="rainbow-deck-card${isPicked ? '' : ' picked'}" style="${isPicked ? 'border-color:' + c.bg + ';box-shadow:0 0 0 2px ' + c.bg + '40' : ''}">
+        <div class="rainbow-deck-card-back" style="${isPicked ? 'background:linear-gradient(135deg,' + c.bg + ' 0%,' + c.bg + 'cc 100%)' : ''}">✦</div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    if (!content) {
+      // still generating
+      html += `<div class="loading-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:0.4rem">loading</span></div>`;
+      area.innerHTML = html;
+      return;
+    }
+
+    html += `<div class="rainbow-result-wrap" onclick="rainbowRevealFlip()" style="cursor:pointer">
+      <div class="rainbow-result-flipper${flipped ? ' flipped' : ''}" id="rainbowFlipper">
+        <div class="rainbow-result-face rainbow-result-front">
+          <div class="rainbow-result-front-orb" style="background:${pickedColor.bg}"></div>
+          <div class="rainbow-result-front-name">${pickedColor.zh} · ${pickedColor.theme}</div>
+          <div class="rainbow-result-front-hint">tap to reveal</div>
+        </div>
+        <div class="rainbow-result-face rainbow-result-back" style="background:${pickedColor.bg};color:${pickedColor.text}">
+          <div class="rainbow-back-theme">${pickedColor.en} · ${pickedColor.enTheme}</div>
+          <div class="rainbow-back-message">${escHtml(content.zh)}</div>
+          <div class="rainbow-back-en">${escHtml(content.en)}</div>
+          <div class="rainbow-back-question">${escHtml(content.q)}</div>
         </div>
       </div>
-      <div class="rainbow-done-note">今日已選，明天再來 ✦</div>`;
-    }
+    </div>
+    <div class="rainbow-done-note">今日已選，明天再來 ✦</div>
+    <button onclick="event.stopPropagation();rainbowRegenerate()" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;margin-top:0.75rem;padding:0;transition:color 0.2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↻ 重新生成這張</button>`;
 
     html += `<div class="rainbow-date-hint" style="margin-top:0.75rem">${todayStr}</div>`;
     area.innerHTML = html;
   }
 
-  function rainbowPick(colorId) {
-    const state = { date: todayStr, pickedId: colorId, flipped: false };
-    safeLocalSet(RAINBOW_KEY, JSON.stringify(state));
-    renderRainbowDeck(colorId, false);
+  async function rainbowFetchContent(colorId) {
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return null; }
+
+    const color = RAINBOW_COLORS.find(c => c.id === colorId);
+    const prompt = `請針對「${color.zh}・${color.theme}」（${color.en}・${color.enTheme}）這個主題，寫一則簡短的反思卡片內容，用繁體中文，語氣沉靜、有厚度，不要心靈雞湯式的口號。
+
+要求：
+- zh：一到兩句話，圍繞這個主題展開的觀察或提醒，40-70字
+- en：zh 的英文翻譯（風格對等，不要逐字直譯）
+- q：一句開放式的反思提問，引導使用者對照自己今天的狀態
+
+只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
+{"zh":"...","en":"...","q":"..."}`;
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 1.2, maxOutputTokens: 400, thinkingConfig: { thinkingBudget: 0 } }
+        })
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  }
+
+  async function rainbowPick(colorId) {
+    renderRainbowDeck(colorId, false, null); // show loading state
+    try {
+      const content = await rainbowFetchContent(colorId);
+      if (!content) { renderRainbowDeck(null, false, null); return; } // no api key, modal shown instead
+      const state = { date: todayStr, pickedId: colorId, flipped: false, content };
+      safeLocalSet(RAINBOW_KEY, JSON.stringify(state));
+      renderRainbowDeck(colorId, false, content);
+    } catch (err) {
+      const area = document.getElementById('rainbowCardArea');
+      area.innerHTML = `<div class="rainbow-pick-label">✗ ${escHtml(err.message)}</div>
+        <button class="list-show-more" onclick="rainbowPick('${colorId}')">重試</button>`;
+    }
+  }
+
+  async function rainbowRegenerate() {
+    const cached = JSON.parse(localStorage.getItem(RAINBOW_KEY) || 'null');
+    if (!cached || !cached.pickedId) return;
+    await rainbowPick(cached.pickedId);
   }
 
   function rainbowRevealFlip() {
@@ -3362,11 +3456,11 @@
     try {
       const cached = localStorage.getItem(RAINBOW_KEY);
       if (cached) {
-        const { date, pickedId, flipped } = JSON.parse(cached);
-        if (date === todayStr) { renderRainbowDeck(pickedId || null, flipped || false); return; }
+        const { date, pickedId, flipped, content } = JSON.parse(cached);
+        if (date === todayStr && pickedId && content) { renderRainbowDeck(pickedId, flipped || false, content); return; }
       }
     } catch(e) {}
-    renderRainbowDeck(null, false);
+    renderRainbowDeck(null, false, null);
   }
 
 
@@ -3538,12 +3632,6 @@
 
   function clearDone() {
     saveTodos(loadTodos().filter(t => !t.done));
-    renderTodos();
-  }
-
-  function clearDone() {
-    const todos = loadTodos().filter(t => !t.done);
-    saveTodos(todos);
     renderTodos();
   }
 
@@ -4573,6 +4661,9 @@
 
   function deleteReading(id) {
     saveReadings(loadReadings().filter(r => r.id !== id));
+    // also remove any cached recommendation tied to this item, avoid orphaned cache
+    const recs = loadRecs();
+    if (recs[id]) { delete recs[id]; saveRecs(recs); }
     renderReadings();
   }
 
@@ -4604,6 +4695,7 @@
         </div>
         <div class="reading-item-date">${r.date}</div>
         ${r.review ? `<div class="reading-item-review">${escHtml(r.review)}</div>` : ''}
+        <button class="list-show-more" style="margin-top:0.5rem;padding:0.3rem 0.7rem;font-size:0.68rem" onclick="showReadingRec('${r.id}')">同主題推薦 →</button>
       `;
       el.appendChild(div);
     });
@@ -4627,7 +4719,7 @@
   // ── Reading Summary Toast ──
   const TYPE_EMOJI = {
     '書': '📖', '電影': '🎬', '影集': '📺',
-    '動畫': '🎨', '舞台表演': '🎭', '其他': '✦'
+    '動畫': '🎨', '舞台表演': '🎭', '紀錄片': '🎞️', '其他': '✦'
   };
 
   function showReadingSummary() {
@@ -4686,6 +4778,293 @@
     document.getElementById('readingToastOverlay').classList.remove('visible');
   }
 
+  // ── Reading Recommendations (同主題書籍/影視推薦) ──
+  const REC_KEY = 'daily_reading_recs';
+
+  function loadRecs() {
+    try { return JSON.parse(localStorage.getItem(REC_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveRecs(obj) { safeLocalSet(REC_KEY, JSON.stringify(obj)); }
+
+  async function showReadingRec(id, force) {
+    const readings = loadReadings();
+    const item = readings.find(r => r.id === id);
+    if (!item) return;
+
+    const overlay = document.getElementById('recOverlay');
+    const body = document.getElementById('recBody');
+    document.getElementById('recTitle').textContent = '同主題推薦';
+    document.getElementById('recSub').textContent = item.title;
+    overlay.classList.add('visible');
+
+    const cache = loadRecs();
+    if (!force && cache[id]) {
+      renderRecBody(cache[id].items, id);
+      return;
+    }
+
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { overlay.classList.remove('visible'); showModal(); return; }
+
+    body.innerHTML = '<div class="reading-toast-empty">生成推薦中…</div>';
+
+    const prompt = `我剛看完／讀完《${item.title}》（類型：${item.type}）${item.review ? `，我的短評是：「${item.review}」` : ''}。
+
+請推薦 5 個同主題、同氣質，但是不同作品的延伸清單，涵蓋以下類型混搭（不要全部集中同一類型，盡量書籍、電影、影集、紀錄片都有涉獵）：
+- 書籍
+- 電影
+- 影集
+- 紀錄片
+
+只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
+{"recommendations":[{"type":"書","title":"書名（作者）","reason":"一句話說明為何相關，15-30字"}]}
+
+type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一。`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 1.0, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 } }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const { recommendations } = JSON.parse(clean);
+
+      const all = loadRecs();
+      all[id] = { items: recommendations, generatedAt: todayStr };
+      saveRecs(all);
+
+      renderRecBody(recommendations, id);
+    } catch (err) {
+      body.innerHTML = `<div class="reading-toast-empty">✗ ${escHtml(err.message)}</div>`;
+    }
+  }
+
+  function renderRecBody(items, id) {
+    const body = document.getElementById('recBody');
+    if (!items || !items.length) {
+      body.innerHTML = '<div class="reading-toast-empty">沒有推薦結果</div>';
+      return;
+    }
+    body.innerHTML = '';
+    items.forEach(rec => {
+      const div = document.createElement('div');
+      div.className = 'reading-toast-item';
+      div.innerHTML = `
+        <div class="reading-toast-item-info">
+          <div class="reading-toast-item-title">${TYPE_EMOJI[rec.type] || '✦'} ${escHtml(rec.title)}</div>
+          <div class="reading-toast-item-review">${escHtml(rec.reason || '')}</div>
+        </div>
+      `;
+      body.appendChild(div);
+    });
+    const refreshBtn = document.createElement('button');
+    refreshBtn.className = 'list-show-more';
+    refreshBtn.textContent = '重新生成';
+    refreshBtn.onclick = () => showReadingRec(id, true);
+    body.appendChild(refreshBtn);
+  }
+
+  function closeRecModal() {
+    document.getElementById('recOverlay').classList.remove('visible');
+  }
+
+  // ── History Note (歷史小短文) ──
+  const HISTORY_KEY = 'daily_history_note';
+
+  async function showHistoryNote(force) {
+    const overlay = document.getElementById('historyOverlay');
+    const body = document.getElementById('historyBody');
+    overlay.classList.add('visible');
+
+    const cache = JSON.parse(localStorage.getItem(HISTORY_KEY) || 'null');
+    if (!force && cache && cache.date === todayStr) {
+      document.getElementById('historySub').textContent = cache.topic || '';
+      body.innerHTML = `<div class="reading-toast-item-review" style="font-size:0.92rem;line-height:1.9;white-space:pre-wrap">${escHtml(cache.text)}</div>
+        <button class="list-show-more" onclick="showHistoryNote(true)">重新生成</button>`;
+      return;
+    }
+
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { overlay.classList.remove('visible'); showModal(); return; }
+
+    body.innerHTML = '<div class="reading-toast-empty">生成中…</div>';
+
+    const prompt = `請寫一篇歐洲皇室與王朝結構相關的知識短文，用繁體中文，適合當作晨讀小短文。
+
+主題請從以下範圍隨機挑一個角度（每次盡量不同）：
+- 某個王朝的繼承制度或婚姻政治
+- 某位歐洲君主或王室成員的軼事
+- 宮廷生活、禮儀或制度的冷知識
+- 某個條約、聯姻或王室醜聞背後的權力結構
+- 王室頭銜、紋章、稱謂背後的歷史脈絡
+
+要求：
+- 長度 250-400 字
+- 語氣像知識性散文，有厚度但不學術八股，不要條列式
+- 開頭先給一個簡短標題（不超過 15 字）
+- 若內容涉及具體年代或事件，只作為背景敘述，不需要做成「歷史上的今天」的形式
+
+只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
+{"topic":"短文標題","text":"短文全文"}`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 1.1, maxOutputTokens: 900, thinkingConfig: { thinkingBudget: 0 } }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const { topic, text } = JSON.parse(clean);
+
+      safeLocalSet(HISTORY_KEY, JSON.stringify({ date: todayStr, topic, text }));
+
+      document.getElementById('historySub').textContent = topic || '';
+      body.innerHTML = `<div class="reading-toast-item-review" style="font-size:0.92rem;line-height:1.9;white-space:pre-wrap">${escHtml(text)}</div>
+        <button class="list-show-more" onclick="showHistoryNote(true)">重新生成</button>`;
+    } catch (err) {
+      body.innerHTML = `<div class="reading-toast-empty">✗ ${escHtml(err.message)}</div>`;
+    }
+  }
+
+  function closeHistoryNote() {
+    document.getElementById('historyOverlay').classList.remove('visible');
+  }
+
+  // ── Music Recommendation (音樂推薦) ──
+  const MUSIC_KEY = 'daily_music_recs';
+  const MUSIC_TASTE = '偏好外語歌曲（非中文流行）、古典樂、民謠、公路旅行風格的曲子，適合深夜放鬆或清晨醒腦的氛圍。請避免推薦中文流行芭樂、洗腦神曲，或節奏吵雜喧鬧的曲風。';
+
+  async function showMusicRec(mood, force) {
+    const overlay = document.getElementById('musicOverlay');
+    const body = document.getElementById('musicBody');
+    document.getElementById('musicTitle').textContent = '音樂推薦';
+    document.getElementById('musicSub').textContent = mood;
+    overlay.classList.add('visible');
+
+    const cache = loadJson(MUSIC_KEY) || {};
+    const cacheKey = todayStr + '::' + mood;
+    if (!force && cache[cacheKey]) {
+      renderMusicBody(cache[cacheKey], mood);
+      return;
+    }
+
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { overlay.classList.remove('visible'); showModal(); return; }
+
+    body.innerHTML = '<div class="reading-toast-empty">生成中…</div>';
+
+    const prompt = `請根據「${mood}」這個情境，推薦 5 首歌曲或專輯。
+
+我的音樂品味：${MUSIC_TASTE}
+
+只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
+{"recommendations":[{"artist":"歌手/樂團","title":"歌名或專輯名","reason":"一句話說明為何適合這個情境，15-30字"}]}`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 1.1, maxOutputTokens: 900, thinkingConfig: { thinkingBudget: 0 } }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const { recommendations } = JSON.parse(clean);
+
+      const all = loadJson(MUSIC_KEY) || {};
+      all[cacheKey] = recommendations;
+      pruneMusicCache(all);
+      saveJson(MUSIC_KEY, all);
+
+      renderMusicBody(recommendations, mood);
+    } catch (err) {
+      body.innerHTML = `<div class="reading-toast-empty">✗ ${escHtml(err.message)}</div>`;
+    }
+  }
+
+  // keep only the last 14 days of music cache entries, so it doesn't grow forever
+  function pruneMusicCache(all) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 14);
+    const cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
+    Object.keys(all).forEach(k => {
+      const datePart = k.split('::')[0];
+      if (datePart < cutoffStr) delete all[k];
+    });
+  }
+
+  function renderMusicBody(items, mood) {
+    const body = document.getElementById('musicBody');
+    if (!items || !items.length) {
+      body.innerHTML = '<div class="reading-toast-empty">沒有推薦結果</div>';
+      return;
+    }
+    body.innerHTML = '';
+    items.forEach(rec => {
+      const div = document.createElement('div');
+      div.className = 'reading-toast-item';
+      div.innerHTML = `
+        <div class="reading-toast-item-info">
+          <div class="reading-toast-item-title">🎵 ${escHtml(rec.artist)} — ${escHtml(rec.title)}</div>
+          <div class="reading-toast-item-review">${escHtml(rec.reason || '')}</div>
+        </div>
+      `;
+      body.appendChild(div);
+    });
+    const refreshBtn = document.createElement('button');
+    refreshBtn.className = 'list-show-more';
+    refreshBtn.textContent = '重新生成';
+    refreshBtn.onclick = () => showMusicRec(mood, true);
+    body.appendChild(refreshBtn);
+  }
+
+  function closeMusicRec() {
+    document.getElementById('musicOverlay').classList.remove('visible');
+  }
+
+  // small json helpers (generic, reusable)
+  function loadJson(key) {
+    try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+  }
+  function saveJson(key, obj) { safeLocalSet(key, JSON.stringify(obj)); }
+
+  // ── Clear AI-generated cache (字卡/彩虹卡/週回顧/歷史短文/音樂推薦/同主題推薦) ──
+  // Only clears cached AI results, never touches diary/todos/mood/reading log etc.
+  function clearAiCache() {
+    const ok = confirm('確定要清除快取嗎？\n\n只會清除字卡、彩虹卡、週回顧、歷史短文、音樂推薦、同主題推薦這些 AI 生成的暫存內容，不會動到你的日記、待辦、心情等紀錄。清除後下次打開會重新呼叫一次 API。');
+    if (!ok) return;
+    [CARD_KEY, RAINBOW_KEY, WEEKLY_KEY, HISTORY_KEY, MUSIC_KEY, REC_KEY].forEach(k => localStorage.removeItem(k));
+    alert('快取已清除');
+    location.reload();
+  }
+
 
   // ── Theme ──
   function setTheme(name) {
@@ -4720,7 +5099,7 @@
   // ── Export / Import ──
   const DIARY_KEY = 'daily_diary';
   const NOTES_KEY = 'daily_notes';
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY];
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY, REC_KEY, HISTORY_KEY, MUSIC_KEY];
 
 
   // ════════════════════════════════════════
@@ -5166,25 +5545,117 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
 </html>`;
   }
 
-  // ── Collapsible lists ──
-  function renderCollapsible(items, container, renderFn, limit = 5) {
-    container.innerHTML = '';
-    const showAll = container.dataset.showAll === 'true';
-    const toShow = showAll ? items : items.slice(0, limit);
-    toShow.forEach(item => renderFn(item, container));
-    if (items.length > limit) {
-      const btn = document.createElement('button');
-      btn.className = 'list-show-more';
-      btn.textContent = showAll ? '收起 ↑' : `顯示全部 ${items.length} 筆 ↓`;
-      btn.onclick = () => {
-        container.dataset.showAll = showAll ? 'false' : 'true';
-        container.dataset.showAll === 'true' ? container.dataset.showAll = 'true' : null;
-        // re-render
-        const event = new CustomEvent('rerender');
-        container.dispatchEvent(event);
-      };
-      container.appendChild(btn);
+  // ── Weekly Review (本週回顧) ──
+  const WEEKLY_KEY = 'daily_weekly_review';
+
+  function getWeekBounds(d) {
+    // Monday–Sunday week containing date d. Returns weekId + Monday/Sunday date strings.
+    const toStr = dt => dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const dayOffset = (monday.getDay() + 6) % 7; // 0 = Monday ... 6 = Sunday
+    monday.setDate(monday.getDate() - dayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+
+    const jan1 = new Date(monday.getFullYear(), 0, 1);
+    const weekNum = Math.ceil((((monday - jan1) / 86400000) + jan1.getDay() + 1) / 7);
+    const weekId = monday.getFullYear() + '-W' + String(weekNum).padStart(2, '0');
+
+    return { weekId, startStr: toStr(monday), endStr: toStr(sunday) };
+  }
+
+  async function generateWeeklyReview(force) {
+    const overlay = document.getElementById('weeklyReviewOverlay');
+    const body = document.getElementById('weeklyReviewBody');
+    const status = document.getElementById('weeklyReviewStatus');
+    const { weekId, startStr, endStr } = getWeekBounds(new Date());
+    const rangeLabel = startStr + ' ~ ' + endStr;
+
+    const cache = JSON.parse(localStorage.getItem(WEEKLY_KEY) || 'null');
+    if (!force && cache && cache.weekId === weekId) {
+      document.getElementById('weeklyReviewSub').textContent = cache.rangeLabel;
+      body.innerHTML = `<div class="reading-toast-item-review" style="font-size:0.92rem;line-height:1.9;white-space:pre-wrap">${escHtml(cache.text)}</div>
+        <button class="list-show-more" onclick="generateWeeklyReview(true)">重新生成</button>`;
+      overlay.classList.add('visible');
+      return;
     }
+
+    const key = localStorage.getItem(STORAGE_KEY);
+    if (!key) { showModal(); return; }
+
+    const btn = document.getElementById('weeklyReviewBtn');
+    btn.disabled = true;
+    status.textContent = '生成中…';
+    if (overlay.classList.contains('visible')) {
+      body.innerHTML = '<div class="reading-toast-empty">生成中…</div>';
+    }
+
+    const diaryEntries = diaryGetEntries();
+    const diaryThisWeek = Object.entries(diaryEntries)
+      .filter(([d]) => d >= startStr && d <= endStr)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([d, text]) => d.split('-')[2] + '日：' + text.trim());
+
+    const moodsObj = JSON.parse(localStorage.getItem(MOOD_KEY) || '{}');
+    const moods = Object.entries(moodsObj)
+      .filter(([d]) => d >= startStr && d <= endStr)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([d, v]) => d.split('-')[2] + '日 ' + v);
+
+    const murmurs = (JSON.parse(localStorage.getItem(MUR_KEY) || '[]'))
+      .filter(m => m.ts && m.ts.slice(0,10) >= startStr && m.ts.slice(0,10) <= endStr)
+      .map(m => m.text.trim())
+      .filter(t => t.length > 10);
+
+    if (!diaryThisWeek.length && !moods.length && !murmurs.length) {
+      status.textContent = '本週還沒有紀錄，先寫點日記或心情吧';
+      btn.disabled = false;
+      return;
+    }
+
+    const prompt = `以下是我這週（${rangeLabel}）的生活紀錄片段。請用 3-5 句話，寫一段簡短、誠實、有文學感但不做作的週回顧，用繁體中文寫，語氣像朋友寫給自己的短信，不要條列、不要 markdown。
+
+${diaryThisWeek.length ? `【日記】\n${diaryThisWeek.join('\n')}` : '（本週無日記）'}
+
+【心情】
+${moods.length ? moods.join('、') : '（無紀錄）'}
+
+${murmurs.length ? `【碎碎念】\n${murmurs.slice(0,5).join(' / ')}` : ''}
+
+不要過度正向或雞湯，誠實反映這週的起伏即可。`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.9, maxOutputTokens: 600, thinkingConfig: { thinkingBudget: 0 } }
+          })
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+      const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+
+      safeLocalSet(WEEKLY_KEY, JSON.stringify({ weekId, rangeLabel, text }));
+
+      document.getElementById('weeklyReviewSub').textContent = rangeLabel;
+      body.innerHTML = `<div class="reading-toast-item-review" style="font-size:0.92rem;line-height:1.9;white-space:pre-wrap">${escHtml(text)}</div>
+        <button class="list-show-more" onclick="generateWeeklyReview(true)">重新生成</button>`;
+      overlay.classList.add('visible');
+      status.textContent = '';
+    } catch (err) {
+      status.textContent = '✗ ' + err.message;
+    }
+
+    btn.disabled = false;
+  }
+
+  function closeWeeklyReview() {
+    document.getElementById('weeklyReviewOverlay').classList.remove('visible');
   }
 
   // ════════════════════════════════════════
@@ -5541,7 +6012,7 @@ ${readings.length ? '4. 閱讀與收穫\n5. 給下個月的自己一句話' : '4
   const WORKOUT_SCHEDULE_KEY = 'daily_workout_schedule';
   const WORKOUT_LOG_KEY = 'daily_workout_log';
   // add to export after declaration to avoid TDZ error
-  EXPORT_KEYS.push(WORKOUT_SCHEDULE_KEY, WORKOUT_LOG_KEY);
+  EXPORT_KEYS.push(WORKOUT_SCHEDULE_KEY, WORKOUT_LOG_KEY, WEEKLY_KEY);
 
   const WEEKDAYS = ['日','一','二','三','四','五','六'];
   const DEFAULT_SCHEDULE = [
