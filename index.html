@@ -3394,13 +3394,21 @@
     if (!key) { showModal(); return null; }
 
     const color = RAINBOW_COLORS.find(c => c.id === colorId);
-    const prompt = `請針對「${color.zh}・${color.theme}」（${color.en}・${color.enTheme}）這個主題，寫一則簡短的反思卡片內容，用繁體中文，語氣沉靜、有厚度，不要心靈雞湯式的口號。
+    const prompt = `請針對「${color.zh}・${color.theme}」（${color.en}・${color.enTheme}）這個主題，寫一句第一人稱的肯定句，用繁體中文。
+
+這是仿照真實的「肯定卡／能量卡」文字風格，請注意這個風格的核心特徵：
+- 一定是「我」開頭的第一人稱句子，像是在對自己說話
+- 內容要具體、扎根於生活，不要抽象的意象或場景描寫（不要出現「潛入」「聆聽」「境界」「低語」這類空靈飄渺的詞彙）
+- 語氣像是一句可以真的記在心裡、今天就能對照自己生活的話，不是文學散文
+
+反面範例（不要這樣寫）：「潛入靛藍之境，那不只是色彩，更是直覺的共鳴。」
+正面範例的語感（不要照抄，只是給你感覺這種具體、扎根的語氣）：「我願意在做決定前，先給自己一點安靜的時間。」
 
 這是一張實體卡片的文字，空間有限，長度限制務必嚴格遵守，寧可短、不要超：
 
-- zh：一句話，最多 45 個中文字（含標點），不要分成兩句
-- en：zh 的英文翻譯（風格對等，不要逐字直譯），最多 25 個英文單字
-- q：一句開放式的反思提問，最多 20 個中文字
+- zh：一句話，最多 30 個中文字（含標點）
+- en：zh 的英文翻譯（風格對等，不要逐字直譯），最多 20 個英文單字
+- q：一句開放式的反思提問，最多 20 個中文字，幫助使用者對照自己今天的狀態
 
 只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
 {"zh":"...","en":"...","q":"..."}`;
@@ -4883,6 +4891,47 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
 
   // ── History Note (歷史小短文) ──
   const HISTORY_KEY = 'daily_history_note';
+  const HISTORY_RECENT_KEY = 'daily_history_recent_topics';
+
+  // Concrete, specific topics — not broad categories — so the model can't
+  // keep defaulting to the same "safe" angle (it kept picking titles every time).
+  const HISTORY_TOPICS = [
+    '哈布斯堡王朝的聯姻策略：用婚姻代替戰爭擴張版圖',
+    '都鐸王朝的繼承危機與亨利八世的六次婚姻',
+    '羅曼諾夫王朝末代沙皇一家的命運',
+    '維多利亞女王與歐洲各王室的血緣網絡，「歐洲祖母」的由來',
+    '拿破崙稱帝後，舊王朝貴族對這位「新貴」的鄙視與矛盾',
+    '法國波旁王朝復辟：大革命後君主制如何掙扎求生',
+    '神聖羅馬帝國的選帝侯制度：皇帝是被「選」出來的',
+    '哈布斯堡下巴的遺傳，近親聯姻付出的生物代價',
+    '溫莎家族改姓的由來：一戰時放棄德語姓氏的政治考量',
+    '伊莉莎白一世的「處女女王」策略與懸而未決的繼承問題',
+    '俄國凱薩琳大帝：一場政變如何讓她登上王位',
+    '瑪麗安東妮與凡爾賽宮廷生活，奢靡背後的政治代價',
+    '拜占庭宮廷的宦官政治：權力真空中的特殊角色',
+    '中世紀貴族女性的攝政傳統：丈夫不在時誰來掌權',
+    '摩納哥格蕾絲王妃：從好萊塢女星到王室成員的轉折',
+    '北歐王室之間的表親關係網：丹麥、挪威、瑞典的血緣糾葛',
+    '西班牙哈布斯堡王朝的絕嗣危機，如何引發歐洲王位繼承戰爭',
+    '卡佩王朝的長子繼承制：封建效忠關係如何運作',
+    '貴庶通婚（morganatic marriage）：愛情與王室頭銜的兩難',
+    '英國王室加冕典禮的傳統與象徵物，那些流傳千年的儀式',
+    '瑞典國王卡爾十六世古斯塔夫的王室改革：削減王室成員頭銜',
+    '比利時王室的剛果殖民歷史，王室財富的黑暗一面',
+    '哈布斯堡王朝的雙頭鷹紋章：如何象徵東西羅馬的政治遺產',
+    '英國王室的「王儲」制度演變：從絕對長子到性別平等繼承',
+  ];
+
+  function pickHistoryTopic() {
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem(HISTORY_RECENT_KEY) || '[]'); } catch(e) {}
+    let pool = HISTORY_TOPICS.filter(t => !recent.includes(t));
+    if (!pool.length) pool = HISTORY_TOPICS; // exhausted the "unseen" pool, allow repeats again
+    const topic = pool[Math.floor(Math.random() * pool.length)];
+    recent = [topic, ...recent].slice(0, 8); // remember the last 8 to avoid near-term repeats
+    safeLocalSet(HISTORY_RECENT_KEY, JSON.stringify(recent));
+    return topic;
+  }
 
   async function showHistoryNote(force) {
     const overlay = document.getElementById('historyOverlay');
@@ -4902,20 +4951,16 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
 
     body.innerHTML = '<div class="reading-toast-empty">生成中…</div>';
 
-    const prompt = `請寫一篇歐洲皇室與王朝結構相關的知識短文，用繁體中文，適合當作晨讀小短文。
+    const chosenTopic = pickHistoryTopic();
+    const prompt = `請針對以下這個具體主題，寫一篇歐洲皇室與王朝結構相關的知識短文，用繁體中文，適合當作晨讀小短文：
 
-主題請從以下範圍隨機挑一個角度（每次盡量不同）：
-- 某個王朝的繼承制度或婚姻政治
-- 某位歐洲君主或王室成員的軼事
-- 宮廷生活、禮儀或制度的冷知識
-- 某個條約、聯姻或王室醜聞背後的權力結構
-- 王室頭銜、紋章、稱謂背後的歷史脈絡
+主題：${chosenTopic}
 
 要求：
 - 長度 250-400 字
 - 語氣像知識性散文，有厚度但不學術八股，不要條列式
-- 開頭先給一個簡短標題（不超過 15 字）
-- 若內容涉及具體年代或事件，只作為背景敘述，不需要做成「歷史上的今天」的形式
+- 開頭先給一個簡短標題（不超過 15 字，可以跟上面的主題描述不同，用你覺得更吸引人的下標方式）
+- 內容要具體，可以提到真實的人名、時間背景，不要泛泛而談
 
 只回傳 JSON，格式如下，不要有任何其他文字或 markdown：
 {"topic":"短文標題","text":"短文全文"}`;
@@ -5101,7 +5146,7 @@ type 欄位請填「書」「電影」「影集」或「紀錄片」其中之一
   // ── Export / Import ──
   const DIARY_KEY = 'daily_diary';
   const NOTES_KEY = 'daily_notes';
-  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY, REC_KEY, HISTORY_KEY, MUSIC_KEY];
+  const EXPORT_KEYS = [TODO_KEY, CYCLE_KEY, CD_KEY, MUR_KEY, MOOD_KEY, READING_KEY, POMO_KEY, CARD_KEY, DIARY_KEY, NOTES_KEY, RAINBOW_KEY, REC_KEY, HISTORY_KEY, MUSIC_KEY, HISTORY_RECENT_KEY];
 
 
   // ════════════════════════════════════════
